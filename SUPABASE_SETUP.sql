@@ -168,9 +168,12 @@ alter table public.followers enable row level security;
 alter table public.reading_history enable row level security;
 alter table public.notifications enable row level security;
 
--- Users: lire profil public, modifier le sien
+-- Users: lire profil public, créer et modifier le sien
 create policy "Users can view profiles" on public.users
   for select using (true);
+
+create policy "Users can create their own profile" on public.users
+  for insert with check (auth.uid() = id);
 
 create policy "Users can update their own profile" on public.users
   for update using (auth.uid() = id);
