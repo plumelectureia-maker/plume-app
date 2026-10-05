@@ -10,6 +10,7 @@ import type { Story, Chapter, User } from '../types';
 // DISCOVER PAGE
 // ============================================
 export const Discover: React.FC<{}> = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +70,11 @@ export const Discover: React.FC<{}> = () => {
       ) : (
         <div className="space-y-4">
           {stories.map((story) => (
-            <StoryItem key={story.id} story={story} />
+            <StoryItem
+              key={story.id}
+              story={story}
+              onClick={() => navigate(`/story/${story.slug}`)}
+            />
           ))}
         </div>
       )}
@@ -355,6 +360,7 @@ export const StoryDetail: React.FC<{}> = () => {
   const { user } = useAuthStore();
   const [story, setStory] = useState<Story | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -362,9 +368,7 @@ export const StoryDetail: React.FC<{}> = () => {
       if (!slug) return;
       try {
         setLoading(true);
-        // Find story by slug - in production, use a proper query
-        const { data: allStories } = await storiesService.getDiscoverStories(undefined, 1, 1000);
-        const foundStory = allStories.find(s => s.slug === slug);
+        const foundStory = await storiesService.getStoryBySlug(slug, user?.id);
         if (foundStory) {
           setStory(foundStory);
           const chaps = await chaptersService.getChapters(foundStory.id);
@@ -383,31 +387,87 @@ export const StoryDetail: React.FC<{}> = () => {
   if (loading) return <Loading />;
   if (!story) return <EmptyState icon={<BookOpen size={48} />} title="Histoire non trouvée" />;
 
+  const selectedChapter = chapters.find(c => c.id === selectedChapterId);
+  const selectedIndex = chapters.findIndex(c => c.id === selectedChapterId);
+
   return (
     <main className="main-content max-w-4xl mx-auto p-4">
-      <Card>
-        <h1 className="text-3xl font-bold mb-2">{story.title}</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">{story.author?.username}</p>
-        <p className="mb-6">{story.summary}</p>
-        <div className="flex gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Heart size={20} /> {story.likes_count}
-          </div>
-          <div className="flex items-center gap-2">
-            <FileText size={20} /> {chapters.length} chapitres
-          </div>
-        </div>
-      </Card>
-
-      <h2 className="text-2xl font-bold mt-8 mb-4">Chapitres</h2>
-      <div className="space-y-2">
-        {chapters.map((chapter, i) => (
-          <Card key={chapter.id} className="cursor-pointer hover:shadow-md">
-            <h3 className="font-bold">{chapter.title || `Chapitre ${i + 1}`}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{chapter.reading_time_minutes} min de lecture</p>
+      {!selectedChapter ? (
+        <>
+          <Card>
+            <h1 className="text-3xl font-bold mb-2">{story.title}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{story.author?.username}</p>
+            <p className="mb-6">{story.summary}</p>
+            <div className="flex gap-4 mb-6">
+              <div className="flex items-center gap-2">
+                <Heart size={20} /> {story.likes_count}
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText size={20} /> {chapters.length} chapitres
+              </div>
+            </div>
           </Card>
-        ))}
-      </div>
+
+          <h2 className="text-2xl font-bold mt-8 mb-4">Chapitres</h2>
+          <div className="space-y-2">
+            {chapters.length === 0 ? (
+              <EmptyState icon={<BookOpen size={48} />} title="Aucun chapitre publié" />
+            ) : (
+              chapters.map((chapter, i) => (
+                <Card
+                  key={chapter.id}
+                  className="cursor-pointer hover:shadow-md"
+                  onClick={() => setSelectedChapterId(chapter.id)}
+                >
+                  <h3 className="font-bold">{chapter.title || `Chapitre ${i + 1}`}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{chapter.reading_time_minutes} min de lecture</p>
+                </Card>
+              ))
+            )}
+          </div>
+        </>
+      ) : (
+        <div>
+          <button
+            onClick={() => setSelectedChapterId(null)}
+            className="mb-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+          >
+            ← Retour à la table des matières
+          </button>
+
+          <Card>
+            <h1 className="text-3xl font-bold mb-2">{selectedChapter.title || `Chapitre ${selectedIndex + 1}`}</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{story.author?.username}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{selectedChapter.reading_time_minutes} min de lecture</p>
+
+            <div className="prose dark:prose-invert max-w-none mb-8">
+              <p className="whitespace-pre-wrap">{selectedChapter.content}</p>
+            </div>
+
+            {chapters.length > 1 && (
+              <div className="flex gap-2 mt-8 justify-between">
+                <button
+                  onClick={() => setSelectedChapterId(chapters[selectedIndex - 1].id)}
+                  disabled={selectedIndex === 0}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-gray-600"
+                >
+                  ← Chapitre précédent
+                </button>
+                <span className="px-4 py-2">
+                  {selectedIndex + 1} / {chapters.length}
+                </span>
+                <button
+                  onClick={() => setSelectedChapterId(chapters[selectedIndex + 1].id)}
+                  disabled={selectedIndex === chapters.length - 1}
+                  className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50 hover:bg-blue-700"
+                >
+                  Chapitre suivant →
+                </button>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
     </main>
   );
 };

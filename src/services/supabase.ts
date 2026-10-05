@@ -188,6 +188,26 @@ export const stories = {
     return data;
   },
 
+  getStoryBySlug: async (slug: string, userId?: string): Promise<Story> => {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*, users(*)')
+      .eq('slug', slug)
+      .single();
+    if (error) throw error;
+
+    if (userId) {
+      const [isLiked, isBookmarked] = await Promise.all([
+        stories.isLiked(data.id, userId),
+        stories.isBookmarked(data.id, userId),
+      ]);
+      data.is_liked = isLiked;
+      data.is_bookmarked = isBookmarked;
+    }
+
+    return data;
+  },
+
   getStoriesByAuthor: async (authorId: string, page = 1, limit = 10) => {
     const { data, error, count } = await supabase
       .from('stories')

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { stories as storiesService } from '../services/supabase';
 import { StoryItem, Loading, EmptyState } from '../components/Common';
@@ -6,6 +7,7 @@ import { BookOpen } from 'lucide-react';
 import type { Story } from '../types';
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +87,7 @@ const Home: React.FC = () => {
             <StoryItem
               key={story.id}
               story={story}
+              onClick={() => navigate(`/story/${story.slug}`)}
               onLike={() => handleLike(story.id)}
               onBookmark={() => handleBookmark(story.id)}
             />
