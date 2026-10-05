@@ -145,6 +145,8 @@ const migrateReacts=o=>{Object.keys(o.reactions||{}).forEach(k=>{if(R_OLD[o.reac
 const RSIZES=[15,16.5,18,20,22.5];
 const RFONTS={literata:['Classique',"'Literata',Georgia,serif"],lora:['Élégante',"'Lora',Georgia,serif"],atkinson:['Très lisible',"'Atkinson Hyperlegible',system-ui,sans-serif"],sans:['Moderne',"'Hanken Grotesk',system-ui,sans-serif"]};
 const rprefs=()=>{const r=S.read||{};return {size:clamp(r.size==null?2:r.size,0,RSIZES.length-1),font:RFONTS[r.font]?r.font:'literata'};};
+const DEF_C1='#4B1A57',DEF_C2='#8A4B93';
+const recolor=st=>st.c1==='#2F3A8F'?Object.assign({},st,{c1:DEF_C1,c2:DEF_C2}):st;
 const GENRES_EDIT=['Drame','Mystère','Romance','Fantasy','Thriller'];
 const LEVELS=[[0,'Encre naissante'],[35,'Encre régulière'],[50,'Encre affirmée'],[65,'Encre assurée'],[80,'Encre maîtrisée']];
 
@@ -298,7 +300,7 @@ const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>!SESSION||r.authorU
 const authorsAll=()=>{const seen={},ext=[];REMOTE_STORIES.forEach(r=>{if((!SESSION||r.authorUid!==SESSION.user.id)&&!seen[r.auteurId]){seen[r.auteurId]=1;ext.push({id:r.auteurId,nom:EXT_AUTHORS[r.auteurId]});}});return ext.concat(AUTHORS);};
 function msToStory(m){
   return {id:m.id,titre:m.titre||'Sans titre',auteurId:'me',genre:m.genre||'Drame',resume:m.resume||'Une histoire écrite sur Plume.',
-    c1:'#2F3A8F',c2:'#5B68D6',motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,
+    c1:DEF_C1,c2:DEF_C2,motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,
     chapitres:m.chapitres.map(c=>({titre:c.titre,texte:c.texte.split(/\n+/).map(s=>s.trim()).filter(Boolean)}))};
 }
 const findStory=id=>allStories().find(s=>s.id===id);
@@ -315,7 +317,7 @@ const compOf=id=>COMPS.find(c=>c.id===id);
 const budgetLeft=()=>Math.max(0,PLANS[S.plan].budget-S.credits.used);
 const syncCredits=()=>{const c=B.lastCredits();if(c){S.credits={month:monthKey(),used:c.used};}};
 
-function avatar(name,size){return '<span class="av" style="--s:'+size+'px;--h:'+(hash(name)%360)+'">'+esc((name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase())+'</span>';}
+function avatar(name,size){return '<span class="av" style="--s:'+size+'px;--h:'+([300,320,340,15,40,280][hash(name)%6])+'">'+esc((name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase())+'</span>';}
 function cover(st,cls){if(st.jaquette)return '<div class="cover img '+(cls||'')+'"><img src="'+esc(st.jaquette)+'" alt="" loading="lazy"></div>';return '<div class="cover '+(cls||'')+'" style="--c1:'+st.c1+';--c2:'+st.c2+'"><svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" fill="currentColor" stroke="currentColor" aria-hidden="true">'+(MOTIFS[st.motif]||'')+'</svg><span class="ct">'+esc(st.titre)+'</span></div>';}
 function radar(){
   const cx=170,cy=158,R=92,n=COMPS.length;
@@ -682,7 +684,7 @@ function vEditor(p){
   const act=clamp(m.active||0,0,m.chapitres.length-1),c=m.chapitres[act];
   return '<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><input class="title-in" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre du manuscrit"><button class="btn sm'+(m.published?' sec':'')+'" data-a="ms-publish" data-id="'+m.id+'">'+(m.published?'Publié':'Publier')+'</button></header>'+
   '<div class="pad"><div class="chips" role="group" aria-label="Chapitres">'+m.chapitres.map((ch,i)=>'<button class="chip'+(i===act?' on':'')+'" data-a="ms-ch" data-i="'+i+'">Chapitre '+(i+1)+'</button>').join('')+'<button class="chip" data-a="ms-addch">'+IC.plus+'Chapitre</button></div>'+
-  '<div class="jq">'+cover(msToStory(m),'mini')+'<div><b>Jaquette</b><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture bleue par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
+  '<div class="jq">'+cover(msToStory(m),'mini')+'<div><b>Jaquette</b><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
   '<div class="ed-meta"><input class="line-in" id="ch-title" value="'+esc(c.titre)+'" data-in="ch-title" maxlength="80" aria-label="Titre du chapitre"><select class="sel-in" data-in="ms-genre" aria-label="Genre">'+GENRES_EDIT.map(g=>'<option'+(g===m.genre?' selected':'')+'>'+g+'</option>').join('')+'</select></div></div>'+
   '<textarea class="ta seyes" id="ms-text" data-in="ms-text" placeholder="Écris ta scène ici…" spellcheck="true" lang="fr" aria-label="Texte du chapitre">'+esc(c.texte)+'</textarea>'+
   '<div class="dock"><span class="small muted" id="wc">'+pl(wc(c.texte),'mot')+'</span><button class="btn" data-a="coach-open">'+IC.cap+'Demander au coach</button></div>';
@@ -1105,7 +1107,7 @@ async function attach(se){
 async function boot(){
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
   READS=cnt.reads;FOLL=cnt.follows;
-  REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},r.story,{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
+  REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
   cms.forEach(c=>{(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body});});
   try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}
   render();
