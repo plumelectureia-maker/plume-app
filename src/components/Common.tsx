@@ -1,3 +1,4 @@
+import React from 'react';
 import { Heart, Bookmark, MessageCircle, Loader, X } from 'lucide-react';
 import type { Story } from '../types';
 
@@ -60,7 +61,7 @@ export const Card: React.FC<CardProps> = ({ children, className = '', onClick })
 interface StoryCoverProps {
   story: Story;
   size?: 'sm' | 'md' | 'lg';
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
 }
 
 const PATTERNS = {

@@ -231,15 +231,24 @@ export const stories = {
   },
 
   getFeedStories: async (userId: string, page = 1, limit = 10) => {
+    // Récupérer les IDs des utilisateurs suivis
+    const { data: followersData, error: followersError } = await supabase
+      .from('followers')
+      .select('following_id')
+      .eq('follower_id', userId);
+    if (followersError) throw followersError;
+    
+    const followingIds = followersData?.map(f => f.following_id) || [];
+    
+    // Si aucun suivi, retourner vide
+    if (followingIds.length === 0) {
+      return { data: [], total: 0 };
+    }
+    
     const { data, error, count } = await supabase
       .from('stories')
       .select('*, users(*)', { count: 'exact' })
-      .in('author_id', 
-        supabase
-          .from('followers')
-          .select('following_id')
-          .eq('follower_id', userId)
-      )
+      .in('author_id', followingIds)
       .eq('status', 'published')
       .order('published_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
