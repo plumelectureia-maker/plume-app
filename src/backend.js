@@ -117,6 +117,14 @@ export async function addComment(uid, authorName, key, body) {
 }
 
 /* ===== coach IA (fonction serveur /api/coach) ===== */
+let credits = null;
+export const lastCredits = () => credits;
+export async function loadCreditsUsed() {
+  const d = new Date(), start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString();
+  const { data, error } = await need().from('plume_ai_usage').select('credits').gte('created_at', start);
+  if (error) { console.error('plume_ai_usage', error); return null; }
+  return (data || []).reduce((a, x) => a + x.credits, 0);
+}
 const coachErr = (code) => Object.assign(new Error(code), { code });
 export async function coachAvailable() {
   try {
@@ -144,9 +152,11 @@ export async function coachJson(prompt, signal) {
   if (r.status === 401) throw coachErr('session_expired');
   if (r.status === 429) throw coachErr('rate_limited');
   if (r.status === 413) throw coachErr('prompt_too_large');
+  if (r.status === 402) { const j = await r.json().catch(() => ({})); if (j.credits) credits = j.credits; throw coachErr('budget'); }
   if (r.status === 503 || r.status === 403) throw coachErr('not_granted');
   if (!r.ok) throw coachErr('server');
   const j = await r.json();
+  if (j && j.credits) credits = j.credits;
   if (!j || !j.result) throw coachErr('invalid_json');
   return j.result;
 }

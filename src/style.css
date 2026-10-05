@@ -359,3 +359,15 @@ input,textarea,select{font:inherit;color:inherit}
 .rbtn.on .rn{color:var(--bleu)}
 .rh-e{white-space:nowrap;margin-left:4px}
 .cx-go{margin:4px 0 10px}
+.rp{font-size:var(--rfs,18px);font-family:var(--rff,'Literata',Georgia,serif)}
+.iconbtn.aa{font:700 17px 'Literata',Georgia,serif;color:var(--encre)}
+.rsize{display:flex;align-items:center;gap:12px;margin-top:8px}
+.rsize .btn{min-width:56px;padding:0 12px}
+.rdots{flex:1;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.rdots i{flex:1;height:6px;border-radius:99px;background:var(--trait)}
+.rdots i.on{background:var(--bleu)}
+.rfonts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.rfont{display:flex;flex-direction:column;gap:2px;width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--trait);background:var(--carte)}
+.rfont b{font-weight:600;font-size:16px;color:var(--encre)}
+.rfont span{font-size:15px;color:var(--texte-2)}
+.rfont.on{border-color:var(--bleu);box-shadow:0 0 0 1.5px var(--bleu)}

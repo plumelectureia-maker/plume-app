@@ -12,14 +12,31 @@ async function verifyUser(token) {
   return r.ok ? r.json() : null;
 }
 
-// Seuls les comptes dont le forfait est attribué dans plume_entitlements utilisent l'IA.
-async function hasPlan(token) {
-  const r = await fetch(supabaseUrl() + '/rest/v1/plume_entitlements?select=plan', {
-    headers: { apikey: supabaseKey(), Authorization: 'Bearer ' + token },
+// Crédits mensuels par forfait et coût de chaque utilisation.
+const QUOTA = { plus: 50, pp: 200 };
+const costOf = (prompt) => (prompt.includes('"priorite"') ? 4 : 1);
+
+const rest = (token, path, init = {}) =>
+  fetch(supabaseUrl() + '/rest/v1/' + path, {
+    ...init,
+    headers: { apikey: supabaseKey(), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', ...(init.headers || {}) },
   });
-  if (!r.ok) return false;
+
+// Seuls les comptes dont le forfait est attribué dans plume_entitlements utilisent l'IA.
+async function getPlan(token) {
+  const r = await rest(token, 'plume_entitlements?select=plan');
+  if (!r.ok) return null;
   const rows = await r.json();
-  return rows.some((x) => x.plan === 'plus' || x.plan === 'pp');
+  const p = rows.map((x) => x.plan).find((x) => QUOTA[x]);
+  return p || null;
+}
+
+async function creditsUsed(token) {
+  const d = new Date();
+  const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString();
+  const r = await rest(token, 'plume_ai_usage?select=credits&created_at=gte.' + encodeURIComponent(start));
+  if (!r.ok) return null;
+  return (await r.json()).reduce((a, x) => a + x.credits, 0);
 }
 
 function extractJson(text) {
@@ -39,12 +56,18 @@ export default async function handler(req, res) {
   const token = (req.headers.authorization || '').replace(/^Bearer /, '');
   const user = await verifyUser(token);
   if (!user) return res.status(401).json({ error: 'session_expired' });
-  if (!(await hasPlan(token))) return res.status(403).json({ error: 'not_subscribed' });
+  const plan = await getPlan(token);
+  if (!plan) return res.status(403).json({ error: 'not_subscribed' });
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const prompt = String(body.prompt || '');
   if (!prompt) return res.status(400).json({ error: 'empty' });
   if (prompt.length > MAX_PROMPT) return res.status(413).json({ error: 'prompt_too_large' });
+
+  const quota = QUOTA[plan], cost = costOf(prompt);
+  const used = await creditsUsed(token);
+  if (used == null) return res.status(503).json({ error: 'usage_unavailable' });
+  if (used + cost > quota) return res.status(402).json({ error: 'budget', credits: { used, quota } });
 
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -64,5 +87,10 @@ export default async function handler(req, res) {
   const text = (data.content || []).map((c) => (c.type === 'text' ? c.text : '')).join('\n');
   const result = extractJson(text);
   if (!result) return res.status(502).json({ error: 'invalid_json' });
-  return res.status(200).json({ result });
+  const ins = await rest(token, 'plume_ai_usage', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: user.id, credits: cost, kind: cost === 4 ? 'global' : 'single' }),
+  });
+  if (!ins.ok) console.error('plume_ai_usage insert', ins.status, await ins.text());
+  return res.status(200).json({ result, credits: { used: used + cost, quota } });
 }

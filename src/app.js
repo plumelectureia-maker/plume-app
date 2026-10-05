@@ -41,9 +41,12 @@ const IC={
 /* ===== données ===== */
 const PLANS={
  free:{id:'free',nom:'Gratuit',prixTxt:'0 €',budget:0,points:['3 chapitres de lecture par semaine','1 histoire publiée au total','Accès aux cours de l’école d’écriture','Pas de diagnostic personnalisé']},
- plus:{id:'plus',nom:'Plume +',prixTxt:'4,99 €/mois',budget:100000,points:['Lecture et publication illimitées','100 000 tokens de coach IA par mois','Diagnostic sur ton propre texte']},
- pp:{id:'pp',nom:'Plume ++',prixTxt:'9,99 €/mois',budget:500000,points:['Lecture et publication illimitées','500 000 tokens de coach IA par mois','Pour faire analyser un chapitre chaque semaine']}
+ plus:{id:'plus',nom:'Plume +',prixTxt:'4,99 €/mois',budget:50,points:['Lecture et publication illimitées','50 crédits de coach IA par mois','Diagnostic sur ton propre texte']},
+ pp:{id:'pp',nom:'Plume ++',prixTxt:'9,99 €/mois',budget:200,points:['Lecture et publication illimitées','200 crédits de coach IA par mois','Pour analyser et t’entraîner chaque semaine']}
 };
+const COST={single:1,exercise:1,global:4};
+const cr=n=>pl(n,'crédit');
+const CREDIT_HELP='Une analyse d’une compétence ou une correction d’exercice coûte 1 crédit, l’analyse des 7 compétences en coûte 4.';
 
 const COMPS=[
  {id:'personnages',nom:'Personnages',
@@ -139,6 +142,9 @@ const EXOS=[
 const REACTS={love:{e:'😍',l:'J’adore'},frisson:{e:'😱',l:'Frisson'},emu:{e:'😢',l:'Émouvant'},drole:{e:'😂',l:'Drôle'},decroche:{e:'🥱',l:'Je décroche'}};
 const R_OLD={touche:'love',souffle:'frisson',belle:'frisson',tension:'frisson'};
 const migrateReacts=o=>{Object.keys(o.reactions||{}).forEach(k=>{if(R_OLD[o.reactions[k]])o.reactions[k]=R_OLD[o.reactions[k]];});return o;};
+const RSIZES=[15,16.5,18,20,22.5];
+const RFONTS={literata:['Classique',"'Literata',Georgia,serif"],lora:['Élégante',"'Lora',Georgia,serif"],atkinson:['Très lisible',"'Atkinson Hyperlegible',system-ui,sans-serif"],sans:['Moderne',"'Hanken Grotesk',system-ui,sans-serif"]};
+const rprefs=()=>{const r=S.read||{};return {size:clamp(r.size==null?2:r.size,0,RSIZES.length-1),font:RFONTS[r.font]?r.font:'literata'};};
 const GENRES_EDIT=['Drame','Mystère','Romance','Fantasy','Thriller'];
 const LEVELS=[[0,'Encre naissante'],[35,'Encre régulière'],[50,'Encre affirmée'],[65,'Encre assurée'],[80,'Encre maîtrisée']];
 
@@ -251,7 +257,7 @@ function seed(){
   const now=Date.now();
   return {
     user:null,plan:'free',
-    tokens:{month:monthKey(),used:0},
+    credits:{month:monthKey(),used:0},
     reads:{week:mondayKey(),ids:[]},
     saved:[],following:[],reactions:{},
     comments:JSON.parse(JSON.stringify(SEED_COMMENTS)),chComments:JSON.parse(JSON.stringify(SEED_CH_COMMENTS)),likes:{},
@@ -282,7 +288,7 @@ function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setIt
   if(SESSION){B.saveState(SESSION.user.id,S);B.syncPublished(SESSION.user.id,S.user?S.user.name:B.userName(SESSION),S.manuscripts.filter(m=>m.published).map(msToStory));}}
 function rollover(){
   if(S.reads.week!==mondayKey())S.reads={week:mondayKey(),ids:[]};
-  if(S.tokens.month!==monthKey())S.tokens={month:monthKey(),used:0};
+  if(!S.credits||S.credits.month!==monthKey())S.credits={month:monthKey(),used:0};
 }
 const UI={tab:'decouvrir',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
 
@@ -306,7 +312,8 @@ const avg=o=>COMPS.reduce((a,c)=>a+(o[c.id]||0),0)/COMPS.length;
 function level(){const a=avg(S.profile.scores);let i=0;LEVELS.forEach((l,k)=>{if(a>=l[0])i=k;});return {n:i+1,nom:LEVELS[i][1],moy:Math.round(a),prev:Math.round(avg(S.profile.prev))};}
 const weakest=()=>COMPS.slice().sort((a,b)=>S.profile.scores[a.id]-S.profile.scores[b.id])[0];
 const compOf=id=>COMPS.find(c=>c.id===id);
-const budgetLeft=()=>Math.max(0,PLANS[S.plan].budget-S.tokens.used);
+const budgetLeft=()=>Math.max(0,PLANS[S.plan].budget-S.credits.used);
+const syncCredits=()=>{const c=B.lastCredits();if(c){S.credits={month:monthKey(),used:c.used};}};
 
 function avatar(name,size){return '<span class="av" style="--s:'+size+'px;--h:'+(hash(name)%360)+'">'+esc((name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase())+'</span>';}
 function cover(st,cls){if(st.jaquette)return '<div class="cover img '+(cls||'')+'"><img src="'+esc(st.jaquette)+'" alt="" loading="lazy"></div>';return '<div class="cover '+(cls||'')+'" style="--c1:'+st.c1+';--c2:'+st.c2+'"><svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" fill="currentColor" stroke="currentColor" aria-hidden="true">'+(MOTIFS[st.motif]||'')+'</svg><span class="ct">'+esc(st.titre)+'</span></div>';}
@@ -388,6 +395,7 @@ function normalize(r){
   return (o.diagnostic||o.forces.length)?o:null;
 }
 const ERR={
+ budget:'Tu as utilisé tous tes crédits de coach ce mois-ci. Ils reviennent le '+resetLabel()+'.',
  rate_limited:'Trop d’analyses en peu de temps, ou limite d’usage atteinte. Réessaie un peu plus tard.',
  session_expired:'Ta session a expiré. Reconnecte-toi à Claude, puis réessaie.',
  invalid_json:'Le coach a répondu dans un format inattendu. Réessaie.',
@@ -421,6 +429,7 @@ async function runCoach(){
     if(UI.coach!==C)return;
     const code=e&&e.code;
     if(code==='cancelled'){C.phase='choose';renderSheet();return;}
+    if(code==='budget'){syncCredits();save();C.phase='error';C.errKind='budget';C.err=ERR.budget;renderSheet();return;}
     if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finish(localCoach(comp,C.text),'local','Le coach IA est réservé aux abonnements activés : analyse locale simplifiée.',0);return;}
     C.phase='error';C.err=ERR[code]||'Le coach n’a pas pu répondre pour le moment.';renderSheet();
   }
@@ -428,12 +437,12 @@ async function runCoach(){
 function finish(res,src,note,promptLen){
   const C=UI.coach,comp=compOf(C.compId),P=S.profile;
   const old=P.scores[comp.id],nw=Math.round(old*.65+res.score*.35);
-  const tokens=src==='ia'?Math.ceil((promptLen+JSON.stringify(res).length)/3.6):0;
+  const tokens=src==='ia'?(C.exId?COST.exercise:COST.single):0;
   P.scores[comp.id]=nw;P.trend[comp.id]=res.tendance;
   P.history.unshift({id:'h'+Date.now(),comp:comp.id,score:res.score,appreciation:res.appreciation||'Diagnostic enregistré.',titre:C.title,quand:Date.now(),src});
   if(res.memoire)P.memory.unshift({comp:comp.id,note:res.memoire,quand:Date.now()});
   P.history=P.history.slice(0,30);P.memory=P.memory.slice(0,12);
-  rollover();S.tokens.used+=tokens;save();
+  rollover();S.credits.used+=tokens;if(src==='ia')syncCredits();save();
   if(C.exId){const at={score:res.score,app:res.appreciation||'',when:Date.now()};S.exDone[C.exId]=at;S.exHist=S.exHist||{};(S.exHist[C.exId]=S.exHist[C.exId]||[]).push(at);S.exHist[C.exId]=S.exHist[C.exId].slice(-20);save();}
   Object.assign(C,{phase:'result',mode:'single',res,src,note,tokens,oldScore:old,newScore:nw});
   renderSheet();
@@ -484,10 +493,10 @@ async function runGlobal(){
   const sample=await getSample();
   if(UI.coach!==C||C.phase!=='loading')return;
   if(!sample){finishGlobal(localGlobal(C.text),'local','Le coach IA n’est pas disponible pour le moment : analyse locale simplifiée.',0);return;}
-  const need=Math.ceil(prompt.length/3.6)+3000;
+  const need=COST.global;
   if(budgetLeft()<need){
     C.phase='error';C.errKind='budget';
-    C.err='Il te reste '+fmt(budgetLeft())+' tokens ce mois-ci, et une analyse globale en consomme environ '+fmt(need)+'. Analyse une compétence à la fois, ou passe à un forfait supérieur.';
+    C.err='Il te reste '+cr(budgetLeft())+' ce mois-ci, et l’analyse des 7 compétences en coûte '+need+'. Analyse une compétence à la fois (1 crédit), ou passe à un forfait supérieur.';
     renderSheet();return;
   }
   try{
@@ -500,17 +509,18 @@ async function runGlobal(){
     if(UI.coach!==C)return;
     const code=e&&e.code;
     if(code==='cancelled'){C.phase='choose';renderSheet();return;}
+    if(code==='budget'){syncCredits();save();C.phase='error';C.errKind='budget';C.err=ERR.budget;renderSheet();return;}
     if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finishGlobal(localGlobal(C.text),'local','Le coach IA est réservé aux abonnements activés : analyse locale simplifiée.',0);return;}
     C.phase='error';C.err=ERR[code]||'Le coach n’a pas pu répondre pour le moment.';renderSheet();
   }
 }
 function finishGlobal(res,src,note,promptLen){
-  const C=UI.coach,P=S.profile,tokens=src==='ia'?Math.ceil((promptLen+JSON.stringify(res).length)/3.6):0,olds={};
+  const C=UI.coach,P=S.profile,tokens=src==='ia'?COST.global:0,olds={};
   res.items.forEach(i=>{const old=P.scores[i.id];olds[i.id]=old;P.scores[i.id]=Math.round(old*.65+i.score*.35);P.trend[i.id]=i.tendance;});
   P.history.unshift({id:'h'+Date.now(),comp:'global',score:res.score,appreciation:res.appreciation||'Analyse globale enregistrée.',titre:C.title,quand:Date.now(),src});
   res.items.slice().sort((a,b)=>a.score-b.score).slice(0,2).forEach(i=>{if(i.memoire)P.memory.unshift({comp:i.id,note:i.memoire,quand:Date.now()});});
   P.history=P.history.slice(0,30);P.memory=P.memory.slice(0,12);
-  rollover();S.tokens.used+=tokens;save();
+  rollover();S.credits.used+=tokens;if(src==='ia')syncCredits();save();
   Object.assign(C,{phase:'result',mode:'global',res,src,note,tokens,olds});
   renderSheet();
 }
@@ -584,7 +594,8 @@ function vReader(p){
    '<button class="act'+(fav?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+fav+'">'+IC.mark+'<span>'+(fav?'Dans tes favoris':'Ajouter aux favoris')+'</span></button></div></div>'+
    '<section class="chcm"><h2 class="h2">Commentaires sur ce chapitre'+(cc.length?' ('+cc.length+')':'')+'</h2>'+(cc.length?cc.map(c=>'<div class="cm"><b>'+esc(c.n)+'</b><p>'+esc(fr(c.t))+'</p></div>').join(''):'<p class="muted">Sois le premier à commenter ce chapitre.</p>')+
    '<div class="cm-row"><input class="cm-in" id="chcm-input" maxlength="280" placeholder="Ajouter un commentaire" aria-label="Ajouter un commentaire sur ce chapitre" data-enter="chcomment"><button class="btn sm" data-a="chcomment">Publier</button></div></section>';
-  return topBack(s.titre)+'<article class="reader"><h1 class="h1">'+esc(ch.titre)+'</h1><p class="small muted meta">Chapitre '+(ci+1)+' sur '+s.chapitres.length+'</p><p class="rhint">Touche un paragraphe pour réagir <span class="rh-e">'+Object.keys(REACTS).map(k=>'<span class="re" aria-hidden="true">'+REACTS[k].e+'</span>').join(' ')+'</span></p>'+paras+chReact+
+  const rp=rprefs();
+  return topBack(s.titre,'<button class="iconbtn aa" data-a="read-prefs" aria-label="Taille et police du texte">Aa</button>')+'<article class="reader" style="--rfs:'+RSIZES[rp.size]+'px;--rff:'+esc(RFONTS[rp.font][1])+'"><h1 class="h1">'+esc(ch.titre)+'</h1><p class="small muted meta">Chapitre '+(ci+1)+' sur '+s.chapitres.length+'</p><p class="rhint">Touche un paragraphe pour réagir <span class="rh-e">'+Object.keys(REACTS).map(k=>'<span class="re" aria-hidden="true">'+REACTS[k].e+'</span>').join(' ')+'</span></p>'+paras+chReact+
   (S.plan==='free'?'<p class="small muted reads-note">Chapitres lus cette semaine : '+S.reads.ids.length+' sur 3, le compteur repart lundi.</p>':'')+'</article>'+dock;
 }
 
@@ -712,23 +723,22 @@ function vProfil(){
   const saved=S.saved.map(findStory).filter(Boolean);
   return brandTop()+'<section class="pad prof-head">'+avatar(u?u.name:'Invité',64)+'<div><h1 class="h1" style="margin:0">'+esc(u?u.name:'Invité')+'</h1><p class="muted">Niveau '+L.n+', '+L.nom+'</p></div></section>'+
   '<section class="pad">'+(u
-    ?'<div class="panel"><div class="split"><b>'+esc(pl_.nom)+'</b><span>'+esc(pl_.prixTxt)+'</span></div><p class="small muted">'+(S.plan==='free'?'Diagnostic personnalisé réservé aux abonnements.':fmt(budgetLeft())+' tokens de coach restants ce mois-ci.')+'</p><button class="btn sec block" data-a="go-account">Mon espace client</button></div>'
+    ?'<div class="panel"><div class="split"><b>'+esc(pl_.nom)+'</b><span>'+esc(pl_.prixTxt)+'</span></div><p class="small muted">'+(S.plan==='free'?'Diagnostic personnalisé réservé aux abonnements.':cr(budgetLeft())+' de coach restants ce mois-ci.')+'</p><button class="btn sec block" data-a="go-account">Mon espace client</button></div>'
     :'<div class="note"><b>Tu explores Plume en mode découverte.</b><br>Crée ton espace client pour retrouver ton abonnement, ton budget de coach et tes manuscrits.</div><button class="btn block" data-a="login-go">Se connecter</button>')+'</section>'+
   '<section class="pad"><div class="stats"><div><b>'+pub+'</b><span>Publiées</span></div><div><b>'+saved.length+'</b><span>Favoris</span></div><div><b>'+S.profile.history.length+'</b><span>Diagnostics</span></div></div>'+
   '<h2 class="h2" style="margin-top:6px">Mes favoris</h2>'+(saved.length?saved.map(storyRow).join(''):'<p class="empty">Aucun favori pour l’instant. Touche l’étoile d’une histoire pour la retrouver ici.</p>')+'</section>'+
-  '<section class="pad"><h2 class="h2">Apparence</h2><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div>'+
-  '<div class="btns"><button class="btn ghost sm" data-a="reset">Réinitialiser les données de démonstration</button></div></section>';
+  '<section class="pad"><h2 class="h2">Apparence</h2><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div>'+'</section>';
 }
 
 function vAccount(){
   const u=S.user;
   if(!u)return topBack('Espace client')+'<section class="pad"><p class="empty">Tu n’es pas connecté.</p><button class="btn block" data-a="login-go">Se connecter</button></section>';
-  const pl_=PLANS[S.plan],budget=pl_.budget,used=S.tokens.used,pct=budget?Math.min(100,used/budget*100):0;
+  const pl_=PLANS[S.plan],budget=pl_.budget,used=S.credits.used,pct=budget?Math.min(100,used/budget*100):0;
   return topBack('Espace client')+'<section class="pad acc-head">'+avatar(u.name,64)+'<div><h1 class="h1" style="margin:0">'+esc(u.name)+'</h1><p class="muted">'+esc(u.email)+'</p><p class="small muted">Connexion : '+esc(u.mode)+'</p></div></section>'+
   '<section class="pad"><h2 class="h2">Abonnement</h2><div class="panel"><div class="split"><b>'+esc(pl_.nom)+'</b><span>'+esc(pl_.prixTxt)+'</span></div><p class="small muted">'+(S.plan==='free'?'Lecture limitée à 3 chapitres par semaine et 1 histoire publiée.':'Lecture et publication illimitées.')+'</p><button class="btn sec block" data-a="plans-open">Voir les forfaits</button></div></section>'+
   '<section class="pad"><h2 class="h2">Budget du coach IA</h2><div class="panel">'+(budget
-    ?'<div class="split"><b>'+fmt(Math.max(0,budget-used))+' restants</b><span class="small muted">sur '+fmt(budget)+'</span></div><div class="bar'+(pct>90?' hot':'')+'" role="progressbar" aria-valuemin="0" aria-valuemax="'+budget+'" aria-valuenow="'+Math.min(used,budget)+'"><i style="width:'+pct+'%"></i></div><p class="small muted" style="margin-top:10px">'+fmt(used)+' tokens consommés ce mois-ci. Le budget repart le '+resetLabel()+'.</p>'
-    :'<p class="small muted">Le forfait Gratuit ne comprend pas de diagnostic personnalisé. Plume + offre 100 000 tokens par mois, Plume ++ en offre 500 000.</p>')+'</div></section>'+
+    ?'<div class="split"><b>'+cr(Math.max(0,budget-used))+' restants</b><span class="small muted">sur '+fmt(budget)+'</span></div><div class="bar'+(pct>90?' hot':'')+'" role="progressbar" aria-valuemin="0" aria-valuemax="'+budget+'" aria-valuenow="'+Math.min(used,budget)+'"><i style="width:'+pct+'%"></i></div><p class="small muted" style="margin-top:10px">'+cr(used)+' utilisés ce mois-ci. Tes crédits reviennent le '+resetLabel()+'.</p><p class="small muted" style="margin-top:6px">'+CREDIT_HELP+'</p>'
+    :'<p class="small muted">Le forfait Gratuit ne comprend pas de diagnostic personnalisé. Plume + offre 50 crédits par mois, Plume ++ en offre 200. '+CREDIT_HELP+'</p>')+'</div></section>'+
   '<section class="pad"><h2 class="h2">Achats et données</h2><button class="rowitem" data-a="restore"><span>Restaurer les achats Google Play<small>Relit tes abonnements depuis Google Play.</small></span>'+IC.next+'</button>'+
   '<div class="rowitem"><span>Conserver les données locales<small>Garde tes manuscrits et ta progression à la déconnexion.</small></span><button class="switch" role="switch" aria-checked="'+S.keepData+'" aria-label="Conserver les données locales" data-a="keep"></button></div></section>'+
   '<section class="pad"><button class="btn danger block" data-a="logout">Se déconnecter</button></section>';
@@ -762,7 +772,7 @@ function vLogin(){
 /* ===== feuilles ===== */
 const closeBtn='<button class="iconbtn" data-a="sheet-close" aria-label="Fermer">'+IC.x+'</button>';
 const TEND={hausse:['en hausse',IC.up],stable:['stable',IC.flat],baisse:['en baisse',IC.down]};
-const SHEET_LABEL={paywall:'Réservé aux abonnements',budget:'Budget du coach IA',coach:'Coach d’écriture',confirm:'Confirmation'};
+const SHEET_LABEL={paywall:'Réservé aux abonnements',budget:'Crédits du coach IA',lecture:'Affichage du texte',coach:'Coach d’écriture',confirm:'Confirmation'};
 function coachGlobalResult(C){
   const r=C.res,prio=compOf(r.priorite),pi=r.items.find(i=>i.id===r.priorite);
   const rows=r.items.map(i=>{
@@ -779,7 +789,7 @@ function coachGlobalResult(C){
   (r.synthese?'<h3>Synthèse</h3><p>'+esc(fr(r.synthese))+'</p>':'')+
   (pi?'<h3 class="r">À travailler en priorité</h3><p class="att"><b>'+esc(prio.nom)+'.</b> '+esc(fr(pi.attention||pi.diagnostic))+'</p>':'')+'</div>'+
   '<h3 class="h3 gtitle">Détail par compétence</h3><div>'+rows+'</div>'+
-  '<p class="small muted" style="margin-top:14px">'+(C.note?esc(C.note)+' ':'')+'Tes scores sont mis à jour pour les '+r.items.length+' compétences analysées. Analyse ajoutée à ton profil.'+(C.src==='ia'?' Consommation estimée : environ '+fmt(C.tokens)+' tokens, il t’en reste '+fmt(budgetLeft())+' ce mois-ci.':' Aucun token consommé.')+'</p>'+
+  '<p class="small muted" style="margin-top:14px">'+(C.note?esc(C.note)+' ':'')+'Tes scores sont mis à jour pour les '+r.items.length+' compétences analysées. Analyse ajoutée à ton profil.'+(C.src==='ia'?' Cette analyse a utilisé '+cr(C.tokens)+', il t’en reste '+budgetLeft()+' ce mois-ci.':' Aucun crédit utilisé.')+'</p>'+
   '<div class="btns"><button class="btn" data-a="coach-progress">Voir ma progression</button><button class="btn sec" data-a="sheet-close">Fermer</button></div>';
 }
 const SHEETS={
@@ -790,7 +800,16 @@ const SHEETS={
    read:['Tes 3 chapitres de la semaine sont lus','Le compteur gratuit repart lundi. Avec Plume +, la lecture est illimitée.']}[p.why];
   return '<div class="sheet-head"><h2 class="h2">'+T[0]+'</h2>'+closeBtn+'</div><p>'+T[1]+'</p><div class="btns"><button class="btn" data-a="to-plans">Voir les forfaits</button><button class="btn sec" data-a="sheet-close">Plus tard</button></div>';
  },
- budget:()=>'<div class="sheet-head"><h2 class="h2">Budget du coach atteint</h2>'+closeBtn+'</div><p>Tu as utilisé les '+fmt(PLANS[S.plan].budget)+' tokens de ce mois-ci. Ils reviennent le '+resetLabel()+'. La lecture et la publication restent illimitées.</p><div class="btns">'+(S.plan==='plus'?'<button class="btn" data-a="upgrade">Passer à Plume ++</button>':'')+'<button class="btn sec" data-a="sheet-close">Fermer</button></div>',
+ budget:()=>'<div class="sheet-head"><h2 class="h2">Plus de crédits ce mois-ci</h2>'+closeBtn+'</div><p>Tu as utilisé tes '+cr(PLANS[S.plan].budget)+' de ce mois-ci. Ils reviennent le '+resetLabel()+'. La lecture et la publication restent illimitées.</p><div class="btns">'+(S.plan==='plus'?'<button class="btn" data-a="upgrade">Passer à Plume ++</button>':'')+'<button class="btn sec" data-a="sheet-close">Fermer</button></div>',
+ lecture:()=>{
+  const rp=rprefs();
+  return '<div class="sheet-head"><h2 class="h2">Affichage du texte</h2>'+closeBtn+'</div>'+
+  '<h3 class="h3">Taille</h3><div class="rsize"><button class="btn sec" data-a="rsize" data-d="-1" aria-label="Plus petit"'+(rp.size===0?' disabled':'')+'><span style="font-size:14px">A</span></button>'+
+  '<div class="rdots" aria-hidden="true">'+RSIZES.map((x,i)=>'<i class="'+(i<=rp.size?'on':'')+'"></i>').join('')+'</div>'+
+  '<button class="btn sec" data-a="rsize" data-d="1" aria-label="Plus grand"'+(rp.size===RSIZES.length-1?' disabled':'')+'><span style="font-size:22px">A</span></button></div>'+
+  '<h3 class="h3" style="margin-top:16px">Police</h3><div class="rfonts" role="radiogroup" aria-label="Police">'+Object.keys(RFONTS).map(k=>'<button class="rfont'+(rp.font===k?' on':'')+'" role="radio" aria-checked="'+(rp.font===k)+'" data-a="rfont" data-f="'+k+'" style="font-family:'+esc(RFONTS[k][1])+'"><b>'+RFONTS[k][0]+'</b><span>Il était une fois, au bord de la mer…</span></button>').join('')+'</div>'+
+  '<div class="btns"><button class="btn block" data-a="sheet-close">OK</button></div>';
+ },
  confirm:p=>{
   const T=p.kind==='logout'
    ?['Se déconnecter ?','Ton abonnement en aperçu sera désactivé. '+(S.keepData?'Tes manuscrits et ta progression restent sur cet appareil.':'Tes manuscrits et ta progression locale seront effacés.'),'Se déconnecter']
@@ -818,18 +837,18 @@ const SHEETS={
     (r.exercice?'<h3>Exercice</h3><p>'+esc(fr(r.exercice))+'</p>'+'<button class="btn sm cx-go" data-a="cx-start" data-id="'+comp.id+'">'+IC.pen+'Faire cet exercice</button>':'')+
     (r.lecon?'<h3>Leçon</h3><p>'+esc(fr(r.lecon))+'</p>':'')+
     (r.memoire?'<h3>Ce que le coach retient</h3><p class="hand">'+esc(fr(r.memoire))+'</p>':'')+'</div>'+
-    '<p class="small muted">'+(C.note?esc(C.note)+' ':'')+'Ton score en '+esc(comp.nom)+' passe de '+C.oldScore+' à '+C.newScore+'. Diagnostic ajouté à ton profil.'+(C.src==='ia'?' Consommation estimée : environ '+fmt(C.tokens)+' tokens, il t’en reste '+fmt(budgetLeft())+' ce mois-ci.':' Aucun token consommé.')+'</p>'+
+    '<p class="small muted">'+(C.note?esc(C.note)+' ':'')+'Ton score en '+esc(comp.nom)+' passe de '+C.oldScore+' à '+C.newScore+'. Diagnostic ajouté à ton profil.'+(C.src==='ia'?' Cette analyse a utilisé '+cr(C.tokens)+', il t’en reste '+budgetLeft()+' ce mois-ci.':' Aucun crédit utilisé.')+'</p>'+
     (C.exId?'<div class="btns"><button class="btn" data-a="sheet-close">'+IC.pen+'Retravailler mon texte</button><button class="btn sec" data-a="coach-progress">Voir ma progression</button></div>'
       :'<div class="btns"><button class="btn" data-a="coach-progress">Voir ma progression</button><button class="btn sec" data-a="sheet-close">Fermer</button></div>');
   }
-  const ai=HAS_AI===true?'Analyse par le coach IA. Elle consomme une partie de ton budget mensuel.':(HAS_AI===false?'Le coach IA n’est pas disponible pour le moment : une analyse locale simplifiée sera utilisée.':'Connexion au coach IA…');
+  const ai=HAS_AI===true?'Analyse par le coach IA.':(HAS_AI===false?'Le coach IA n’est pas disponible pour le moment : une analyse locale simplifiée sera utilisée.':'Connexion au coach IA…');
   return '<div class="sheet-head"><h2 class="h2">Coach d’écriture</h2>'+closeBtn+'</div>'+
   '<p class="muted">Le coach lit « '+esc(C.title)+' », t’explique ce qui marche et ce qui manque, puis te propose un exercice. Il n’écrit jamais la suite à ta place.</p>'+
   '<h3 class="h3" style="margin-top:16px">Compétence à analyser</h3><div class="chips wrap">'+COMPS.map(c=>'<button class="chip'+(C.compId===c.id?' on':'')+'" data-a="coach-comp" data-id="'+c.id+'" aria-pressed="'+(C.compId===c.id)+'">'+esc(c.nom)+'</button>').join('')+'</div>'+
   '<p class="small muted">Suggestion : '+esc(w.nom)+', ta compétence la plus basse ('+S.profile.scores[w.id]+').</p>'+
-  '<p class="budget-line">Il te reste '+fmt(budgetLeft())+' tokens ce mois-ci. '+esc(ai)+'</p>'+
-  '<button class="btn block" data-a="coach-run">Analyser '+esc(comp.nom)+'</button>'+
-  (C.fixed?'':'<div class="or-sep"><span>ou</span></div><button class="btn sec block" data-a="coach-global">'+IC.cap+'Analyser les 7 compétences en même temps</button><p class="small muted" style="margin-top:8px">Analyse globale : une seule lecture, un diagnostic pour chaque compétence. Plus complète, plus longue et plus gourmande en tokens.</p>');
+  '<p class="budget-line">Il te reste '+cr(budgetLeft())+' ce mois-ci. '+esc(ai)+'</p>'+
+  '<button class="btn block" data-a="coach-run">Analyser '+esc(comp.nom)+' ('+cr(C.exId?COST.exercise:COST.single)+')</button>'+
+  (C.fixed?'':'<div class="or-sep"><span>ou</span></div><button class="btn sec block" data-a="coach-global">'+IC.cap+'Analyser les 7 compétences ('+cr(COST.global)+')</button><p class="small muted" style="margin-top:8px">Analyse globale : une seule lecture, un diagnostic pour chaque compétence. Plus complète et plus longue.</p>');
  }
 };
 let sheetScroll=0;
@@ -981,6 +1000,9 @@ A.atelier=d=>go('atelier',{id:d.id});
 A['exo-run']=d=>{const c=compOf(d.id);openCoach({text:S.exos[d.id]||'',title:'Exercice, '+c.nom,compId:d.id,fixed:true,consigne:c.exercice});};
 A['ecrire-tab']=d=>{UI.ecrireTab=d.t;render();};
 A.exf=d=>{UI.exFilter=d.f;render();};
+A['read-prefs']=()=>openSheet('lecture');
+A.rsize=d=>{const r=rprefs();S.read={size:clamp(r.size+(+d.d),0,RSIZES.length-1),font:r.font};save();render();renderSheet();};
+A.rfont=d=>{const r=rprefs();S.read={size:r.size,font:d.f};save();render();renderSheet();};
 A['exo-open']=d=>go('exercice',{id:d.id});
 A['cx-start']=d=>{
   const C=UI.coach,r=C&&C.res;if(!r)return;
@@ -1076,6 +1098,7 @@ async function attach(se){
   try{remote=await B.loadState(se.user.id);}catch(e){console.error(e);}
   if(remote){const th=S.theme;S=migrateReacts(Object.assign(seed(),remote));if(!remote.theme)S.theme=th;}
   try{const plan=await B.loadPlan();if(plan)S.plan=plan;}catch(e){console.error(e);}
+  try{const used=await B.loadCreditsUsed();if(used!=null)S.credits={month:monthKey(),used};}catch(e){console.error(e);}
   S.user=userObj(se);
   applyTheme();rollover();save();
 }

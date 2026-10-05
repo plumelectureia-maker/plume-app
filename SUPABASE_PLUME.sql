@@ -113,3 +113,18 @@ create policy "covers insert" on storage.objects for insert to authenticated
   with check (bucket_id = 'covers' and (storage.foldername(name))[1] = auth.uid()::text);
 create policy "covers delete" on storage.objects for delete to authenticated
   using (bucket_id = 'covers' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ===== Crédits du coach IA (une ligne par utilisation, ni modifiable ni supprimable par l'utilisateur) =====
+create table if not exists public.plume_ai_usage (
+  id bigserial primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  credits int not null check (credits between 1 and 10),
+  kind text,
+  created_at timestamptz not null default now()
+);
+alter table public.plume_ai_usage enable row level security;
+create index if not exists plume_ai_usage_user on public.plume_ai_usage(user_id, created_at);
+drop policy if exists "usage read own" on public.plume_ai_usage;
+drop policy if exists "usage insert own" on public.plume_ai_usage;
+create policy "usage read own" on public.plume_ai_usage for select using (auth.uid() = user_id);
+create policy "usage insert own" on public.plume_ai_usage for insert with check (auth.uid() = user_id);
