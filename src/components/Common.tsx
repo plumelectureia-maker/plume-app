@@ -61,7 +61,7 @@ export const Card: React.FC<CardProps> = ({ children, className = '', onClick })
 interface StoryCoverProps {
   story: Story;
   size?: 'sm' | 'md' | 'lg';
-  onClick?: (e?: React.MouseEvent) => void;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const PATTERNS = {
