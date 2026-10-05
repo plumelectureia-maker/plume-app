@@ -529,7 +529,8 @@ function finishGlobal(res,src,note,promptLen){
 
 /* ===== écrans ===== */
 const topBack=(title,right)=>'<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><b class="top-title">'+esc(title)+'</b>'+(right||'<span class="sp"></span>')+'</header>';
-const brandTop=right=>'<header class="top"><div class="brand">'+IC.feather+'<span>Plume</span></div>'+(right||'')+'</header>';
+const LOGO='<img class="logo" src="/logo.png" alt="" width="96" height="96">';
+const brandTop=right=>'<header class="top"><div class="brand">'+LOGO+'<span>Plume</span></div>'+(right||'')+'</header>';
 const deltaChip=d=>'<span class="delta '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' pts</span>';
 
 function storyRow(s){
@@ -662,7 +663,8 @@ function vExercice(p){
   '<h2 class="h2">Ton texte</h2><textarea class="ta seyes" data-in="exd" data-id="'+e.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton texte pour l’exercice">'+esc(draft)+'</textarea>'+
   '<p class="small muted" id="exwc" style="margin-top:8px">'+esc(exWcText(e,draft))+'</p>'+
   (d?'<div class="note"><b>Dernière correction : '+d.score+'/100.</b> '+esc(fr(d.app))+(hist.length>1?'<br><span class="small">Tes '+hist.length+' corrections : '+hist.map(h=>h.score).join(' → ')+'</span>':'')+'<br><span class="small">Tu peux réécrire ton texte et le faire corriger à nouveau, autant de fois que tu veux.</span></div>':'')+
-  '<div class="btns"><button class="btn block" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+(d?'Faire corriger à nouveau':'Faire corriger par le coach')+'</button></div>'+
+  '<div class="btns"><button class="btn block" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+(d?'Faire corriger à nouveau':'Faire corriger par le coach')+(S.plan==='free'?'':' ('+cr(COST.exercise)+')')+'</button></div>'+
+  (S.plan==='free'?'':'<p class="small muted credit-note">Chaque correction coûte '+cr(COST.exercise)+'. Il te reste '+cr(budgetLeft())+' ce mois-ci, tu peux te faire corriger autant de fois que tu veux tant qu’il t’en reste.</p>')+
   (S.plan==='free'?'<p class="small muted" style="margin-top:10px">La correction par le coach est incluse dans Plume + et Plume ++.</p>':'')+'</section>';
 }
 
@@ -761,7 +763,7 @@ function vPlans(){
 
 function vLogin(){
   const L=UI.login,dis=L.busy?' disabled':'',up=L.mode!=='signin';
-  return topBack('Connexion')+'<section class="pad login"><div class="brand big">'+IC.feather+'<span>Plume</span></div><h1 class="h1">'+(up?'Crée ton espace client':'Content de te revoir')+'</h1><p class="muted">Retrouve ton abonnement, ton budget de coach et tes manuscrits.</p>'+
+  return topBack('Connexion')+'<section class="pad login"><div class="brand big">'+LOGO+'<span>Plume</span></div><h1 class="h1">'+(up?'Crée ton espace client':'Content de te revoir')+'</h1><p class="muted">Retrouve ton abonnement, ton budget de coach et tes manuscrits.</p>'+
   (up?'<label class="field"><span>Prénom</span><input id="lg-name" data-in="lg-name" data-enter="login-submit" autocomplete="given-name" value="'+esc(L.name)+'"'+dis+'></label>':'')+
   '<label class="field"><span>Adresse e-mail</span><input id="lg-mail" type="email" inputmode="email" autocomplete="email" data-in="lg-mail" data-enter="login-submit" value="'+esc(L.email)+'"'+dis+'></label>'+
   '<label class="field"><span>Mot de passe</span><input id="lg-pass" type="password" autocomplete="'+(up?'new-password':'current-password')+'" data-in="lg-pass" data-enter="login-submit" value="'+esc(L.pass)+'"'+dis+'></label>'+
