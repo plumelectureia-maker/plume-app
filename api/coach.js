@@ -12,6 +12,16 @@ async function verifyUser(token) {
   return r.ok ? r.json() : null;
 }
 
+// Seuls les comptes dont le forfait est attribué dans plume_entitlements utilisent l'IA.
+async function hasPlan(token) {
+  const r = await fetch(supabaseUrl() + '/rest/v1/plume_entitlements?select=plan', {
+    headers: { apikey: supabaseKey(), Authorization: 'Bearer ' + token },
+  });
+  if (!r.ok) return false;
+  const rows = await r.json();
+  return rows.some((x) => x.plan === 'plus' || x.plan === 'pp');
+}
+
 function extractJson(text) {
   const clean = String(text || '').replace(/```json|```/g, '').trim();
   try { return JSON.parse(clean); } catch (e) { /* continue */ }
@@ -29,6 +39,7 @@ export default async function handler(req, res) {
   const token = (req.headers.authorization || '').replace(/^Bearer /, '');
   const user = await verifyUser(token);
   if (!user) return res.status(401).json({ error: 'session_expired' });
+  if (!(await hasPlan(token))) return res.status(403).json({ error: 'not_subscribed' });
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const prompt = String(body.prompt || '');

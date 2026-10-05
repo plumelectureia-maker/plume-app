@@ -136,7 +136,9 @@ const EXOS=[
   consigne:'Écris une scène ordinaire dans laquelle un seul détail est à peine faux. Le lecteur ne doit le remarquer qu’après la révélation.'}
 ];
 
-const REACTS={frisson:{e:'😨',l:'Frisson'},tension:{e:'😬',l:'Tension'},love:{e:'😍',l:'Love'},decroche:{e:'🥱',l:'Je décroche'}};
+const REACTS={love:{e:'😍',l:'J’adore'},frisson:{e:'😱',l:'Frisson'},emu:{e:'😢',l:'Émouvant'},drole:{e:'😂',l:'Drôle'},decroche:{e:'🥱',l:'Je décroche'}};
+const R_OLD={touche:'love',souffle:'frisson',belle:'frisson',tension:'frisson'};
+const migrateReacts=o=>{Object.keys(o.reactions||{}).forEach(k=>{if(R_OLD[o.reactions[k]])o.reactions[k]=R_OLD[o.reactions[k]];});return o;};
 const GENRES_EDIT=['Drame','Mystère','Romance','Fantasy','Thriller'];
 const LEVELS=[[0,'Encre naissante'],[35,'Encre régulière'],[50,'Encre affirmée'],[65,'Encre assurée'],[80,'Encre maîtrisée']];
 
@@ -270,9 +272,11 @@ function seed(){
   };
 }
 let S=load();
-let SESSION=null,REMOTE_STORIES=[],SHARED_CM={};const EXT_AUTHORS={};
+let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={};
+const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
+const needLogin=m=>{toast(m);go('login');};const EXT_AUTHORS={};
 const userObj=se=>({name:B.userName(se),email:se.user.email,mode:'compte Plume (e-mail et mot de passe)'});
-function load(){try{const raw=localStorage.getItem(KEY);if(raw){const o=Object.assign(seed(),JSON.parse(raw));const M={touche:'love',souffle:'tension',belle:'frisson'};Object.keys(o.reactions||{}).forEach(k=>{if(M[o.reactions[k]])o.reactions[k]=M[o.reactions[k]];});return o;}}catch(e){}return seed();}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){return migrateReacts(Object.assign(seed(),JSON.parse(raw)));}}catch(e){}return seed();}
 let saveT;
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);
   if(SESSION){B.saveState(SESSION.user.id,S);B.syncPublished(SESSION.user.id,S.user?S.user.name:B.userName(SESSION),S.manuscripts.filter(m=>m.published).map(msToStory));}}
@@ -283,10 +287,12 @@ function rollover(){
 const UI={tab:'decouvrir',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
 
 /* ===== aides métier ===== */
-const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>!SESSION||r.authorUid!==SESSION.user.id),S.manuscripts.filter(m=>m.published).map(msToStory));
+const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>!SESSION||r.authorUid!==SESSION.user.id),S.manuscripts.filter(m=>m.published).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
+  .map(st=>Object.assign({},st,{lectures:READS[st.id]||0}));
+const authorsAll=()=>{const seen={},ext=[];REMOTE_STORIES.forEach(r=>{if((!SESSION||r.authorUid!==SESSION.user.id)&&!seen[r.auteurId]){seen[r.auteurId]=1;ext.push({id:r.auteurId,nom:EXT_AUTHORS[r.auteurId]});}});return ext.concat(AUTHORS);};
 function msToStory(m){
   return {id:m.id,titre:m.titre||'Sans titre',auteurId:'me',genre:m.genre||'Drame',resume:m.resume||'Une histoire écrite sur Plume.',
-    c1:'#2F3A8F',c2:'#5B68D6',motif:'plume',lectures:0,mine:true,
+    c1:'#2F3A8F',c2:'#5B68D6',motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,
     chapitres:m.chapitres.map(c=>({titre:c.titre,texte:c.texte.split(/\n+/).map(s=>s.trim()).filter(Boolean)}))};
 }
 const findStory=id=>allStories().find(s=>s.id===id);
@@ -303,7 +309,7 @@ const compOf=id=>COMPS.find(c=>c.id===id);
 const budgetLeft=()=>Math.max(0,PLANS[S.plan].budget-S.tokens.used);
 
 function avatar(name,size){return '<span class="av" style="--s:'+size+'px;--h:'+(hash(name)%360)+'">'+esc((name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase())+'</span>';}
-function cover(st,cls){return '<div class="cover '+(cls||'')+'" style="--c1:'+st.c1+';--c2:'+st.c2+'"><svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" fill="currentColor" stroke="currentColor" aria-hidden="true">'+(MOTIFS[st.motif]||'')+'</svg><span class="ct">'+esc(st.titre)+'</span></div>';}
+function cover(st,cls){if(st.jaquette)return '<div class="cover img '+(cls||'')+'"><img src="'+esc(st.jaquette)+'" alt="" loading="lazy"></div>';return '<div class="cover '+(cls||'')+'" style="--c1:'+st.c1+';--c2:'+st.c2+'"><svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice" fill="currentColor" stroke="currentColor" aria-hidden="true">'+(MOTIFS[st.motif]||'')+'</svg><span class="ct">'+esc(st.titre)+'</span></div>';}
 function radar(){
   const cx=170,cy=158,R=92,n=COMPS.length;
   const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100];};
@@ -415,7 +421,7 @@ async function runCoach(){
     if(UI.coach!==C)return;
     const code=e&&e.code;
     if(code==='cancelled'){C.phase='choose';renderSheet();return;}
-    if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finish(localCoach(comp,C.text),'local','Le coach IA n’est pas autorisé ici : analyse locale simplifiée.',0);return;}
+    if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finish(localCoach(comp,C.text),'local','Le coach IA est réservé aux abonnements activés : analyse locale simplifiée.',0);return;}
     C.phase='error';C.err=ERR[code]||'Le coach n’a pas pu répondre pour le moment.';renderSheet();
   }
 }
@@ -494,7 +500,7 @@ async function runGlobal(){
     if(UI.coach!==C)return;
     const code=e&&e.code;
     if(code==='cancelled'){C.phase='choose';renderSheet();return;}
-    if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finishGlobal(localGlobal(C.text),'local','Le coach IA n’est pas autorisé ici : analyse locale simplifiée.',0);return;}
+    if(NO_AI.includes(code)){sampleP=Promise.resolve(null);sampleFn=null;HAS_AI=false;finishGlobal(localGlobal(C.text),'local','Le coach IA est réservé aux abonnements activés : analyse locale simplifiée.',0);return;}
     C.phase='error';C.err=ERR[code]||'Le coach n’a pas pu répondre pour le moment.';renderSheet();
   }
 }
@@ -528,9 +534,9 @@ function vDecouvrir(){
   const counter=S.plan==='free'
     ?'<button class="chip" data-a="plans-open" aria-label="Compteur de lecture gratuit, voir les forfaits">'+S.reads.ids.length+'/3 chapitres cette semaine</button>'
     :'<span class="chip plan-chip">'+esc(PLANS[S.plan].nom)+'</span>';
-  const authors=AUTHORS.map(a=>{
+  const authors=authorsAll().map(a=>{
     const on=S.following.includes(a.id);
-    return '<div class="author">'+avatar(a.nom,56)+'<b>'+esc(a.nom)+'</b><span class="small muted">'+fmt(a.abonnes+(on?1:0))+' abonnés</span><button class="btn sm'+(on?' sec':'')+'" data-a="follow" data-id="'+a.id+'" aria-pressed="'+on+'">'+(on?'Suivi':'Suivre')+'</button></div>';
+    return '<div class="author">'+avatar(a.nom,56)+'<b>'+esc(a.nom)+'</b><span class="small muted">'+pl(FOLL[a.id]||0,'abonné')+'</span><button class="btn sm'+(on?' sec':'')+'" data-a="follow" data-id="'+a.id+'" aria-pressed="'+on+'">'+(on?'Suivi':'Suivre')+'</button></div>';
   }).join('');
   return brandTop(counter)+
   '<section class="pad"><div class="chips" role="group" aria-label="Genres">'+genres.map(g=>'<button class="chip'+(UI.genre===g?' on':'')+'" data-a="genre" data-g="'+esc(g)+'" aria-pressed="'+(UI.genre===g)+'">'+esc(g)+'</button>').join('')+'</div></section>'+
@@ -541,7 +547,7 @@ function vDecouvrir(){
 
 function vStory(p){
   const s=findStory(p.id);if(!s)return topBack('Histoire')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
-  const saved=S.saved.includes(s.id),au=AUTHORS.find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),cms=cmFor(s.id);
+  const saved=S.saved.includes(s.id),au=authorsAll().find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),cms=cmFor(s.id);
   const chs=s.chapitres.map((c,i)=>{
     const key=s.id+':'+i,read=S.reads.ids.includes(key),locked=S.plan==='free'&&!read&&S.reads.ids.length>=3;
     return '<li><button data-a="read" data-id="'+s.id+'" data-ch="'+i+'"><span class="num">'+(i+1)+'</span><span>'+esc(c.titre)+'</span><span class="st">'+(locked?IC.lock:(read?IC.check:''))+'</span></button></li>';
@@ -555,30 +561,31 @@ function vStory(p){
   '<div class="cm-row"><input class="cm-in" id="cm-input" maxlength="280" placeholder="Ajouter un commentaire" aria-label="Ajouter un commentaire" data-enter="comment" data-id="'+s.id+'"><button class="btn sm" data-a="comment" data-id="'+s.id+'">Publier</button></div></section>';
 }
 
-const rbtn=(k,on,action)=>'<button class="rbtn'+(on?' on':'')+'" data-a="'+action+'" data-r="'+k+'" aria-pressed="'+on+'"><span class="re" aria-hidden="true">'+REACTS[k].e+'</span><span class="rl2">'+esc(REACTS[k].l)+'</span></button>';
+const rbtn=(k,on,action,n)=>'<button class="rbtn'+(on?' on':'')+'" data-a="'+action+'" data-r="'+k+'" aria-pressed="'+on+'"><span class="re" aria-hidden="true">'+REACTS[k].e+'</span><span class="rl2">'+esc(REACTS[k].l)+'</span>'+(n?'<b class="rn">'+fmt(n)+'</b>':'')+'</button>';
+const rcounts=key=>{const c=RC[key]||{},ks=Object.keys(REACTS).filter(k=>c[k]>0);return ks.length?'<span class="rcnt">'+ks.map(k=>'<span><span class="re" aria-hidden="true">'+REACTS[k].e+'</span>'+fmt(c[k])+'</span>').join('')+'</span>':'';};
 function vReader(p){
   const s=findStory(p.id);if(!s)return topBack('Lecture')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
   const ci=clamp(p.ch,0,s.chapitres.length-1),ch=s.chapitres[ci],R=UI.reader,last=ci===s.chapitres.length-1;
   const key=i=>s.id+':'+ci+':'+i;
   const paras=ch.texte.map((t,i)=>{
     const r=REACTS[S.reactions[key(i)]];
-    return '<p class="rp'+(R.sel===i?' sel':'')+'" data-a="para" data-i="'+i+'" tabindex="0" role="button">'+esc(fr(t))+(r?'<span class="rtag"><span class="re" aria-hidden="true">'+r.e+'</span>'+esc(r.l)+'</span>':'')+'</p>';
+    return '<p class="rp'+(R.sel===i?' sel':'')+'" data-a="para" data-i="'+i+'" tabindex="0" role="button">'+esc(fr(t))+(r?'<span class="rtag"><span class="re" aria-hidden="true">'+r.e+'</span>'+esc(r.l)+'</span>':'')+rcounts(key(i))+'</p>';
   }).join('');
   let dock;
   if(R.sel!=null){
-    dock='<div class="dock react"><div class="rhead"><span class="small muted">Ta réaction à ce passage</span><button class="iconbtn" data-a="unsel" aria-label="Fermer">'+IC.x+'</button></div><div class="rc">'+Object.keys(REACTS).map(k=>rbtn(k,S.reactions[key(R.sel)]===k,'react')).join('')+'</div></div>';
+    dock='<div class="dock react"><div class="rhead"><span class="small muted">Ta réaction à ce passage</span><button class="iconbtn" data-a="unsel" aria-label="Fermer">'+IC.x+'</button></div><div class="rc">'+Object.keys(REACTS).map(k=>rbtn(k,S.reactions[key(R.sel)]===k,'react',(RC[key(R.sel)]||{})[k])).join('')+'</div></div>';
   }else{
     dock='<div class="dock"><button class="btn sec" data-a="chnav" data-d="-1"'+(ci===0?' disabled':'')+'>Précédent</button>'+(last?'<button class="btn grow" data-a="back">Terminer</button>':'<button class="btn grow" data-a="chnav" data-d="1">Chapitre suivant</button>')+'</div>';
   }
   const ck=s.id+':'+ci,cr=S.reactions[ck],lk=!!S.likes[ck],fav=S.saved.includes(s.id),cc=cmFor(ck,true);
-  const likeN=30+hash(ck)%370+(lk?1:0);
-  const chReact='<div class="creact"><p class="h3">Ce chapitre t’a fait quoi ?</p><div class="rc">'+Object.keys(REACTS).map(k=>rbtn(k,cr===k,'creact')).join('')+'</div>'+
+  const likeN=LIKES[ck]||0;
+  const chReact='<div class="creact"><p class="h3">Ce chapitre t’a fait quoi ?</p><div class="rc">'+Object.keys(REACTS).map(k=>rbtn(k,cr===k,'creact',(RC[ck]||{})[k])).join('')+'</div>'+
    '<div class="acts"><button class="act'+(lk?' on':'')+'" data-a="like" aria-pressed="'+lk+'"><span class="re" aria-hidden="true">👍</span><span>J’aime</span><b>'+fmt(likeN)+'</b></button>'+
    '<button class="act'+(fav?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+fav+'">'+IC.mark+'<span>'+(fav?'Dans tes favoris':'Ajouter aux favoris')+'</span></button></div></div>'+
    '<section class="chcm"><h2 class="h2">Commentaires sur ce chapitre'+(cc.length?' ('+cc.length+')':'')+'</h2>'+(cc.length?cc.map(c=>'<div class="cm"><b>'+esc(c.n)+'</b><p>'+esc(fr(c.t))+'</p></div>').join(''):'<p class="muted">Sois le premier à commenter ce chapitre.</p>')+
    '<div class="cm-row"><input class="cm-in" id="chcm-input" maxlength="280" placeholder="Ajouter un commentaire" aria-label="Ajouter un commentaire sur ce chapitre" data-enter="chcomment"><button class="btn sm" data-a="chcomment">Publier</button></div></section>';
-  return topBack(s.titre)+'<article class="reader"><h1 class="h1">'+esc(ch.titre)+'</h1><p class="small muted meta">Chapitre '+(ci+1)+' sur '+s.chapitres.length+'</p>'+paras+chReact+
-  '<p class="small muted reads-note">Touche un paragraphe pour réagir.'+(S.plan==='free'?' Chapitres lus cette semaine : '+S.reads.ids.length+' sur 3, le compteur repart lundi.':'')+'</p></article>'+dock;
+  return topBack(s.titre)+'<article class="reader"><h1 class="h1">'+esc(ch.titre)+'</h1><p class="small muted meta">Chapitre '+(ci+1)+' sur '+s.chapitres.length+'</p><p class="rhint">Touche un paragraphe pour réagir <span class="rh-e">'+Object.keys(REACTS).map(k=>'<span class="re" aria-hidden="true">'+REACTS[k].e+'</span>').join(' ')+'</span></p>'+paras+chReact+
+  (S.plan==='free'?'<p class="small muted reads-note">Chapitres lus cette semaine : '+S.reads.ids.length+' sur 3, le compteur repart lundi.</p>':'')+'</article>'+dock;
 }
 
 /* ===== s'exercer à écrire ===== */
@@ -661,6 +668,7 @@ function vEditor(p){
   const act=clamp(m.active||0,0,m.chapitres.length-1),c=m.chapitres[act];
   return '<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><input class="title-in" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre du manuscrit"><button class="btn sm'+(m.published?' sec':'')+'" data-a="ms-publish" data-id="'+m.id+'">'+(m.published?'Publié':'Publier')+'</button></header>'+
   '<div class="pad"><div class="chips" role="group" aria-label="Chapitres">'+m.chapitres.map((ch,i)=>'<button class="chip'+(i===act?' on':'')+'" data-a="ms-ch" data-i="'+i+'">Chapitre '+(i+1)+'</button>').join('')+'<button class="chip" data-a="ms-addch">'+IC.plus+'Chapitre</button></div>'+
+  '<div class="jq">'+cover(msToStory(m),'mini')+'<div><b>Jaquette</b><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture bleue par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
   '<div class="ed-meta"><input class="line-in" id="ch-title" value="'+esc(c.titre)+'" data-in="ch-title" maxlength="80" aria-label="Titre du chapitre"><select class="sel-in" data-in="ms-genre" aria-label="Genre">'+GENRES_EDIT.map(g=>'<option'+(g===m.genre?' selected':'')+'>'+g+'</option>').join('')+'</select></div></div>'+
   '<textarea class="ta seyes" id="ms-text" data-in="ms-text" placeholder="Écris ta scène ici…" spellcheck="true" lang="fr" aria-label="Texte du chapitre">'+esc(c.texte)+'</textarea>'+
   '<div class="dock"><span class="small muted" id="wc">'+pl(wc(c.texte),'mot')+'</span><button class="btn" data-a="coach-open">'+IC.cap+'Demander au coach</button></div>';
@@ -870,7 +878,12 @@ A.tab=d=>setTab(d.t);
 A.back=()=>{UI.stack.pop();UI.reader={sel:null};render();};
 A.genre=d=>{UI.genre=d.g;render();};
 A.story=d=>go('story',{id:d.id});
-A.follow=d=>{const i=S.following.indexOf(d.id);if(i<0){S.following.push(d.id);const a=AUTHORS.find(x=>x.id===d.id);toast('Tu suis '+(a?a.nom:'cet auteur')+'.');}else S.following.splice(i,1);save();render();};
+A.follow=d=>{
+  if(!SESSION)return needLogin('Connecte-toi pour suivre un auteur.');
+  const i=S.following.indexOf(d.id),on=i<0;
+  if(on){S.following.push(d.id);const a=authorsAll().find(x=>x.id===d.id);toast('Tu suis '+(a?a.nom:'cet auteur')+'.');}else S.following.splice(i,1);
+  bump(FOLL,d.id,on?1:-1);B.setFollow(SESSION.user.id,d.id,on);save();render();
+};
 A.save=d=>{const i=S.saved.indexOf(d.id);if(i<0){S.saved.push(d.id);toast('Histoire ajoutée à tes favoris.');}else S.saved.splice(i,1);save();render();};
 A.read=d=>{
   const s=findStory(d.id);if(!s)return;
@@ -882,14 +895,31 @@ A.read=d=>{
   UI.reader={sel:null};
   const top=UI.stack[UI.stack.length-1];
   if(top&&top.name==='reader'){top.p={id:s.id,ch:ci};render();}else go('reader',{id:s.id,ch:ci});
+  if(SESSION)B.markRead(SESSION.user.id,s.id,ci);
+  loadStats(s,ci);
   $('#view').scrollTop=0;
 };
 A.chnav=d=>{const p=curP();A.read({id:p.id,ch:p.ch+(+d.d)});};
 A.para=d=>{UI.reader.sel=UI.reader.sel===+d.i?null:+d.i;render();};
-A.react=d=>{const p=curP(),key=p.id+':'+p.ch+':'+UI.reader.sel;if(S.reactions[key]===d.r)delete S.reactions[key];else S.reactions[key]=d.r;UI.reader.sel=null;save();render();};
+function setReact(key,r){
+  if(!SESSION){needLogin('Connecte-toi pour réagir.');return false;}
+  const old=S.reactions[key],nw=old===r?null:r,c=RC[key]=RC[key]||{};
+  if(old)bump(c,old,-1);if(nw){bump(c,nw,1);S.reactions[key]=nw;}else delete S.reactions[key];
+  B.setReaction(SESSION.user.id,key,nw);save();return true;
+}
+A.react=d=>{const p=curP(),key=p.id+':'+p.ch+':'+UI.reader.sel;if(!setReact(key,d.r))return;UI.reader.sel=null;render();};
 A.unsel=()=>{UI.reader.sel=null;render();};
-A.creact=d=>{const p=curP(),key=p.id+':'+p.ch;if(S.reactions[key]===d.r)delete S.reactions[key];else S.reactions[key]=d.r;save();render();};
-A.like=()=>{const p=curP(),key=p.id+':'+p.ch;if(S.likes[key])delete S.likes[key];else S.likes[key]=true;save();render();};
+A.creact=d=>{const p=curP();if(setReact(p.id+':'+p.ch,d.r))render();};
+A.like=()=>{
+  if(!SESSION)return needLogin('Connecte-toi pour aimer ce chapitre.');
+  const p=curP(),key=p.id+':'+p.ch,on=!S.likes[key];
+  if(on)S.likes[key]=true;else delete S.likes[key];
+  bump(LIKES,key,on?1:-1);B.setLike(SESSION.user.id,key,on);save();render();
+};
+function loadStats(s,ci){
+  const base=s.id+':'+ci,keys=[base].concat(s.chapitres[ci].texte.map((t,i)=>base+':'+i));
+  B.chapterStats(keys).then(st=>{keys.forEach(k=>{RC[k]=st.reactions[k]||{};LIKES[k]=st.likes[k]||0;});const p=curP();if(p.id===s.id&&p.ch===ci)render();}).catch(e=>console.error(e));
+}
 async function postComment(key,t){
   if(!SESSION){toast('Connecte-toi pour commenter.');return go('login');}
   try{await B.addComment(SESSION.user.id,S.user.name,key,t);}catch(e){return toast(e.message);}
@@ -900,6 +930,29 @@ A.comment=d=>{const inp=$('#cm-input');const t=inp?inp.value.trim():'';if(!t)ret
 A['ms-open']=d=>go('editor',{id:d.id});
 A['ms-new']=()=>{const id='m'+Date.now();S.manuscripts.push({id:id,titre:'Sans titre',genre:'Drame',resume:'',published:false,active:0,chapitres:[{id:'c'+Date.now(),titre:'Chapitre 1',texte:''}]});save();go('editor',{id:id});};
 A['ms-ch']=d=>{curMs().active=+d.i;save();render();};
+A['ms-cover']=()=>{if(UI.coverBusy)return;if(!SESSION)return needLogin('Connecte-toi pour ajouter une jaquette.');const i=$('#cover-in');if(i)i.click();};
+A['ms-cover-rm']=()=>{const m=curMs();m.jaquette=null;save();render();toast('Jaquette retirée.');};
+async function onCoverFile(el){
+  const f=el.files&&el.files[0];el.value='';if(!f)return;
+  if(!/^image\//.test(f.type))return toast('Choisis une image.');
+  const m=curMs();UI.coverBusy=true;render();
+  try{const blob=await coverBlob(f);m.jaquette=await B.uploadCover(SESSION.user.id,blob);save();toast('Jaquette ajoutée.');}
+  catch(e){toast(e.message||'La jaquette n’a pas pu être ajoutée.');}
+  UI.coverBusy=false;render();
+}
+function coverBlob(file){
+  return new Promise((ok,ko)=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const W=600,H=840,c=document.createElement('canvas');c.width=W;c.height=H;
+      const sc=Math.max(W/img.width,H/img.height),w=img.width*sc,h=img.height*sc;
+      c.getContext('2d').drawImage(img,(W-w)/2,(H-h)/2,w,h);URL.revokeObjectURL(url);
+      c.toBlob(b=>b?ok(b):ko(new Error('Image illisible.')),'image/jpeg',.85);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);ko(new Error('Image illisible.'));};
+    img.src=url;
+  });
+}
 A['ms-addch']=()=>{const m=curMs();m.chapitres.push({id:'c'+Date.now(),titre:'Chapitre '+(m.chapitres.length+1),texte:''});m.active=m.chapitres.length-1;save();render();};
 A['ms-publish']=d=>{
   const m=getMs(d.id);
@@ -980,7 +1033,8 @@ const IN={
  exd:el=>{S.exDraft[el.dataset.id]=el.value;autosize(el);const e=EXOS.find(x=>x.id===el.dataset.id),w=$('#exwc');if(w&&e)w.textContent=exWcText(e,el.value);save();},
  'lg-name':el=>{UI.login.name=el.value;},
  'lg-mail':el=>{UI.login.email=el.value;},
- 'lg-pass':el=>{UI.login.pass=el.value;}
+ 'lg-pass':el=>{UI.login.pass=el.value;},
+ 'cover-file':el=>{onCoverFile(el);}
 };
 document.addEventListener('click',e=>{
   const t=e.target;
@@ -1008,12 +1062,14 @@ async function attach(se){
   SESSION=se;
   let remote=null;
   try{remote=await B.loadState(se.user.id);}catch(e){console.error(e);}
-  if(remote){const th=S.theme;S=Object.assign(seed(),remote);if(!remote.theme)S.theme=th;}
+  if(remote){const th=S.theme;S=migrateReacts(Object.assign(seed(),remote));if(!remote.theme)S.theme=th;}
+  try{const plan=await B.loadPlan();if(plan)S.plan=plan;}catch(e){console.error(e);}
   S.user=userObj(se);
   applyTheme();rollover();save();
 }
 async function boot(){
-  const [pub,cms]=await Promise.all([B.loadPublished(),B.loadComments()]);
+  const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
+  READS=cnt.reads;FOLL=cnt.follows;
   REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},r.story,{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
   cms.forEach(c=>{(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body});});
   try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}

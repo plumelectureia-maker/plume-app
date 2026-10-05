@@ -4,12 +4,15 @@ Application d'écriture et de lecture de fiction avec coach IA. Interface identi
 
 ## Mise en route
 
-1. Supabase > SQL Editor : exécuter `SUPABASE_PLUME.sql` (une seule fois).
-2. Vercel > Settings > Environment Variables :
+1. Supabase > SQL Editor : exécuter `SUPABASE_PLUME.sql` (réexécutable sans risque après chaque mise à jour).
+   Les forfaits Plume + / Plume ++ réels s'attribuent dans la table `plume_entitlements` (e-mail, plan `plus` ou `pp`) ; seuls ces comptes utilisent le coach IA.
+2. Supabase > Authentication > Sign In / Providers > Email : activer « Confirm email ».
+   Authentication > URL Configuration : Site URL = l'adresse Vercel du site.
+3. Vercel > Settings > Environment Variables :
    - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (déjà en place)
    - `ANTHROPIC_API_KEY` pour activer le coach IA (sans elle, le coach fait l'analyse locale simplifiée)
    - `ANTHROPIC_MODEL` (facultatif)
-3. Redéployer.
+4. Redéployer.
 
 ## Local
 

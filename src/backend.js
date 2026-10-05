@@ -27,13 +27,19 @@ export async function getSession() {
   return data.session || null;
 }
 export async function signUp(name, email, password) {
-  const { data, error } = await need().auth.signUp({ email, password, options: { data: { name } } });
+  const { data, error } = await need().auth.signUp({
+    email, password, options: { data: { name }, emailRedirectTo: location.origin },
+  });
   if (error) fail(authMsg(error));
   if (!data.session) fail('Compte créé. Confirme ton adresse e-mail, puis connecte-toi.');
   return data.session;
 }
 export async function signIn(email, password) {
   const { data, error } = await need().auth.signInWithPassword({ email, password });
+  if (error && error.message === 'Email not confirmed') {
+    await sb.auth.resend({ type: 'signup', email, options: { emailRedirectTo: location.origin } });
+    fail('Confirme ton adresse e-mail avant de te connecter. On vient de te renvoyer le lien.');
+  }
   if (error) fail(authMsg(error));
   return data.session;
 }
@@ -138,9 +144,72 @@ export async function coachJson(prompt, signal) {
   if (r.status === 401) throw coachErr('session_expired');
   if (r.status === 429) throw coachErr('rate_limited');
   if (r.status === 413) throw coachErr('prompt_too_large');
-  if (r.status === 503) throw coachErr('not_granted');
+  if (r.status === 503 || r.status === 403) throw coachErr('not_granted');
   if (!r.ok) throw coachErr('server');
   const j = await r.json();
   if (!j || !j.result) throw coachErr('invalid_json');
   return j.result;
+}
+
+/* ===== forfait attribué (géré côté serveur) ===== */
+export async function loadPlan() {
+  const { data, error } = await need().from('plume_entitlements').select('plan').maybeSingle();
+  if (error) { console.error('plume_entitlements', error); return null; }
+  return data ? data.plan : null;
+}
+
+/* ===== compteurs partagés ===== */
+const warn = (t) => ({ error }) => { if (error) console.error(t, error); };
+export async function loadCounts() {
+  if (!sb) return { reads: {}, follows: {} };
+  const [r, f] = await Promise.all([
+    sb.from('plume_read_counts').select('story_id,n'),
+    sb.from('plume_follow_counts').select('followee,n'),
+  ]);
+  const reads = {}, follows = {};
+  (r.data || []).forEach((x) => { reads[x.story_id] = x.n; });
+  (f.data || []).forEach((x) => { follows[x.followee] = x.n; });
+  if (r.error) console.error(r.error);
+  if (f.error) console.error(f.error);
+  return { reads, follows };
+}
+export async function chapterStats(keys) {
+  if (!sb || !keys.length) return { reactions: {}, likes: {} };
+  const [r, l] = await Promise.all([
+    sb.from('plume_reaction_counts').select('key,reaction,n').in('key', keys),
+    sb.from('plume_like_counts').select('key,n').in('key', keys),
+  ]);
+  const reactions = {}, likes = {};
+  (r.data || []).forEach((x) => { (reactions[x.key] = reactions[x.key] || {})[x.reaction] = x.n; });
+  (l.data || []).forEach((x) => { likes[x.key] = x.n; });
+  return { reactions, likes };
+}
+export function setReaction(uid, key, reaction) {
+  const q = reaction
+    ? sb.from('plume_reactions').upsert({ user_id: uid, key, reaction })
+    : sb.from('plume_reactions').delete().eq('user_id', uid).eq('key', key);
+  return q.then(warn('plume_reactions'));
+}
+export function setLike(uid, key, on) {
+  const q = on
+    ? sb.from('plume_likes').upsert({ user_id: uid, key })
+    : sb.from('plume_likes').delete().eq('user_id', uid).eq('key', key);
+  return q.then(warn('plume_likes'));
+}
+export function markRead(uid, storyId, ch) {
+  return sb.from('plume_reads').upsert({ user_id: uid, story_id: storyId, ch }, { ignoreDuplicates: true }).then(warn('plume_reads'));
+}
+export function setFollow(uid, followee, on) {
+  const q = on
+    ? sb.from('plume_follows').upsert({ follower: uid, followee })
+    : sb.from('plume_follows').delete().eq('follower', uid).eq('followee', followee);
+  return q.then(warn('plume_follows'));
+}
+
+/* ===== jaquette ===== */
+export async function uploadCover(uid, blob) {
+  const path = uid + '/' + Date.now() + '.jpg';
+  const { error } = await need().storage.from('covers').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+  if (error) fail('La jaquette n’a pas pu être envoyée.');
+  return sb.storage.from('covers').getPublicUrl(path).data.publicUrl;
 }
