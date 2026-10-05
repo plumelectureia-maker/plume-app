@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { stories as storiesService, users as usersService, chapters as chaptersService } from '../services/supabase';
-import { Button, StoryItem, Loading, Input, Textarea, EmptyState, Card } from '../components/Common';
+import { Button, StoryItem, Loading, Input, EmptyState, Card } from '../components/Common';
 import { BookOpen, Users, Heart, FileText } from 'lucide-react';
 import type { Story, Chapter, User } from '../types';
 
 // ============================================
 // DISCOVER PAGE
 // ============================================
-export const Discover: React.FC = () => {
+export const Discover: React.FC<{}> = () => {
   const { user } = useAuthStore();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +80,7 @@ export const Discover: React.FC = () => {
 // ============================================
 // WRITE PAGE
 // ============================================
-export const Write: React.FC = () => {
+export const Write: React.FC<{}> = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [stories, setStories] = useState<Story[]>([]);
@@ -181,7 +181,7 @@ export const Write: React.FC = () => {
 // ============================================
 // PROFILE PAGE
 // ============================================
-export const Profile: React.FC = () => {
+export const Profile: React.FC<{}> = () => {
   const { username } = useParams<{ username: string }>();
   const { user: currentUser } = useAuthStore();
   const [profile, setProfile] = useState<User | null>(null);
@@ -269,7 +269,7 @@ export const Profile: React.FC = () => {
 // ============================================
 // AUTH PAGE
 // ============================================
-export const Auth: React.FC = () => {
+export const Auth: React.FC<{}> = () => {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuthStore();
   const [isLogin, setIsLogin] = useState(true);
@@ -350,7 +350,7 @@ export const Auth: React.FC = () => {
 // ============================================
 // STORY DETAIL PAGE
 // ============================================
-export const StoryDetail: React.FC = () => {
+export const StoryDetail: React.FC<{}> = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuthStore();
   const [story, setStory] = useState<Story | null>(null);
@@ -415,7 +415,7 @@ export const StoryDetail: React.FC = () => {
 // ============================================
 // NOT FOUND PAGE
 // ============================================
-export const NotFound: React.FC = () => (
+export const NotFound: React.FC<{}> = () => (
   <main className="main-content flex items-center justify-center min-h-screen">
     <EmptyState
       icon={<BookOpen size={48} />}

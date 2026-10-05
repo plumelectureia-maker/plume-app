@@ -1,5 +1,4 @@
-import React from 'react';
-import { Heart, Bookmark, MessageCircle, Share2, Loader, X } from 'lucide-react';
+import { Heart, Bookmark, MessageCircle, Loader, X } from 'lucide-react';
 import type { Story } from '../types';
 
 // ============================================
@@ -46,10 +45,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '' }) => (
-  <div className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${className}`}>
+export const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => (
+  <div className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${className}`} onClick={onClick}>
     {children}
   </div>
 );

@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore, useUIStore } from './store';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
-import Discover from './pages/Discover';
-import Write from './pages/Write';
-import Profile from './pages/Profile';
-import StoryDetail from './pages/StoryDetail';
-import Auth from './pages/Auth';
-import NotFound from './pages/NotFound';
+import { Discover, Write, Profile, StoryDetail, Auth, NotFound } from './pages/Pages';
 
 function App() {
   const { user, fetchUser } = useAuthStore();
