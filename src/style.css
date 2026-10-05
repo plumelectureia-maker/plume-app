@@ -1,11 +1,11 @@
 :root{
   --col:440px;
-  --encre:#1F2A6B;--bleu:#3346C9;--sur-bleu:#FFFFFF;--bleu-doux:#E6E9FB;
-  --papier:#F7F8FD;--carte:#FFFFFF;--page:#E7EAF7;
-  --carreau:#C9CFEC;--carreau-fin:#E9ECF8;--marge:#E8939A;
-  --rouge:#C22F3B;--sur-rouge:#FFFFFF;--rouge-doux:#FCE8EA;
-  --vert:#1F7A59;--vert-doux:#E0F3EB;--or:#8F6510;--or-doux:#F8EDD2;
-  --texte:#1B2145;--texte-2:#575F84;--trait:#DCE0F2;
+  --encre:#30012F;--bleu:#6B2167;--sur-bleu:#FFFFFF;--bleu-doux:#F3E6F0;
+  --papier:#FBF6EC;--carte:#FFFDF8;--page:#EFE4D2;
+  --carreau:#DCC9D8;--carreau-fin:#EFE3EA;--marge:#E39AA0;
+  --rouge:#B3263E;--sur-rouge:#FFFFFF;--rouge-doux:#FBE6EA;
+  --vert:#8A6410;--vert-doux:#F7ECD0;--or:#8F6510;--or-doux:#F8EDD2;
+  --texte:#2A1328;--texte-2:#6E5A6B;--trait:#E9DDE0;
   --av-bg:88%;--av-fg:26%;
   color-scheme:light;
   box-sizing:border-box;
@@ -14,22 +14,22 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --encre:#CDD5FF;--bleu:#8B98FF;--sur-bleu:#0E1230;--bleu-doux:#232B5E;
-    --papier:#12162E;--carte:#191E3E;--page:#0B0E22;
-    --carreau:#2E3868;--carreau-fin:#222950;--marge:#8F4450;
-    --rouge:#FF8A93;--sur-rouge:#2A0F16;--rouge-doux:#3B2030;
-    --vert:#6EDDB1;--vert-doux:#173A33;--or:#E8BE62;--or-doux:#3A3218;
-    --texte:#E8EBFF;--texte-2:#A0A9D6;--trait:#2A3160;
+    --encre:#F6E7F2;--bleu:#E0AEDA;--sur-bleu:#2A0628;--bleu-doux:#4A1E47;
+    --papier:#1E0A1D;--carte:#2A1128;--page:#140513;
+    --carreau:#4E2C4A;--carreau-fin:#371B34;--marge:#8F4450;
+    --rouge:#FF8FA0;--sur-rouge:#2A0F16;--rouge-doux:#45202C;
+    --vert:#EBC56A;--vert-doux:#3E3115;--or:#EBC56A;--or-doux:#3E3115;
+    --texte:#F4E9F1;--texte-2:#C2ABBE;--trait:#46283F;
     --av-bg:26%;--av-fg:86%;color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --encre:#CDD5FF;--bleu:#8B98FF;--sur-bleu:#0E1230;--bleu-doux:#232B5E;
-  --papier:#12162E;--carte:#191E3E;--page:#0B0E22;
-  --carreau:#2E3868;--carreau-fin:#222950;--marge:#8F4450;
-  --rouge:#FF8A93;--sur-rouge:#2A0F16;--rouge-doux:#3B2030;
-  --vert:#6EDDB1;--vert-doux:#173A33;--or:#E8BE62;--or-doux:#3A3218;
-  --texte:#E8EBFF;--texte-2:#A0A9D6;--trait:#2A3160;
+  --encre:#F6E7F2;--bleu:#E0AEDA;--sur-bleu:#2A0628;--bleu-doux:#4A1E47;
+  --papier:#1E0A1D;--carte:#2A1128;--page:#140513;
+  --carreau:#4E2C4A;--carreau-fin:#371B34;--marge:#8F4450;
+  --rouge:#FF8FA0;--sur-rouge:#2A0F16;--rouge-doux:#45202C;
+  --vert:#EBC56A;--vert-doux:#3E3115;--or:#EBC56A;--or-doux:#3E3115;
+  --texte:#F4E9F1;--texte-2:#C2ABBE;--trait:#46283F;
   --av-bg:26%;--av-fg:86%;color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -309,7 +309,7 @@ input,textarea,select{font:inherit;color:inherit}
 .switch[aria-checked="true"]::after{transform:translateX(20px)}
 .seg{display:flex;padding:3px;border-radius:12px;background:var(--trait);gap:2px}
 .seg button{flex:1;min-height:40px;border-radius:10px;text-align:center;font:600 14px 'Hanken Grotesk',sans-serif;color:var(--texte-2)}
-.seg button[aria-pressed="true"]{background:var(--carte);color:var(--encre);box-shadow:0 1px 3px rgba(20,26,70,.15)}
+.seg button[aria-pressed="true"]{background:var(--carte);color:var(--encre);box-shadow:0 1px 3px rgba(48,1,47,.15)}
 .acc-head{display:flex;gap:16px;align-items:center;padding-top:6px}
 .plans{display:flex;flex-direction:column;gap:12px}
 .plan{display:flex;gap:14px;align-items:flex-start;width:100%;padding:16px;border-radius:16px;background:var(--carte);border:1.5px solid var(--trait)}
@@ -335,7 +335,7 @@ input,textarea,select{font:inherit;color:inherit}
 .tab .ic{width:23px;height:23px}
 .tab[aria-current="page"]{color:var(--bleu)}
 .tab[aria-current="page"] .ic{stroke-width:2.3}
-#sheet .scrim{position:fixed;inset:0;z-index:40;background:rgba(12,16,44,.52);display:flex;align-items:flex-end;justify-content:center;padding-top:env(safe-area-inset-top,0px)}
+#sheet .scrim{position:fixed;inset:0;z-index:40;background:rgba(30,4,28,.55);display:flex;align-items:flex-end;justify-content:center;padding-top:env(safe-area-inset-top,0px)}
 #sheet .scrim.mid{align-items:center}
 .sheet{width:100%;max-width:var(--col);max-height:94%;overflow-y:auto;background:var(--papier);border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));animation:rise .24s cubic-bezier(.2,.8,.2,1);outline:0}
 .sheet.modal{border-radius:18px;margin:0 18px;width:calc(100% - 36px);padding-bottom:20px}
