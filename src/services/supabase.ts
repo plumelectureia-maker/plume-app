@@ -286,13 +286,31 @@ export const stories = {
   },
 
   createStory: async (authorId: string, story: Partial<Story>) => {
-    // Generate slug: remove accents, special chars, convert spaces to dashes
-    const slug = (story.title || 'story')
+    // Generate base slug: remove accents, special chars, convert spaces to dashes
+    const baseSlug = (story.title || 'story')
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '') // Remove accents
       .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with dash
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+
+    // Find unique slug by checking for duplicates
+    let slug = baseSlug;
+    let counter = 1;
+    while (true) {
+      const { data: existing } = await supabase
+        .from('stories')
+        .select('id')
+        .eq('slug', slug)
+        .limit(1);
+      
+      if (!existing || existing.length === 0) {
+        break; // Slug is unique
+      }
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const { data, error } = await supabase
       .from('stories')
       .insert({ ...story, author_id: authorId, slug })
