@@ -284,7 +284,7 @@ const STABLE=()=>COMPS.reduce((o,c)=>{o[c.id]='stable';return o;},{});
 // Compte tout neuf : aucune histoire, aucun historique, aucune note du coach, forfait Gratuit.
 function freshAccount(){
   const o=seed();
-  Object.assign(o,{plan:'free',manuscripts:[],saved:[],following:[],reactions:{},likes:{},comments:{},chComments:{},
+  Object.assign(o,{v:2,plan:'free',manuscripts:[],saved:[],following:[],reactions:{},likes:{},comments:{},chComments:{},
     exos:{},exDraft:{},exDone:{},exHist:{},coachExos:[],credits:{month:monthKey(),used:0},reads:{week:mondayKey(),ids:[]}});
   o.profile={scores:ZERO(),prev:ZERO(),trend:STABLE(),history:[],memory:[]};
   return o;
@@ -303,9 +303,16 @@ function stripDemo(o){
   return o;
 }
 let S=deviceTheme(load());
-let SYNC_OFF=false;
-let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={};
+let SYNC_OFF=false,NOTICE='';
+let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={},SLIKES={},FAVS={},lastRC=0;
 const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
+const statLine=id=>'<span class="sline"><span>'+pl(READS[id]||0,'lecteur')+'</span><span>'+fmt(SLIKES[id]||0)+' J’aime</span><span>'+pl(FAVS[id]||0,'favori')+'</span></span>';
+async function refreshCounts(force){
+  if(!force&&Date.now()-lastRC<15000)return;lastRC=Date.now();
+  try{const c=await B.loadCounts();READS=c.reads;FOLL=c.follows;SLIKES=c.likes;FAVS=c.favs;}catch(e){return console.error(e);}
+  const top=UI.stack.length?UI.stack[UI.stack.length-1].name:'tab:'+UI.tab;
+  if(top!=='reader'&&top!=='editor'&&!UI.sheet)render();
+}
 const needLogin=m=>{toast(m);go('login');};const EXT_AUTHORS={};
 const userObj=se=>({name:B.userName(se),email:se.user.email,mode:'compte Plume (e-mail et mot de passe)'});
 function load(){try{const raw=localStorage.getItem(KEY);if(raw){const o=migrateReacts(Object.assign(seed(),JSON.parse(raw)));o.plan='free';o.user=null;return o;}}catch(e){}return seed();}
@@ -561,7 +568,7 @@ const deltaChip=d=>!d?'':'<span class="delta '+(d>=0?'pos':'neg')+'">'+(d>0?'+':
 
 function storyRow(s){
   const saved=S.saved.includes(s.id);
-  return '<div class="srow"><button class="rowmain" data-a="story" data-id="'+s.id+'">'+cover(s,'mini')+'<span class="sinfo"><b>'+esc(s.titre)+'</b><span class="small">'+esc(authorName(s.auteurId))+'</span><span class="small muted">'+esc(s.genre)+', '+pl(s.chapitres.length,'chapitre')+(s.lectures?', '+pl(s.lectures,'lecture'):'')+'</span></span></button>'+
+  return '<div class="srow"><button class="rowmain" data-a="story" data-id="'+s.id+'">'+cover(s,'mini')+'<span class="sinfo"><b>'+esc(s.titre)+'</b><span class="small">'+esc(authorName(s.auteurId))+'</span><span class="small muted">'+esc(s.genre)+', '+pl(s.chapitres.length,'chapitre')+'</span>'+statLine(s.id)+'</span></button>'+
     '<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter '+esc(s.titre)+' aux favoris">'+IC.mark+'</button></div>';
 }
 
@@ -579,7 +586,7 @@ function vDecouvrir(){
   }).join('');
   return brandTop(counter)+
   '<section class="pad"><div class="chips" role="group" aria-label="Genres">'+genres.map(g=>'<button class="chip'+(UI.genre===g?' on':'')+'" data-a="genre" data-g="'+esc(g)+'" aria-pressed="'+(UI.genre===g)+'">'+esc(g)+'</button>').join('')+'</div></section>'+
-  '<section class="pad"><h2 class="h2">À la une</h2><div class="feat"><button class="plain" data-a="story" data-id="'+feat.id+'" aria-label="Ouvrir '+esc(feat.titre)+'">'+cover(feat,'feat-c')+'</button><div class="ft"><h3><button class="plain" data-a="story" data-id="'+feat.id+'">'+esc(feat.titre)+'</button></h3><span class="small">'+esc(authorName(feat.auteurId))+'</span><p class="rs">'+esc(fr(feat.resume))+'</p><button class="btn sm" data-a="read" data-id="'+feat.id+'" data-ch="0">Lire le chapitre 1</button></div></div></section>'+
+  '<section class="pad"><h2 class="h2">À la une</h2><div class="feat"><button class="plain" data-a="story" data-id="'+feat.id+'" aria-label="Ouvrir '+esc(feat.titre)+'">'+cover(feat,'feat-c')+'</button><div class="ft"><h3><button class="plain" data-a="story" data-id="'+feat.id+'">'+esc(feat.titre)+'</button></h3><span class="small">'+esc(authorName(feat.auteurId))+'</span><p>'+statLine(feat.id)+'</p><p class="rs">'+esc(fr(feat.resume))+'</p><button class="btn sm" data-a="read" data-id="'+feat.id+'" data-ch="0">Lire le chapitre 1</button></div></div></section>'+
   '<section class="pad"><h2 class="h2">Talents émergents</h2><div class="authors">'+authors+'</div></section>'+
   '<section class="pad"><h2 class="h2">Histoires</h2>'+(list.length?list.map(storyRow).join(''):'<p class="empty">Aucune histoire dans ce genre pour l’instant.</p>')+'</section>';
 }
@@ -592,7 +599,7 @@ function vStory(p){
     return '<li><button data-a="read" data-id="'+s.id+'" data-ch="'+i+'"><span class="num">'+(i+1)+'</span><span>'+esc(c.titre)+'</span><span class="st">'+(locked?IC.lock:(read?IC.check:''))+'</span></button></li>';
   }).join('');
   return topBack('Histoire','<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter l’histoire aux favoris">'+IC.mark+'</button>')+
-  '<section class="pad story-head">'+cover(s,'big')+'<div><h1 class="h1">'+esc(s.titre)+'</h1><p>'+esc(authorName(s.auteurId))+'</p><p class="small muted">'+esc(s.genre)+(s.lectures?', '+pl(s.lectures,'lecture'):'')+'</p></div></section>'+
+  '<section class="pad story-head">'+cover(s,'big')+'<div><h1 class="h1">'+esc(s.titre)+'</h1><p>'+esc(authorName(s.auteurId))+'</p><p class="small muted">'+esc(s.genre)+', '+pl(s.chapitres.length,'chapitre')+'</p><p>'+statLine(s.id)+'</p></div></section>'+
   '<section class="pad"><p class="synopsis">'+esc(fr(s.resume))+'</p><div class="btns"><button class="btn" data-a="read" data-id="'+s.id+'" data-ch="0">Lire le chapitre 1</button>'+
   (au?'<button class="btn sec" data-a="follow" data-id="'+au.id+'" aria-pressed="'+!!foll+'">'+(foll?'Suivi':'Suivre '+esc(au.nom.split(' ')[0]))+'</button>':'')+'</div></section>'+
   '<section class="pad"><h2 class="h2">Chapitres</h2><ol class="chlist">'+chs+'</ol></section>'+
@@ -921,7 +928,7 @@ function render(){
   document.querySelectorAll('.ta').forEach(autosize);
 }
 function go(name,p){UI.stack.push({name:name,p:p||{}});render();}
-function setTab(t){UI.tab=t;UI.stack=[];render();}
+function setTab(t){UI.tab=t;UI.stack=[];render();if(t==='decouvrir'||t==='profil')refreshCounts();}
 let toastT;
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3200);}
 function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else r.removeAttribute('data-theme');}
@@ -931,14 +938,15 @@ const A={};
 A.tab=d=>setTab(d.t);
 A.back=()=>{UI.stack.pop();UI.reader={sel:null};render();};
 A.genre=d=>{UI.genre=d.g;render();};
-A.story=d=>go('story',{id:d.id});
+A.story=d=>{go('story',{id:d.id});refreshCounts();};
 A.follow=d=>{
   if(!SESSION)return needLogin('Connecte-toi pour suivre un auteur.');
   const i=S.following.indexOf(d.id),on=i<0;
   if(on){S.following.push(d.id);const a=authorsAll().find(x=>x.id===d.id);toast('Tu suis '+(a?a.nom:'cet auteur')+'.');}else S.following.splice(i,1);
   bump(FOLL,d.id,on?1:-1);B.setFollow(SESSION.user.id,d.id,on);save();render();
 };
-A.save=d=>{const i=S.saved.indexOf(d.id);if(i<0){S.saved.push(d.id);toast('Histoire ajoutée à tes favoris.');}else S.saved.splice(i,1);save();render();};
+A.save=d=>{const i=S.saved.indexOf(d.id),on=i<0;if(on){S.saved.push(d.id);toast('Histoire ajoutée à tes favoris.');}else S.saved.splice(i,1);
+  if(SESSION){bump(FAVS,d.id,on?1:-1);B.setFavorite(SESSION.user.id,d.id,on);}save();render();};
 A.read=d=>{
   const s=findStory(d.id);if(!s)return;
   const ci=+d.ch,key=s.id+':'+ci;rollover();
@@ -949,7 +957,7 @@ A.read=d=>{
   UI.reader={sel:null};
   const top=UI.stack[UI.stack.length-1];
   if(top&&top.name==='reader'){top.p={id:s.id,ch:ci};render();}else go('reader',{id:s.id,ch:ci});
-  if(SESSION)B.markRead(SESSION.user.id,s.id,ci);
+  if(SESSION)B.markRead(SESSION.user.id,s.id,ci).then(()=>refreshCounts(true));
   loadStats(s,ci);
   $('#view').scrollTop=0;
 };
@@ -968,7 +976,7 @@ A.like=()=>{
   if(!SESSION)return needLogin('Connecte-toi pour aimer ce chapitre.');
   const p=curP(),key=p.id+':'+p.ch,on=!S.likes[key];
   if(on)S.likes[key]=true;else delete S.likes[key];
-  bump(LIKES,key,on?1:-1);B.setLike(SESSION.user.id,key,on);save();render();
+  bump(LIKES,key,on?1:-1);bump(SLIKES,p.id,on?1:-1);B.setLike(SESSION.user.id,key,on);save();render();
 };
 function loadStats(s,ci){
   const base=s.id+':'+ci,keys=[base].concat(s.chapitres[ci].texte.map((t,i)=>base+':'+i));
@@ -1066,7 +1074,7 @@ A['login-submit']=async()=>{
     await attach(se);
     UI.login={name:'',email:'',pass:'',mode:'signin',busy:false};
     if(UI.stack.length&&UI.stack[UI.stack.length-1].name==='login')UI.stack.pop();
-    render();if(!SYNC_OFF)toast('Connecté. Bienvenue, '+S.user.name+'.');
+    render();if(!SYNC_OFF)toast(NOTICE||'Connecté. Bienvenue, '+S.user.name+'.');
   }catch(e){L.busy=false;render();toast(e.message||'La connexion a échoué.');}
 };
 A['go-account']=()=>go('account');
@@ -1123,19 +1131,26 @@ async function attach(se){
   const th=S.theme;
   let remote=null;
   try{remote=await B.loadState(se.user.id);}catch(e){console.error(e);SYNC_OFF=true;}
-  S=remote?migrateReacts(stripDemo(Object.assign(freshAccount(),remote))):freshAccount();
+  let cleaned=false;
+  if(remote){
+    const o=stripDemo(Object.assign(freshAccount(),remote));
+    // Compte enregistré avant le correctif : ses scores partaient d'une base de démonstration. On remet le profil à zéro.
+    if(remote.v!==2){o.profile=freshAccount().profile;cleaned=!!((remote.profile&&remote.profile.history||[]).length||(remote.profile&&COMPS.some(c=>remote.profile.scores&&remote.profile.scores[c.id])));}
+    o.v=2;S=migrateReacts(o);
+  }else S=freshAccount();
   S.theme=th;S.user=userObj(se);S.plan='free';
   try{const plan=await B.loadPlan();S.plan=plan||'free';}catch(e){console.error(e);}
   try{const used=await B.loadCreditsUsed();if(used!=null)S.credits={month:monthKey(),used};}catch(e){console.error(e);}
   applyTheme();rollover();
-  if(SYNC_OFF)toast('Ton compte n’a pas pu être chargé. Vérifie ta connexion puis recharge la page.');else save();
+  if(SYNC_OFF)toast('Ton compte n’a pas pu être chargé. Vérifie ta connexion puis recharge la page.');
+  else{save();if(S.saved.length)B.syncFavorites(se.user.id,S.saved);NOTICE=cleaned?'Ton profil d’écriture a été remis à zéro : il contenait des scores d’exemple.':'';}
 }
 async function boot(){
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
-  READS=cnt.reads;FOLL=cnt.follows;
+  READS=cnt.reads;FOLL=cnt.follows;SLIKES=cnt.likes;FAVS=cnt.favs;lastRC=Date.now();
   REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
   cms.forEach(c=>{(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body});});
   try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}
-  render();
+  render();if(NOTICE&&!SYNC_OFF)toast(NOTICE);
 }
 

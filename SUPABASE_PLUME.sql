@@ -128,3 +128,20 @@ drop policy if exists "usage read own" on public.plume_ai_usage;
 drop policy if exists "usage insert own" on public.plume_ai_usage;
 create policy "usage read own" on public.plume_ai_usage for select using (auth.uid() = user_id);
 create policy "usage insert own" on public.plume_ai_usage for insert with check (auth.uid() = user_id);
+
+-- ===== Compteurs par histoire : lecteurs, J'aime, favoris =====
+create table if not exists public.plume_favorites (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  story_id text not null,
+  primary key (user_id, story_id)
+);
+alter table public.plume_favorites enable row level security;
+drop policy if exists "own" on public.plume_favorites;
+create policy "own" on public.plume_favorites for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create or replace view public.plume_read_counts as
+  select story_id, count(distinct user_id)::int as n from public.plume_reads group by story_id;
+create or replace view public.plume_story_like_counts as
+  select split_part(key, ':', 1) as story_id, count(*)::int as n from public.plume_likes group by 1;
+create or replace view public.plume_fav_counts as
+  select story_id, count(*)::int as n from public.plume_favorites group by story_id;
+grant select on public.plume_read_counts, public.plume_story_like_counts, public.plume_fav_counts to anon, authenticated;

@@ -374,3 +374,4 @@ input,textarea,select{font:inherit;color:inherit}
 .rfont.on{border-color:var(--bleu);box-shadow:0 0 0 1.5px var(--bleu)}
 
 .credit-note{margin-top:10px;text-align:center}
+.sline{display:flex;flex-wrap:wrap;gap:0 10px;margin-top:2px;color:var(--texte-2);font-size:12px;line-height:1.4}.sline>span{white-space:nowrap}

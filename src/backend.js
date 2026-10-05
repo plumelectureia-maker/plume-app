@@ -171,17 +171,32 @@ export async function loadPlan() {
 /* ===== compteurs partagés ===== */
 const warn = (t) => ({ error }) => { if (error) console.error(t, error); };
 export async function loadCounts() {
-  if (!sb) return { reads: {}, follows: {} };
-  const [r, f] = await Promise.all([
+  if (!sb) return { reads: {}, follows: {}, likes: {}, favs: {} };
+  const [r, f, l, v] = await Promise.all([
     sb.from('plume_read_counts').select('story_id,n'),
     sb.from('plume_follow_counts').select('followee,n'),
+    sb.from('plume_story_like_counts').select('story_id,n'),
+    sb.from('plume_fav_counts').select('story_id,n'),
   ]);
-  const reads = {}, follows = {};
+  const reads = {}, follows = {}, likes = {}, favs = {};
   (r.data || []).forEach((x) => { reads[x.story_id] = x.n; });
   (f.data || []).forEach((x) => { follows[x.followee] = x.n; });
-  if (r.error) console.error(r.error);
-  if (f.error) console.error(f.error);
-  return { reads, follows };
+  (l.data || []).forEach((x) => { likes[x.story_id] = x.n; });
+  (v.data || []).forEach((x) => { favs[x.story_id] = x.n; });
+  [r, f, l, v].forEach((q) => { if (q.error) console.error(q.error); });
+  return { reads, follows, likes, favs };
+}
+export function setFavorite(uid, storyId, on) {
+  const q = on
+    ? sb.from('plume_favorites').upsert({ user_id: uid, story_id: storyId })
+    : sb.from('plume_favorites').delete().eq('user_id', uid).eq('story_id', storyId);
+  return q.then(warn('plume_favorites'));
+}
+export function syncFavorites(uid, ids) {
+  if (!ids.length) return Promise.resolve();
+  return sb.from('plume_favorites')
+    .upsert(ids.map((story_id) => ({ user_id: uid, story_id })), { ignoreDuplicates: true })
+    .then(warn('plume_favorites sync'));
 }
 export async function chapterStats(keys) {
   if (!sb || !keys.length) return { reactions: {}, likes: {} };
