@@ -358,3 +358,4 @@ input,textarea,select{font:inherit;color:inherit}
 .rbtn .rn{font:700 11.5px/1 'Hanken Grotesk',sans-serif;color:var(--texte-2)}
 .rbtn.on .rn{color:var(--bleu)}
 .rh-e{white-space:nowrap;margin-left:4px}
+.cx-go{margin:4px 0 10px}

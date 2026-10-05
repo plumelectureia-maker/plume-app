@@ -257,7 +257,7 @@ function seed(){
     comments:JSON.parse(JSON.stringify(SEED_COMMENTS)),chComments:JSON.parse(JSON.stringify(SEED_CH_COMMENTS)),likes:{},
     manuscripts:[{id:'m1',titre:'La maison du Vallon',genre:'Drame',resume:'Deux enfants héritent d’une maison qu’aucun des deux ne sait comment quitter.',published:false,active:0,
       chapitres:[{id:'c1',titre:'La clé sur la table',texte:'Élise posa la clé sur la table.\n\n— Tu veux vendre la maison ? demanda-t-elle.\n\nPaul ne leva pas les yeux de son téléphone.\n\n— Oui. Maman n’y habite plus, Élise.\n\n— Mais c’est la maison de papa.\n\n— Je sais.\n\nIl y eut un silence. Puis Paul soupira.\n\n— D’accord, on ne la vend pas.\n\nÉlise sourit, soulagée. Ils burent leur café et parlèrent d’autre chose. Dehors, le ciel était gris. Elle se dit que tout s’était bien passé, et que ce n’était finalement pas si compliqué.'}]}],
-    exos:{},exDraft:{},exDone:{},keepData:true,theme:'auto',
+    exos:{},exDraft:{},exDone:{},exHist:{},coachExos:[],keepData:true,theme:'auto',
     profile:{
       scores:{personnages:58,dialogues:46,tension:52,descriptions:61,rythme:49,structure:55,foreshadowing:38},
       prev:{personnages:50,dialogues:44,tension:41,descriptions:55,rythme:47,structure:45,foreshadowing:30},
@@ -434,7 +434,7 @@ function finish(res,src,note,promptLen){
   if(res.memoire)P.memory.unshift({comp:comp.id,note:res.memoire,quand:Date.now()});
   P.history=P.history.slice(0,30);P.memory=P.memory.slice(0,12);
   rollover();S.tokens.used+=tokens;save();
-  if(C.exId){S.exDone[C.exId]={score:res.score,app:res.appreciation||'',when:Date.now()};save();}
+  if(C.exId){const at={score:res.score,app:res.appreciation||'',when:Date.now()};S.exDone[C.exId]=at;S.exHist=S.exHist||{};(S.exHist[C.exId]=S.exHist[C.exId]||[]).push(at);S.exHist[C.exId]=S.exHist[C.exId].slice(-20);save();}
   Object.assign(C,{phase:'result',mode:'single',res,src,note,tokens,oldScore:old,newScore:nw});
   renderSheet();
   if(C.exId)render();
@@ -631,13 +631,16 @@ function vExercices(){
   '<section class="pad"><h2 class="h2">'+(f==='reco'?'Ton programme du moment':'Exercices de '+esc(compOf(f).nom))+'</h2>'+chips+
   (f==='reco'?'<p class="small muted">Deux exercices pour ta compétence la plus basse, un pour la deuxième, un pour consolider ton point fort.</p>':'')+
   '<div>'+list.map(exCard).join('')+'</div></section>'+
+  ((f==='reco'&&(S.coachExos||[]).length)?'<section class="pad"><h2 class="h2">Exercices proposés par le coach</h2><div>'+S.coachExos.slice(0,10).map(exCard).join('')+'</div></section>':'')+
   (doneList.length?'<section class="pad"><h2 class="h2">Exercices corrigés</h2><div>'+doneList.map(exCard).join('')+'</div></section>':'');
 }
+const findEx=id=>EXOS.find(x=>x.id===id)||(S.coachExos||[]).find(x=>x.id===id);
 function exWcText(e,t){return pl(wc(t),'mot')+', vise environ '+e.mots+'.';}
 function vExercice(p){
-  const e=EXOS.find(x=>x.id===p.id);if(!e)return topBack('Exercice')+'<p class="empty">Exercice introuvable.</p>';
+  const e=findEx(p.id);if(!e)return topBack('Exercice')+'<p class="empty">Exercice introuvable.</p>';
   const c=compOf(e.comp),r=roleOf(e.comp),sc=S.profile.scores[c.id],d=S.exDone[e.id],n=noteFor(c.id),draft=S.exDraft[e.id]||'';
-  const why=r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
+  const hist=(S.exHist&&S.exHist[e.id])||[];
+  const why=e.fromCoach?'Proposé par le coach après l’analyse de « '+e.source+' », pour travailler '+c.nom+' ('+sc+').':r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
   return topBack('Exercice')+'<section class="pad"><div class="exc-l"><span class="tagc '+r.cls+'">'+r.label+'</span><span class="exc-c">'+esc(c.nom)+'</span></div>'+
   '<h1 class="h1">'+esc(e.titre)+'</h1><p class="small muted">'+e.min+' min, environ '+e.mots+' mots</p>'+
   '<div class="why"><p><b>Pourquoi cet exercice</b></p><p>'+esc(why)+'</p>'+(n?'<p class="hand">'+esc(fr(n))+'</p>':'')+'</div>'+
@@ -645,8 +648,8 @@ function vExercice(p){
   '<h2 class="h2">Le conseil du coach</h2><p>'+esc(fr(c.methode))+'</p>'+
   '<h2 class="h2">Ton texte</h2><textarea class="ta seyes" data-in="exd" data-id="'+e.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton texte pour l’exercice">'+esc(draft)+'</textarea>'+
   '<p class="small muted" id="exwc" style="margin-top:8px">'+esc(exWcText(e,draft))+'</p>'+
-  (d?'<div class="note"><b>Dernière correction : '+d.score+'/100.</b> '+esc(fr(d.app))+'<br><span class="small">Tu peux réécrire ton texte et le faire corriger à nouveau.</span></div>':'')+
-  '<div class="btns"><button class="btn block" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+'Faire corriger par le coach</button></div>'+
+  (d?'<div class="note"><b>Dernière correction : '+d.score+'/100.</b> '+esc(fr(d.app))+(hist.length>1?'<br><span class="small">Tes '+hist.length+' corrections : '+hist.map(h=>h.score).join(' → ')+'</span>':'')+'<br><span class="small">Tu peux réécrire ton texte et le faire corriger à nouveau, autant de fois que tu veux.</span></div>':'')+
+  '<div class="btns"><button class="btn block" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+(d?'Faire corriger à nouveau':'Faire corriger par le coach')+'</button></div>'+
   (S.plan==='free'?'<p class="small muted" style="margin-top:10px">La correction par le coach est incluse dans Plume + et Plume ++.</p>':'')+'</section>';
 }
 
@@ -768,7 +771,7 @@ function coachGlobalResult(C){
       (i.diagnostic?'<p>'+esc(fr(i.diagnostic))+'</p>':'')+
       (i.force?'<p class="g"><b>Ce qui fonctionne.</b> '+esc(fr(i.force))+'</p>':'')+
       (i.attention?'<p class="r"><b>À travailler.</b> '+esc(fr(i.attention))+'</p>':'')+
-      (i.exercice?'<p><b>Exercice.</b> '+esc(fr(i.exercice))+'</p>':'')+
+      (i.exercice?'<p><b>Exercice.</b> '+esc(fr(i.exercice))+'</p>'+'<button class="btn sm cx-go" data-a="cx-start" data-id="'+i.id+'">'+IC.pen+'Faire cet exercice</button>':'')+
       '<p class="small muted">Ton score passe de '+C.olds[i.id]+' à '+S.profile.scores[i.id]+', tendance '+t[0]+'.</p></div></details>';
   }).join('');
   return '<div class="sheet-head"><h2 class="h2">Copie corrigée, analyse globale</h2>'+closeBtn+'</div>'+
@@ -812,11 +815,12 @@ const SHEETS={
     (r.forces.length?'<h3 class="g">Ce qui fonctionne</h3><ul class="g">'+r.forces.map(f=>'<li>'+esc(fr(f))+'</li>').join('')+'</ul>':'')+
     (r.attention?'<h3 class="r">Point d’attention</h3><p class="att">'+esc(fr(r.attention))+'</p>':'')+
     (r.questions.length?'<h3>Questions à te poser</h3><ul>'+r.questions.map(q=>'<li>'+esc(fr(q))+'</li>').join('')+'</ul>':'')+
-    (r.exercice?'<h3>Exercice</h3><p>'+esc(fr(r.exercice))+'</p>':'')+
+    (r.exercice?'<h3>Exercice</h3><p>'+esc(fr(r.exercice))+'</p>'+'<button class="btn sm cx-go" data-a="cx-start" data-id="'+comp.id+'">'+IC.pen+'Faire cet exercice</button>':'')+
     (r.lecon?'<h3>Leçon</h3><p>'+esc(fr(r.lecon))+'</p>':'')+
     (r.memoire?'<h3>Ce que le coach retient</h3><p class="hand">'+esc(fr(r.memoire))+'</p>':'')+'</div>'+
     '<p class="small muted">'+(C.note?esc(C.note)+' ':'')+'Ton score en '+esc(comp.nom)+' passe de '+C.oldScore+' à '+C.newScore+'. Diagnostic ajouté à ton profil.'+(C.src==='ia'?' Consommation estimée : environ '+fmt(C.tokens)+' tokens, il t’en reste '+fmt(budgetLeft())+' ce mois-ci.':' Aucun token consommé.')+'</p>'+
-    '<div class="btns"><button class="btn" data-a="coach-progress">Voir ma progression</button><button class="btn sec" data-a="sheet-close">Fermer</button></div>';
+    (C.exId?'<div class="btns"><button class="btn" data-a="sheet-close">'+IC.pen+'Retravailler mon texte</button><button class="btn sec" data-a="coach-progress">Voir ma progression</button></div>'
+      :'<div class="btns"><button class="btn" data-a="coach-progress">Voir ma progression</button><button class="btn sec" data-a="sheet-close">Fermer</button></div>');
   }
   const ai=HAS_AI===true?'Analyse par le coach IA. Elle consomme une partie de ton budget mensuel.':(HAS_AI===false?'Le coach IA n’est pas disponible pour le moment : une analyse locale simplifiée sera utilisée.':'Connexion au coach IA…');
   return '<div class="sheet-head"><h2 class="h2">Coach d’écriture</h2>'+closeBtn+'</div>'+
@@ -978,7 +982,15 @@ A['exo-run']=d=>{const c=compOf(d.id);openCoach({text:S.exos[d.id]||'',title:'Ex
 A['ecrire-tab']=d=>{UI.ecrireTab=d.t;render();};
 A.exf=d=>{UI.exFilter=d.f;render();};
 A['exo-open']=d=>go('exercice',{id:d.id});
-A['exd-run']=d=>{const e=EXOS.find(x=>x.id===d.id);openCoach({text:S.exDraft[e.id]||'',title:'Exercice, '+e.titre,compId:e.comp,fixed:true,exId:e.id,consigne:e.consigne});};
+A['cx-start']=d=>{
+  const C=UI.coach,r=C&&C.res;if(!r)return;
+  const txt=C.mode==='global'?((r.items.find(i=>i.id===d.id)||{}).exercice||''):r.exercice;if(!txt)return;
+  S.coachExos=S.coachExos||[];
+  let e=S.coachExos.find(x=>x.consigne===txt);
+  if(!e){e={id:'cx'+Date.now(),comp:d.id,titre:'Exercice du coach, '+compOf(d.id).nom,min:10,mots:150,tags:[],consigne:txt,fromCoach:true,source:C.title,when:Date.now()};S.coachExos.unshift(e);S.coachExos=S.coachExos.slice(0,30);save();}
+  closeSheet();UI.coach=null;go('exercice',{id:e.id});
+};
+A['exd-run']=d=>{const e=findEx(d.id);openCoach({text:S.exDraft[e.id]||'',title:'Exercice, '+e.titre,compId:e.comp,fixed:true,exId:e.id,consigne:e.consigne});};
 A['plans-open']=()=>{UI.planSel=S.plan==='free'?'plus':S.plan;go('plans');};
 A['to-plans']=()=>{closeSheet();UI.planSel=S.plan==='free'?'plus':S.plan;go('plans');};
 A.upgrade=()=>{closeSheet();UI.planSel='pp';go('plans');};
@@ -1030,7 +1042,7 @@ const IN={
  'ms-genre':el=>{curMs().genre=el.value;save();},
  'ms-text':el=>{curCh().texte=el.value;autosize(el);updateWc();save();},
  exo:el=>{S.exos[el.dataset.id]=el.value;autosize(el);save();},
- exd:el=>{S.exDraft[el.dataset.id]=el.value;autosize(el);const e=EXOS.find(x=>x.id===el.dataset.id),w=$('#exwc');if(w&&e)w.textContent=exWcText(e,el.value);save();},
+ exd:el=>{S.exDraft[el.dataset.id]=el.value;autosize(el);const e=findEx(el.dataset.id),w=$('#exwc');if(w&&e)w.textContent=exWcText(e,el.value);save();},
  'lg-name':el=>{UI.login.name=el.value;},
  'lg-mail':el=>{UI.login.email=el.value;},
  'lg-pass':el=>{UI.login.pass=el.value;},
