@@ -92,6 +92,7 @@ export const Write: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [newStoryTitle, setNewStoryTitle] = useState('');
   const [showNewStoryForm, setShowNewStoryForm] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadStories = async () => {
@@ -112,6 +113,7 @@ export const Write: React.FC<{}> = () => {
 
   const handleCreateStory = async () => {
     if (!user || !newStoryTitle.trim()) return;
+    setError('');
     try {
       const newStory = await storiesService.createStory(user.id, {
         title: newStoryTitle,
@@ -121,8 +123,10 @@ export const Write: React.FC<{}> = () => {
       setNewStoryTitle('');
       setShowNewStoryForm(false);
       navigate(`/story/${newStory.slug}`);
-    } catch (error) {
-      console.error('Failed to create story:', error);
+    } catch (err) {
+      const errorMsg = (err as Error).message || 'Erreur lors de la création';
+      setError(errorMsg);
+      console.error('Failed to create story:', err);
     }
   };
 
@@ -136,6 +140,7 @@ export const Write: React.FC<{}> = () => {
       {showNewStoryForm && (
         <Card className="mb-6 p-6">
           <h2 className="text-xl font-bold mb-4">Créer une nouvelle histoire</h2>
+          {error && <div className="p-3 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
           <Input
             label="Titre"
             value={newStoryTitle}
@@ -146,7 +151,7 @@ export const Write: React.FC<{}> = () => {
             <Button onClick={handleCreateStory} disabled={!newStoryTitle.trim()}>
               Créer
             </Button>
-            <Button variant="secondary" onClick={() => setShowNewStoryForm(false)}>
+            <Button variant="secondary" onClick={() => { setShowNewStoryForm(false); setError(''); }}>
               Annuler
             </Button>
           </div>
@@ -187,6 +192,7 @@ export const Write: React.FC<{}> = () => {
 // PROFILE PAGE
 // ============================================
 export const Profile: React.FC<{}> = () => {
+  const navigate = useNavigate();
   const { username } = useParams<{ username: string }>();
   const { user: currentUser } = useAuthStore();
   const [profile, setProfile] = useState<User | null>(null);
@@ -263,7 +269,11 @@ export const Profile: React.FC<{}> = () => {
       ) : (
         <div className="space-y-4">
           {stories.map((story) => (
-            <StoryItem key={story.id} story={story} />
+            <StoryItem
+              key={story.id}
+              story={story}
+              onClick={() => navigate(`/story/${story.slug}`)}
+            />
           ))}
         </div>
       )}
