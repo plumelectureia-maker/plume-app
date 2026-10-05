@@ -279,15 +279,40 @@ function seed(){
     }
   };
 }
-let S=load();
+const ZERO=()=>COMPS.reduce((o,c)=>{o[c.id]=0;return o;},{});
+const STABLE=()=>COMPS.reduce((o,c)=>{o[c.id]='stable';return o;},{});
+// Compte tout neuf : aucune histoire, aucun historique, aucune note du coach, forfait Gratuit.
+function freshAccount(){
+  const o=seed();
+  Object.assign(o,{plan:'free',manuscripts:[],saved:[],following:[],reactions:{},likes:{},comments:{},chComments:{},
+    exos:{},exDraft:{},exDone:{},exHist:{},coachExos:[],credits:{month:monthKey(),used:0},reads:{week:mondayKey(),ids:[]}});
+  o.profile={scores:ZERO(),prev:ZERO(),trend:STABLE(),history:[],memory:[]};
+  return o;
+}
+// Retire d'un ancien compte les données de démonstration qui y avaient été copiées.
+function stripDemo(o){
+  const demo=seed(),P=o.profile;
+  if(P){
+    P.history=(P.history||[]).filter(h=>h.src!=='demo');
+    P.memory=(P.memory||[]).filter(m=>!demo.profile.memory.some(d=>(m.note||'').slice(0,40)===d.note.slice(0,40)));
+    const sameAsDemo=COMPS.every(c=>P.scores&&P.scores[c.id]===demo.profile.scores[c.id]);
+    if(!P.history.length&&sameAsDemo){P.scores=ZERO();P.prev=ZERO();P.trend=STABLE();}
+  }
+  const dm=demo.manuscripts[0];
+  o.manuscripts=(o.manuscripts||[]).filter(m=>!(m.id===dm.id&&m.titre===dm.titre&&m.chapitres.length===1&&m.chapitres[0].texte===dm.chapitres[0].texte));
+  return o;
+}
+let S=deviceTheme(load());
+let SYNC_OFF=false;
 let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={};
 const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
 const needLogin=m=>{toast(m);go('login');};const EXT_AUTHORS={};
 const userObj=se=>({name:B.userName(se),email:se.user.email,mode:'compte Plume (e-mail et mot de passe)'});
-function load(){try{const raw=localStorage.getItem(KEY);if(raw){return migrateReacts(Object.assign(seed(),JSON.parse(raw)));}}catch(e){}return seed();}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){const o=migrateReacts(Object.assign(seed(),JSON.parse(raw)));o.plan='free';o.user=null;return o;}}catch(e){}return seed();}
+function deviceTheme(o){try{const t=localStorage.getItem('plume.theme');if(t==='light'||t==='dark'||t==='auto')o.theme=t;}catch(e){}return o;}
 let saveT;
-function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);
-  if(SESSION){B.saveState(SESSION.user.id,S);B.syncPublished(SESSION.user.id,S.user?S.user.name:B.userName(SESSION),S.manuscripts.filter(m=>m.published).map(msToStory));}}
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem('plume.theme',S.theme||'auto');if(!SESSION)localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);
+  if(SESSION&&!SYNC_OFF){B.saveState(SESSION.user.id,S);B.syncPublished(SESSION.user.id,S.user?S.user.name:B.userName(SESSION),S.manuscripts.filter(m=>m.published).map(msToStory));}}
 function rollover(){
   if(S.reads.week!==mondayKey())S.reads={week:mondayKey(),ids:[]};
   if(!S.credits||S.credits.month!==monthKey())S.credits={month:monthKey(),used:0};
@@ -328,7 +353,7 @@ function radar(){
   const axes=COMPS.map((c,i)=>{const p=pt(i,100);return '<line x1="'+cx+'" y1="'+cy+'" x2="'+f(p[0])+'" y2="'+f(p[1])+'" stroke="var(--carreau)" stroke-width="1"/>';}).join('');
   const labels=COMPS.map((c,i)=>{const p=pt(i,124);const an=p[0]<cx-6?'end':(p[0]>cx+6?'start':'middle');return '<text x="'+f(p[0])+'" y="'+f(p[1]+4)+'" text-anchor="'+an+'" class="rl">'+esc(c.nom)+'</text>';}).join('');
   const dots=COMPS.map((c,i)=>{const p=pt(i,S.profile.scores[c.id]||0);return '<circle cx="'+f(p[0])+'" cy="'+f(p[1])+'" r="3.5" fill="var(--bleu)"/>';}).join('');
-  return '<svg viewBox="0 0 340 320" class="radar" role="img" aria-label="Radar des sept compétences d’écriture">'+rings+axes+'<polygon points="'+poly(S.profile.prev)+'" fill="none" stroke="var(--rouge)" stroke-width="1.5" stroke-dasharray="4 3"/><polygon points="'+poly(S.profile.scores)+'" fill="var(--bleu)" fill-opacity=".16" stroke="var(--bleu)" stroke-width="2"/>'+dots+labels+'</svg>';
+  return '<svg viewBox="0 0 340 320" class="radar" role="img" aria-label="Radar des sept compétences d’écriture">'+rings+axes+(hasDiag()?'<polygon points="'+poly(S.profile.prev)+'" fill="none" stroke="var(--rouge)" stroke-width="1.5" stroke-dasharray="4 3"/>':'')+'<polygon points="'+poly(S.profile.scores)+'" fill="var(--bleu)" fill-opacity=".16" stroke="var(--bleu)" stroke-width="2"/>'+dots+labels+'</svg>';
 }
 
 /* ===== coach : analyse locale (repli) ===== */
@@ -382,7 +407,7 @@ function buildPrompt(comp,text,title,consigne){
   const last=P.history.filter(h=>h.comp===comp.id).slice(0,2).map(h=>'- '+dateFr(h.quand)+' : '+h.score+'/100, « '+h.appreciation+' »').join('\n')||'- (aucun diagnostic précédent)';
   return 'Tu es le coach éditorial de Plume, une application d’écriture de fiction. Tu es un professeur d’écriture bienveillant et exigeant. Tu n’écris JAMAIS l’histoire à la place de l’auteur et tu ne proposes pas de réécriture de phrases entières : tu expliques, tu poses des questions, tu proposes des exercices. Tu tutoies l’auteur et tu réponds en français.\n\n'+
   'Compétence analysée : '+comp.nom+'. Objectif : '+comp.objectif+'\nGrille d’analyse : '+comp.grille.join(' ; ')+'.\n\n'+
-  'Contexte longitudinal de l’auteur'+((S.user&&S.user.name)?' ('+S.user.name+')':'')+' :\n- Score actuel dans cette compétence : '+P.scores[comp.id]+'/100 (il y a trois mois : '+P.prev[comp.id]+'/100)\n- Notes de mémoire du coach :\n'+mem+'\n- Derniers diagnostics :\n'+last+'\n\n'+
+  'Contexte longitudinal de l’auteur'+((S.user&&S.user.name)?' ('+S.user.name+')':'')+' :\n- Score actuel dans cette compétence : '+(P.scores[comp.id]?P.scores[comp.id]+'/100 (il y a trois mois : '+P.prev[comp.id]+'/100)':'aucun, c’est sa première analyse')+'\n- Notes de mémoire du coach :\n'+mem+'\n- Derniers diagnostics :\n'+last+'\n\n'+
   (consigne?'Consigne de l’exercice donnée à l’auteur : '+consigne+'\nVérifie aussi si la consigne est respectée.\n\n':'')+
   'Texte à analyser ('+title+') :\n"""\n'+text.slice(0,9000)+'\n"""\n\n'+
   'Réponds uniquement avec un objet JSON de cette forme (cite de courts passages du texte pour appuyer le diagnostic) :\n'+
@@ -438,7 +463,7 @@ async function runCoach(){
 }
 function finish(res,src,note,promptLen){
   const C=UI.coach,comp=compOf(C.compId),P=S.profile;
-  const old=P.scores[comp.id],nw=Math.round(old*.65+res.score*.35);
+  const old=P.scores[comp.id],nw=old?Math.round(old*.65+res.score*.35):Math.max(1,res.score);if(!old)P.prev[comp.id]=nw;
   const tokens=src==='ia'?(C.exId?COST.exercise:COST.single):0;
   P.scores[comp.id]=nw;P.trend[comp.id]=res.tendance;
   P.history.unshift({id:'h'+Date.now(),comp:comp.id,score:res.score,appreciation:res.appreciation||'Diagnostic enregistré.',titre:C.title,quand:Date.now(),src});
@@ -455,7 +480,7 @@ function finish(res,src,note,promptLen){
 function buildGlobalPrompt(text,title){
   const P=S.profile;
   const grid=COMPS.map(c=>'- '+c.id+' ('+c.nom+') : '+c.objectif+' Grille : '+c.grille.join(' ; ')+'.').join('\n');
-  const ctx=COMPS.map(c=>{const m=P.memory.find(x=>x.comp===c.id);return '- '+c.id+' : score '+P.scores[c.id]+'/100 (il y a trois mois : '+P.prev[c.id]+'/100). Note du coach : '+(m?m.note:'aucune')+'.';}).join('\n');
+  const ctx=COMPS.map(c=>{const m=P.memory.find(x=>x.comp===c.id);return '- '+c.id+' : score '+(P.scores[c.id]?P.scores[c.id]+'/100 (il y a trois mois : '+P.prev[c.id]+'/100)':'aucun (première analyse)')+'. Note du coach : '+(m?m.note:'aucune')+'.';}).join('\n');
   return 'Tu es le coach éditorial de Plume, une application d’écriture de fiction. Tu es un professeur d’écriture bienveillant et exigeant. Tu n’écris JAMAIS l’histoire à la place de l’auteur et tu ne proposes pas de réécriture de phrases entières : tu expliques, tu poses des questions, tu proposes des exercices. Tu tutoies l’auteur et tu réponds en français.\n\n'+
   'Mission : analyse globale. Évalue le texte ci-dessous sur les 7 compétences suivantes.\n'+grid+'\n\n'+
   'Contexte longitudinal de l’auteur'+((S.user&&S.user.name)?' ('+S.user.name+')':'')+' :\n'+ctx+'\n\n'+
@@ -518,7 +543,7 @@ async function runGlobal(){
 }
 function finishGlobal(res,src,note,promptLen){
   const C=UI.coach,P=S.profile,tokens=src==='ia'?COST.global:0,olds={};
-  res.items.forEach(i=>{const old=P.scores[i.id];olds[i.id]=old;P.scores[i.id]=Math.round(old*.65+i.score*.35);P.trend[i.id]=i.tendance;});
+  res.items.forEach(i=>{const old=P.scores[i.id];olds[i.id]=old;P.scores[i.id]=old?Math.round(old*.65+i.score*.35):Math.max(1,i.score);if(!old)P.prev[i.id]=P.scores[i.id];P.trend[i.id]=i.tendance;});
   P.history.unshift({id:'h'+Date.now(),comp:'global',score:res.score,appreciation:res.appreciation||'Analyse globale enregistrée.',titre:C.title,quand:Date.now(),src});
   res.items.slice().sort((a,b)=>a.score-b.score).slice(0,2).forEach(i=>{if(i.memoire)P.memory.unshift({comp:i.id,note:i.memoire,quand:Date.now()});});
   P.history=P.history.slice(0,30);P.memory=P.memory.slice(0,12);
@@ -531,7 +556,8 @@ function finishGlobal(res,src,note,promptLen){
 const topBack=(title,right)=>'<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><b class="top-title">'+esc(title)+'</b>'+(right||'<span class="sp"></span>')+'</header>';
 const LOGO='<img class="logo" src="/logo.png" alt="" width="96" height="96">';
 const brandTop=right=>'<header class="top"><div class="brand">'+LOGO+'<span>Plume</span></div>'+(right||'')+'</header>';
-const deltaChip=d=>'<span class="delta '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' pts</span>';
+const hasDiag=()=>S.profile.history.length>0;
+const deltaChip=d=>!d?'':'<span class="delta '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' pts</span>';
 
 function storyRow(s){
   const saved=S.saved.includes(s.id);
@@ -605,6 +631,7 @@ function vReader(p){
 /* ===== s'exercer à écrire ===== */
 const sortedComps=()=>COMPS.slice().sort((a,b)=>S.profile.scores[a.id]-S.profile.scores[b.id]);
 function roleOf(compId){
+  if(!hasDiag())return {cls:'',label:'Pour démarrer',rank:-1};
   const s=sortedComps(),i=s.findIndex(c=>c.id===compId);
   if(i===0||i===1)return {cls:'r',label:'À travailler',rank:i};
   if(i===s.length-1)return {cls:'g',label:'Point fort',rank:i};
@@ -638,12 +665,12 @@ function vExercices(){
   const chips='<div class="chips" role="group" aria-label="Exercices par compétence"><button class="chip'+(f==='reco'?' on':'')+'" data-a="exf" data-f="reco" aria-pressed="'+(f==='reco')+'">Pour toi</button>'+
     COMPS.map(c=>'<button class="chip'+(f===c.id?' on':'')+'" data-a="exf" data-f="'+c.id+'" aria-pressed="'+(f===c.id)+'">'+esc(c.nom)+'</button>').join('')+'</div>';
   return '<section class="pad"><p class="muted">Des exercices choisis d’après ce que le coach a repéré dans tes textes. Tu écris, il corrige.</p>'+
-  '<h2 class="h2">Ton profil d’écriture</h2><div class="prof2"><div><h3 class="h3">À travailler</h3><div class="tags">'+weak.map(c=>'<span class="tagc r">'+esc(c.nom)+' <b>'+S.profile.scores[c.id]+'</b></span>').join('')+'</div></div>'+
+  (!hasDiag()?'<h2 class="h2">Ton profil d’écriture</h2><p class="muted">Il apparaîtra après ta première analyse par le coach. En attendant, voici des exercices pour démarrer.</p></section>':'<h2 class="h2">Ton profil d’écriture</h2><div class="prof2"><div><h3 class="h3">À travailler</h3><div class="tags">'+weak.map(c=>'<span class="tagc r">'+esc(c.nom)+' <b>'+S.profile.scores[c.id]+'</b></span>').join('')+'</div></div>'+
   '<div><h3 class="h3">Points forts</h3><div class="tags">'+strong.map(c=>'<span class="tagc g">'+esc(c.nom)+' <b>'+S.profile.scores[c.id]+'</b></span>').join('')+'</div></div></div>'+
   (note?'<div class="mem"><p class="hand">'+esc(fr(note.t))+'</p><p class="small muted">Noté par le coach sur '+esc(note.c.nom)+'</p></div>':'')+
-  '<p class="small muted">Ces repères viennent des diagnostics du coach et se mettent à jour à chaque correction.</p></section>'+
-  '<section class="pad"><h2 class="h2">'+(f==='reco'?'Ton programme du moment':'Exercices de '+esc(compOf(f).nom))+'</h2>'+chips+
-  (f==='reco'?'<p class="small muted">Deux exercices pour ta compétence la plus basse, un pour la deuxième, un pour consolider ton point fort.</p>':'')+
+  '<p class="small muted">Ces repères viennent des diagnostics du coach et se mettent à jour à chaque correction.</p></section>')+
+  '<section class="pad"><h2 class="h2">'+(f==='reco'?(hasDiag()?'Ton programme du moment':'Pour démarrer'):'Exercices de '+esc(compOf(f).nom))+'</h2>'+chips+
+  (f==='reco'&&hasDiag()?'<p class="small muted">Deux exercices pour ta compétence la plus basse, un pour la deuxième, un pour consolider ton point fort.</p>':'')+
   '<div>'+list.map(exCard).join('')+'</div></section>'+
   ((f==='reco'&&(S.coachExos||[]).length)?'<section class="pad"><h2 class="h2">Exercices proposés par le coach</h2><div>'+S.coachExos.slice(0,10).map(exCard).join('')+'</div></section>':'')+
   (doneList.length?'<section class="pad"><h2 class="h2">Exercices corrigés</h2><div>'+doneList.map(exCard).join('')+'</div></section>':'');
@@ -654,7 +681,7 @@ function vExercice(p){
   const e=findEx(p.id);if(!e)return topBack('Exercice')+'<p class="empty">Exercice introuvable.</p>';
   const c=compOf(e.comp),r=roleOf(e.comp),sc=S.profile.scores[c.id],d=S.exDone[e.id],n=noteFor(c.id),draft=S.exDraft[e.id]||'';
   const hist=(S.exHist&&S.exHist[e.id])||[];
-  const why=e.fromCoach?'Proposé par le coach après l’analyse de « '+e.source+' », pour travailler '+c.nom+' ('+sc+').':r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
+  const why=!hasDiag()&&!e.fromCoach?'Un bon exercice pour démarrer : il donnera au coach de la matière à analyser.':e.fromCoach?'Proposé par le coach après l’analyse de « '+e.source+' », pour travailler '+c.nom+' ('+sc+').':r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
   return topBack('Exercice')+'<section class="pad"><div class="exc-l"><span class="tagc '+r.cls+'">'+r.label+'</span><span class="exc-c">'+esc(c.nom)+'</span></div>'+
   '<h1 class="h1">'+esc(e.titre)+'</h1><p class="small muted">'+e.min+' min, environ '+e.mots+' mots</p>'+
   '<div class="why"><p><b>Pourquoi cet exercice</b></p><p>'+esc(why)+'</p>'+(n?'<p class="hand">'+esc(fr(n))+'</p>':'')+'</div>'+
@@ -697,25 +724,25 @@ function vProgression(){
   const mem=S.profile.memory.slice(0,2).map(x=>'<div class="mem"><p class="hand">'+esc(fr(x.note))+'</p><p class="small muted">'+esc(compOf(x.comp).nom)+', '+dateFr(x.quand)+'</p></div>').join('');
   const atl=COMPS.map(c=>{
     const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
-    return '<button class="atl" data-a="atelier" data-id="'+c.id+'"><span class="t"><b>'+esc(c.nom)+'</b><span class="small muted">'+esc(c.objectif)+'</span></span><span class="sc"><b>'+sc+'</b>'+deltaChip(dv)+'</span><span class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></span></button>';
+    return '<button class="atl" data-a="atelier" data-id="'+c.id+'"><span class="t"><b>'+esc(c.nom)+'</b><span class="small muted">'+esc(c.objectif)+'</span></span><span class="sc"><b>'+(sc?sc:'–')+'</b>'+deltaChip(dv)+'</span><span class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></span></button>';
   }).join('');
   const hist=S.profile.history.slice(0,5).map(h=>'<div class="hist"><span class="hs">'+h.score+'</span><div><p><b>'+esc(h.comp==='global'?'Analyse globale':compOf(h.comp).nom)+'</b>, '+esc(h.titre)+'</p><p class="muted">'+esc(fr(h.appreciation))+'</p><p class="small muted">'+dateFr(h.quand)+(h.src==='local'?', analyse locale':'')+'</p></div></div>').join('');
   return brandTop()+'<section class="pad"><h1 class="h1">Progression</h1>'+
   '<div class="lvl"><div><span class="lv-n">Niveau '+L.n+'</span><b class="serif lv-name">'+L.nom+'</b></div><div class="lv-score"><b>'+L.moy+'</b><span>sur 100 en moyenne</span></div></div>'+
-  '<p class="small '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' points par rapport au niveau observé il y a trois mois ('+L.prev+').</p>'+
-  radar()+'<div class="legend"><span><i></i>Aujourd’hui</span><span><i class="off"></i>Il y a trois mois</span></div></section>'+
-  '<section class="pad"><h2 class="h2">Objectif du mois</h2><div class="goal"><p><b>'+esc(w.nom)+'</b>, ta compétence la plus basse : passe de '+ws+' à '+Math.min(100,ws+7)+'.</p><p class="small muted">'+esc(w.methode)+'</p><button class="btn sm" data-a="atelier" data-id="'+w.id+'">Ouvrir l’atelier</button></div></section>'+
+  (hasDiag()?'<p class="small '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' points par rapport au niveau observé il y a trois mois ('+L.prev+').</p>':'<p class="small muted">Aucun diagnostic pour l’instant : tes scores apparaîtront après ta première analyse par le coach.</p>')+
+  radar()+'<div class="legend"><span><i></i>Aujourd’hui</span>'+(hasDiag()?'<span><i class="off"></i>Il y a trois mois</span>':'')+'</div></section>'+
+  (hasDiag()?'<section class="pad"><h2 class="h2">Objectif du mois</h2><div class="goal"><p><b>'+esc(w.nom)+'</b>, ta compétence la plus basse : passe de '+ws+' à '+Math.min(100,ws+7)+'.</p><p class="small muted">'+esc(w.methode)+'</p><button class="btn sm" data-a="atelier" data-id="'+w.id+'">Ouvrir l’atelier</button></div></section>':'<section class="pad"><h2 class="h2">Objectif du mois</h2><p class="muted">Écris un premier chapitre et demande une analyse au coach : il définira ton objectif.</p></section>')+
   '<section class="pad"><h2 class="h2">Ce que le coach a retenu</h2>'+(mem||'<p class="muted">Le coach notera tes habitudes d’écriture après ton premier diagnostic.</p>')+'</section>'+
   '<section class="pad"><h2 class="h2">École d’écriture</h2>'+atl+'</section>'+
   '<section class="pad"><h2 class="h2">Historique des diagnostics</h2>'+(hist||'<p class="muted">Aucun diagnostic pour l’instant.</p>')+'</section>'+
-  '<p class="pad small muted">Les scores de départ sont des données de démonstration. Ils évoluent avec chaque diagnostic.</p>';
+  (SESSION?'':'<p class="pad small muted">Les scores de départ sont des données de démonstration. Ils évoluent avec chaque diagnostic.</p>');
 }
 
 function vAtelier(p){
   const c=compOf(p.id);if(!c)return topBack('Atelier')+'<p class="empty">Atelier introuvable.</p>';
   const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
   return topBack('Atelier')+'<section class="pad"><h1 class="h1">'+esc(c.nom)+'</h1><p class="muted">'+esc(c.objectif)+'</p>'+
-  '<div class="lvl"><div><span class="lv-n">Ton score</span></div><div class="lv-score"><b>'+sc+'</b>'+deltaChip(dv)+'</div></div><div class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></div></section>'+
+  '<div class="lvl"><div><span class="lv-n">Ton score</span></div><div class="lv-score"><b>'+(sc?sc:'–')+'</b>'+deltaChip(dv)+'</div></div><div class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></div></section>'+
   '<section class="pad"><h2 class="h2">Méthode</h2><p>'+esc(fr(c.methode))+'</p></section>'+
   '<section class="pad"><h2 class="h2">Question de travail</h2><p class="q">'+esc(fr(c.question))+'</p></section>'+
   '<section class="pad"><h2 class="h2">Exercice</h2><p>'+esc(fr(c.exercice))+'</p><div style="height:12px"></div><textarea class="ta seyes" data-in="exo" data-id="'+c.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton exercice">'+esc(S.exos[c.id]||'')+'</textarea><div class="btns"><button class="btn block" data-a="exo-run" data-id="'+c.id+'">'+IC.cap+'Faire analyser par le coach</button></div></section>'+
@@ -744,7 +771,7 @@ function vAccount(){
     ?'<div class="split"><b>'+cr(Math.max(0,budget-used))+' restants</b><span class="small muted">sur '+fmt(budget)+'</span></div><div class="bar'+(pct>90?' hot':'')+'" role="progressbar" aria-valuemin="0" aria-valuemax="'+budget+'" aria-valuenow="'+Math.min(used,budget)+'"><i style="width:'+pct+'%"></i></div><p class="small muted" style="margin-top:10px">'+cr(used)+' utilisés ce mois-ci. Tes crédits reviennent le '+resetLabel()+'.</p><p class="small muted" style="margin-top:6px">'+CREDIT_HELP+'</p>'
     :'<p class="small muted">Le forfait Gratuit ne comprend pas de diagnostic personnalisé. Plume + offre 50 crédits par mois, Plume ++ en offre 200. '+CREDIT_HELP+'</p>')+'</div></section>'+
   '<section class="pad"><h2 class="h2">Achats et données</h2><button class="rowitem" data-a="restore"><span>Restaurer les achats Google Play<small>Relit tes abonnements depuis Google Play.</small></span>'+IC.next+'</button>'+
-  '<div class="rowitem"><span>Conserver les données locales<small>Garde tes manuscrits et ta progression à la déconnexion.</small></span><button class="switch" role="switch" aria-checked="'+S.keepData+'" aria-label="Conserver les données locales" data-a="keep"></button></div></section>'+
+'</section>'+
   '<section class="pad"><button class="btn danger block" data-a="logout">Se déconnecter</button></section>';
 }
 
@@ -754,10 +781,10 @@ function vPlans(){
     const p=PLANS[id];
     return '<div class="plan" role="radio" tabindex="0" aria-checked="'+(sel===id)+'" data-a="plan-pick" data-id="'+id+'"><span class="radio" aria-hidden="true"></span><div class="pl-main"><div class="pl-top"><span class="pl-name">'+esc(p.nom)+'</span><span class="pl-price">'+esc(p.prixTxt)+'</span></div><ul>'+p.points.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+(S.plan===id?'<span class="tag">Forfait actuel</span>':'')+'</div></div>';
   }).join('');
-  const label=sel===S.plan?'Forfait actuel':(sel==='free'?'Revenir au forfait Gratuit':'Passer à '+PLANS[sel].nom);
+  const label=sel===S.plan?'Forfait actuel':(sel==='free'?'Forfait Gratuit':'Paiement bientôt disponible');
   return topBack('Forfaits')+'<section class="pad"><h1 class="h1">Choisis ton forfait</h1><p class="muted">Dès Plume +, la lecture et la publication restent illimitées, même quand ton budget de coach est épuisé.</p>'+
-  '<div class="note or">Mode aperçu : aucun paiement n’est effectué. Sur Android, l’achat réel passera par Google Play Billing.</div>'+
-  '<div class="plans" role="radiogroup" aria-label="Forfaits">'+cards+'</div><div class="btns"><button class="btn block" data-a="plan-go"'+(sel===S.plan?' disabled':'')+'>'+esc(label)+'</button></div>'+
+  '<div class="note or">Le paiement en ligne arrive bientôt. En attendant, tout le monde commence avec le forfait Gratuit.</div>'+
+  '<div class="plans" role="radiogroup" aria-label="Forfaits">'+cards+'</div><div class="btns"><button class="btn block" data-a="plan-go" disabled'+'>'+esc(label)+'</button></div>'+
   '<p class="small muted" style="margin-top:12px">Le compteur de lecture gratuit repart chaque lundi. Le budget de coach IA repart le 1er de chaque mois.</p></section>';
 }
 
@@ -786,7 +813,7 @@ function coachGlobalResult(C){
       (i.force?'<p class="g"><b>Ce qui fonctionne.</b> '+esc(fr(i.force))+'</p>':'')+
       (i.attention?'<p class="r"><b>À travailler.</b> '+esc(fr(i.attention))+'</p>':'')+
       (i.exercice?'<p><b>Exercice.</b> '+esc(fr(i.exercice))+'</p>'+'<button class="btn sm cx-go" data-a="cx-start" data-id="'+i.id+'">'+IC.pen+'Faire cet exercice</button>':'')+
-      '<p class="small muted">Ton score passe de '+C.olds[i.id]+' à '+S.profile.scores[i.id]+', tendance '+t[0]+'.</p></div></details>';
+      '<p class="small muted">'+(C.olds[i.id]?'Ton score passe de '+C.olds[i.id]+' à '+S.profile.scores[i.id]+', tendance '+t[0]+'.':'Ton premier score : '+S.profile.scores[i.id]+'.')+'</p></div></details>';
   }).join('');
   return '<div class="sheet-head"><h2 class="h2">Copie corrigée, analyse globale</h2>'+closeBtn+'</div>'+
   '<div class="paper seyes"><div class="pp-head"><div class="stamp"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="M48 6C72 5 91 24 90 49c-1 24-20 42-44 41C22 89 5 70 6 46 7 23 26 7 50 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><span class="n">'+r.score+'</span><span class="d">sur 100</span></div><div><p class="hand ap">'+esc(fr(r.appreciation||'Analyse globale terminée.'))+'</p><span class="tend">Moyenne des '+r.items.length+' compétences</span></div></div>'+
@@ -816,7 +843,7 @@ const SHEETS={
  },
  confirm:p=>{
   const T=p.kind==='logout'
-   ?['Se déconnecter ?','Ton abonnement en aperçu sera désactivé. '+(S.keepData?'Tes manuscrits et ta progression restent sur cet appareil.':'Tes manuscrits et ta progression locale seront effacés.'),'Se déconnecter']
+   ?['Se déconnecter ?','Tes manuscrits et ta progression sont sauvegardés sur ton compte. Tu les retrouveras en te reconnectant.','Se déconnecter']
    :['Réinitialiser la démo ?','Tes manuscrits, ta progression et tes réglages locaux reviennent aux données de démonstration.','Réinitialiser'];
   return '<h2 class="h2">'+T[0]+'</h2><p>'+T[1]+'</p><div class="btns"><button class="btn danger" data-a="confirm-yes" data-k="'+p.kind+'">'+T[2]+'</button><button class="btn sec" data-a="sheet-close">Annuler</button></div>';
  },
@@ -841,7 +868,7 @@ const SHEETS={
     (r.exercice?'<h3>Exercice</h3><p>'+esc(fr(r.exercice))+'</p>'+'<button class="btn sm cx-go" data-a="cx-start" data-id="'+comp.id+'">'+IC.pen+'Faire cet exercice</button>':'')+
     (r.lecon?'<h3>Leçon</h3><p>'+esc(fr(r.lecon))+'</p>':'')+
     (r.memoire?'<h3>Ce que le coach retient</h3><p class="hand">'+esc(fr(r.memoire))+'</p>':'')+'</div>'+
-    '<p class="small muted">'+(C.note?esc(C.note)+' ':'')+'Ton score en '+esc(comp.nom)+' passe de '+C.oldScore+' à '+C.newScore+'. Diagnostic ajouté à ton profil.'+(C.src==='ia'?' Cette analyse a utilisé '+cr(C.tokens)+', il t’en reste '+budgetLeft()+' ce mois-ci.':' Aucun crédit utilisé.')+'</p>'+
+    '<p class="small muted">'+(C.note?esc(C.note)+' ':'')+(C.oldScore?'Ton score en '+esc(comp.nom)+' passe de '+C.oldScore+' à '+C.newScore+'.':'Ton premier score en '+esc(comp.nom)+' : '+C.newScore+'.')+' Diagnostic ajouté à ton profil.'+(C.src==='ia'?' Cette analyse a utilisé '+cr(C.tokens)+', il t’en reste '+budgetLeft()+' ce mois-ci.':' Aucun crédit utilisé.')+'</p>'+
     (C.exId?'<div class="btns"><button class="btn" data-a="sheet-close">'+IC.pen+'Retravailler mon texte</button><button class="btn sec" data-a="coach-progress">Voir ma progression</button></div>'
       :'<div class="btns"><button class="btn" data-a="coach-progress">Voir ma progression</button><button class="btn sec" data-a="sheet-close">Fermer</button></div>');
   }
@@ -849,7 +876,7 @@ const SHEETS={
   return '<div class="sheet-head"><h2 class="h2">Coach d’écriture</h2>'+closeBtn+'</div>'+
   '<p class="muted">Le coach lit « '+esc(C.title)+' », t’explique ce qui marche et ce qui manque, puis te propose un exercice. Il n’écrit jamais la suite à ta place.</p>'+
   '<h3 class="h3" style="margin-top:16px">Compétence à analyser</h3><div class="chips wrap">'+COMPS.map(c=>'<button class="chip'+(C.compId===c.id?' on':'')+'" data-a="coach-comp" data-id="'+c.id+'" aria-pressed="'+(C.compId===c.id)+'">'+esc(c.nom)+'</button>').join('')+'</div>'+
-  '<p class="small muted">Suggestion : '+esc(w.nom)+', ta compétence la plus basse ('+S.profile.scores[w.id]+').</p>'+
+  (hasDiag()?'<p class="small muted">Suggestion : '+esc(w.nom)+', ta compétence la plus basse ('+S.profile.scores[w.id]+').</p>':'<p class="small muted">Choisis la compétence que tu veux travailler en premier.</p>')+
   '<p class="budget-line">Il te reste '+cr(budgetLeft())+' ce mois-ci. '+esc(ai)+'</p>'+
   '<button class="btn block" data-a="coach-run">Analyser '+esc(comp.nom)+' ('+cr(C.exId?COST.exercise:COST.single)+')</button>'+
   (C.fixed?'':'<div class="or-sep"><span>ou</span></div><button class="btn sec block" data-a="coach-global">'+IC.cap+'Analyser les 7 compétences ('+cr(COST.global)+')</button><p class="small muted" style="margin-top:8px">Analyse globale : une seule lecture, un diagnostic pour chaque compétence. Plus complète et plus longue.</p>');
@@ -1022,11 +1049,8 @@ A['to-plans']=()=>{closeSheet();UI.planSel=S.plan==='free'?'plus':S.plan;go('pla
 A.upgrade=()=>{closeSheet();UI.planSel='pp';go('plans');};
 A['plan-pick']=d=>{UI.planSel=d.id;render();};
 A['plan-go']=()=>{
-  const sel=UI.planSel;if(sel===S.plan)return;
-  if(!S.user){toast('Connecte-toi pour activer un forfait.');return go('login');}
-  S.plan=sel;save();
-  toast(sel==='free'?'Retour au forfait Gratuit.':PLANS[sel].nom+' activé en mode aperçu. Aucun débit n’a eu lieu.');
-  render();
+  if(!S.user){toast('Connecte-toi pour choisir un forfait.');return go('login');}
+  toast('Le paiement en ligne n’est pas encore disponible. Les abonnements arrivent bientôt.');
 };
 A['login-go']=()=>go('login');
 A['login-mode']=()=>{UI.login.mode=UI.login.mode==='signin'?'signup':'signin';render();};
@@ -1042,23 +1066,21 @@ A['login-submit']=async()=>{
     await attach(se);
     UI.login={name:'',email:'',pass:'',mode:'signin',busy:false};
     if(UI.stack.length&&UI.stack[UI.stack.length-1].name==='login')UI.stack.pop();
-    render();toast('Connecté. Bienvenue, '+S.user.name+'.');
+    render();if(!SYNC_OFF)toast('Connecté. Bienvenue, '+S.user.name+'.');
   }catch(e){L.busy=false;render();toast(e.message||'La connexion a échoué.');}
 };
 A['go-account']=()=>go('account');
 A.logout=()=>openSheet('confirm',{kind:'logout'});
 A.reset=()=>openSheet('confirm',{kind:'reset'});
 A['confirm-yes']=d=>{
-  const th=S.theme,kd=S.keepData;
+  const th=S.theme;
   if(d.k==='logout'){
     B.flush().finally(()=>B.signOut());SESSION=null;
-    const wipe=!S.keepData;
-    if(wipe){S=seed();S.theme=th;S.keepData=kd;}else{S.user=null;S.plan='free';}
+    S=seed();S.theme=th;
     toast('Tu es déconnecté.');
-  }else{S=seed();S.theme=th;if(SESSION)S.user=userObj(SESSION);toast('Données de démonstration rétablies.');}
+  }else{S=seed();S.theme=th;if(SESSION){S=freshAccount();S.theme=th;S.user=userObj(SESSION);}toast('Compte remis à zéro.');}
   applyTheme();save();UI.sheet=null;UI.coach=null;renderSheet();UI.stack=[];UI.tab='profil';render();
 };
-A.keep=()=>{S.keepData=!S.keepData;save();render();};
 A.restore=()=>toast('Mode aperçu : la restauration Google Play est inactive. En production, elle relit tes achats depuis Google Play.');
 A.theme=d=>{S.theme=d.v;applyTheme();save();render();};
 
@@ -1097,14 +1119,16 @@ $('#tabs').innerHTML=TABS.map(t=>'<button class="tab" data-a="tab" data-t="'+t[0
 render();getSample();boot();
 
 async function attach(se){
-  SESSION=se;
+  SESSION=se;SYNC_OFF=false;
+  const th=S.theme;
   let remote=null;
-  try{remote=await B.loadState(se.user.id);}catch(e){console.error(e);}
-  if(remote){const th=S.theme;S=migrateReacts(Object.assign(seed(),remote));if(!remote.theme)S.theme=th;}
-  try{const plan=await B.loadPlan();if(plan)S.plan=plan;}catch(e){console.error(e);}
+  try{remote=await B.loadState(se.user.id);}catch(e){console.error(e);SYNC_OFF=true;}
+  S=remote?migrateReacts(stripDemo(Object.assign(freshAccount(),remote))):freshAccount();
+  S.theme=th;S.user=userObj(se);S.plan='free';
+  try{const plan=await B.loadPlan();S.plan=plan||'free';}catch(e){console.error(e);}
   try{const used=await B.loadCreditsUsed();if(used!=null)S.credits={month:monthKey(),used};}catch(e){console.error(e);}
-  S.user=userObj(se);
-  applyTheme();rollover();save();
+  applyTheme();rollover();
+  if(SYNC_OFF)toast('Ton compte n’a pas pu être chargé. Vérifie ta connexion puis recharge la page.');else save();
 }
 async function boot(){
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
