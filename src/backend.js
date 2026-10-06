@@ -107,7 +107,7 @@ export async function flush() {
 /* ===== commentaires partagés ===== */
 export async function loadComments() {
   if (!sb) return [];
-  const { data, error } = await sb.from('plume_comments').select('id,key,author_id,author_name,body').order('created_at', { ascending: true }).limit(5000);
+  const { data, error } = await sb.from('plume_comments').select('id,key,author_id,author_name,body,hidden').order('created_at', { ascending: true }).limit(5000);
   if (error) { console.error('plume_comments', error); return []; }
   return data || [];
 }

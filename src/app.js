@@ -431,7 +431,7 @@ function rollover(){
 const UI={tab:'accueil',q:'',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
 
 /* ===== aides métier ===== */
-const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>(!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)),S.manuscripts.filter(m=>m.published).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
+const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>(!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!r.hidden),S.manuscripts.filter(m=>m.published).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
   .map(st=>Object.assign({},st,{lectures:READS[st.id]||0}));
 const authorsAll=()=>{const seen={},ext=[];REMOTE_STORIES.forEach(r=>{if((!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!seen[r.auteurId]){seen[r.auteurId]=1;ext.push({id:r.auteurId,nom:EXT_AUTHORS[r.auteurId]});}});return ext.concat(AUTHORS);};
 function msToStory(m){
@@ -1793,7 +1793,7 @@ async function boot(){
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
   READS=cnt.reads;FOLL=cnt.follows;SLIKES=cnt.likes;FAVS=cnt.favs;lastRC=Date.now();
   REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,hidden:!!r.hidden,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
-  cms.forEach(c=>{(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body,id:c.id,uid:c.author_id});});
+  cms.forEach(c=>{if(c.hidden)return;(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body,id:c.id,uid:c.author_id});});
   try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}
   render();if(NOTICE&&!SYNC_OFF)toast(NOTICE);
   BOOTED=true;if(B.isRecovering())openRecovery();else maybeAskGenres();

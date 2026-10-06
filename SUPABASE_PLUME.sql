@@ -244,9 +244,22 @@ create policy "own" on public.plume_blocks for all using (auth.uid() = blocker) 
 
 -- Suppression de son propre compte (efface aussi ses données : elles sont liées au compte)
 create or replace function public.delete_my_account() returns void language plpgsql security definer set search_path = public, auth as $$
+declare
+  uid uuid := auth.uid();
+  sids text[];
 begin
-  if auth.uid() is null then raise exception 'not authenticated'; end if;
-  delete from auth.users where id = auth.uid();
+  if uid is null then raise exception 'not authenticated'; end if;
+  -- ce qui concerne les histoires de ce compte (lectures, J'aime, favoris, réactions, commentaires des autres)
+  select coalesce(array_agg(id), '{}') into sids from public.plume_published where author_id = uid;
+  delete from public.plume_reads where story_id = any(sids);
+  delete from public.plume_favorites where story_id = any(sids);
+  delete from public.plume_likes where split_part(key, ':', 1) = any(sids);
+  delete from public.plume_reactions where split_part(key, ':', 1) = any(sids);
+  delete from public.plume_comments
+    where (case when key like 's:%' then substr(key, 3) else split_part(key, ':', 2) end) = any(sids);
+  delete from public.plume_follows where followee = 'ext:' || uid::text;
+  -- le compte et tout ce qui lui est rattaché (état, histoires, commentaires, blocages…) disparaissent avec lui
+  delete from auth.users where id = uid;
 end $$;
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
