@@ -1,5 +1,6 @@
 import * as B from './backend.js';
 import './style.css';
+const A={};
 
 /* ===== utilitaires ===== */
 const $=(s,r=document)=>r.querySelector(s);
@@ -348,7 +349,7 @@ function seed(){
   const now=Date.now();
   return {
     user:null,plan:'free',genres:[],genresAsked:false,lib:{status:{},lists:[],pos:{}},
-    xp:0,streak:{last:'',n:0},day:{d:'',words:0},week:{k:'',words:0,days:[],ex:0,reads:0,ch:0},challenge:{d:'',state:''},lessons:{},bible:{},prefs:{coach:true,signals:true,goal:500},readSeen:{},exoXP:{},pubXP:{},
+    xp:0,streak:{last:'',n:0},day:{d:'',words:0},week:{k:'',words:0,days:[],ex:0,reads:0,ch:0},challenge:{d:'',state:''},lessons:{},bible:{},prefs:{coach:true,signals:true,goal:500,nFollow:true,nComment:true,nChapter:true},annSeen:0,readSeen:{},exoXP:{},pubXP:{},
     credits:{month:monthKey(),used:0},
     reads:{week:mondayKey(),ids:[]},
     saved:[],following:[],reactions:{},
@@ -396,6 +397,143 @@ let S=deviceTheme(load());
 let SYNC_OFF=false,NOTICE='';
 let STATS={},SESSION=null,BLOCKED=new Map(),HIDDEN_MINE=new Set(),REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={},SLIKES={},FAVS={},lastRC=0,mutSeq=0;
 const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
+IX.bell=I('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>');
+IX.calendar=I('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>');
+IX.history=I('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>');
+IX.download=I('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>');
+IX.wifioff=I('<path d="m2 2 20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 4.17-2.65"/><path d="M10.66 5c4.01-.36 8.14.9 11.34 3.76"/><path d="M16.85 11.25a10 10 0 0 1 2.22 1.68"/><path d="M5 12.86a10 10 0 0 1 5.17-2.69"/><path d="M12 20h.01"/>');
+// ===== historique des versions d'un chapitre =====
+const VERS={},GVK='plume.versions.guest';let snapT=null;
+const VWHY={auto:'enregistrée automatiquement',manuelle:'enregistrée par toi','avant analyse':'avant une analyse du coach','avant restauration':'avant une restauration'};
+const gvAll=()=>{try{return JSON.parse(localStorage.getItem(GVK)||'{}');}catch(e){return {};}};
+const vKey=(msId,ch)=>msId+':'+ch;
+async function vList(msId,ch,force){
+  const k=vKey(msId,ch);if(!force&&VERS[k])return VERS[k];
+  let l=[];
+  if(SESSION){try{l=await B.loadVersions(SESSION.user.id,msId,ch);}catch(e){l=VERS[k]||[];}}
+  else l=gvAll()[k]||[];
+  VERS[k]=l;return l;
+}
+async function vStore(msId,ch,snaps){
+  const k=vKey(msId,ch);VERS[k]=snaps;
+  if(SESSION){try{await B.saveVersions(SESSION.user.id,msId,ch,snaps);}catch(e){console.error(e);}}
+  else{const g=gvAll();g[k]=snaps;try{localStorage.setItem(GVK,JSON.stringify(g));}catch(e){}}
+}
+async function takeSnapshot(m,ch,why,force){
+  const c=m&&m.chapitres[ch];if(!c)return false;const txt=c.texte||'';
+  if(!txt.trim())return false;
+  const list=await vList(m.id,ch),last=list[0];
+  if(last&&last.texte===txt)return false;
+  if(!force){
+    if(last&&(Date.now()-last.t<10*60000||Math.abs(wc(txt)-last.mots)<20))return false;
+    if(!last&&wc(txt)<30)return false;
+  }
+  await vStore(m.id,ch,[{t:Date.now(),texte:txt.slice(0,80000),mots:wc(txt),why:why||'auto'}].concat(list).slice(0,SESSION?12:5));
+  return true;
+}
+function diffText(a,b){
+  const A=String(a).split(/\s+/).filter(Boolean),B=String(b).split(/\s+/).filter(Boolean),n=A.length,m=B.length;
+  if(n*m>6e6)return null;
+  const w=m+1,dp=new Uint16Array((n+1)*w);
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i*w+j]=A[i]===B[j]?dp[(i+1)*w+j+1]+1:Math.max(dp[(i+1)*w+j],dp[i*w+j+1]);
+  let i=0,j=0,add=0,del=0,keep=0;const html=[];
+  while(i<n&&j<m){
+    if(A[i]===B[j]){html.push(esc(A[i]));i++;j++;keep++;}
+    else if(dp[(i+1)*w+j]>=dp[i*w+j+1]){html.push('<del>'+esc(A[i])+'</del>');i++;del++;}
+    else{html.push('<ins>'+esc(B[j])+'</ins>');j++;add++;}
+  }
+  while(i<n){html.push('<del>'+esc(A[i++])+'</del>');del++;}
+  while(j<m){html.push('<ins>'+esc(B[j++])+'</ins>');add++;}
+  return {html:html.join(' '),add:add,del:del,keep:n?Math.round(keep/n*100):100};
+}
+A['versions-open']=async()=>{
+  const m=curMs();if(!m)return;const ch=clamp(m.active||0,0,m.chapitres.length-1);
+  UI.vs={msId:m.id,ch:ch,loading:true,list:[],view:null};openSheet('versions');
+  const l=await vList(m.id,ch,true);if(!UI.vs)return;UI.vs.list=l;UI.vs.loading=false;renderSheet();
+};
+A['v-save']=async()=>{
+  const V=UI.vs,m=V&&getMs(V.msId);if(!m)return;
+  const ok=await takeSnapshot(m,V.ch,'manuelle',true);
+  if(!ok)return toast('Rien de nouveau à enregistrer : ce texte est déjà dans la dernière version.');
+  V.list=await vList(V.msId,V.ch);renderSheet();toast('Version enregistrée.');
+};
+A['v-view']=d=>{UI.vs.view=+d.i;renderSheet();};
+A['v-list']=()=>{UI.vs.view=null;renderSheet();};
+A['v-restore']=async d=>{
+  const V=UI.vs,m=V&&getMs(V.msId),c=m&&m.chapitres[V.ch],sn=V&&V.list[+d.i];if(!sn||!c)return;
+  await takeSnapshot(m,V.ch,'avant restauration',true);
+  c.texte=sn.texte;m.upd=Date.now();save();closeSheet();render();
+  toast('Version du '+fmtWhen(sn.t)+' restaurée. L’ancien texte reste dans l’historique.');
+};
+// ===== notifications =====
+let NOTIFS=[],ANN=[],notifTimer=null;
+const NKIND={follow:'nFollow',comment:'nComment',chapter:'nChapter',story:'nChapter'};
+const notifOn=n=>{const k=NKIND[n.kind];return !k||S.prefs[k]!==false;};
+const notifUnread=()=>NOTIFS.filter(n=>!n.read&&notifOn(n)).length+ANN.filter(a=>a.id>(S.annSeen||0)).length;
+function bellBtn(){
+  if(!SESSION)return '';const n=notifUnread();
+  return '<button class="iconbtn bellbtn" data-a="notifs-open" aria-label="Notifications'+(n?' ('+n+' non lue'+(n>1?'s':'')+')':'')+'">'+IX.bell+(n?'<i class="nbadge">'+(n>9?'9+':n)+'</i>':'')+'</button>';
+}
+function updateBadge(){const el=document.querySelector('.bellbtn');if(el)el.outerHTML=bellBtn();}
+const topName=()=>UI.stack.length?UI.stack[UI.stack.length-1].name:'tab:'+UI.tab;
+async function refreshNotifs(){
+  if(!SESSION||SYNC_OFF)return;
+  try{const r=await B.loadNotifications();NOTIFS=r.notifs;ANN=r.announcements;}catch(e){return;}
+  if(topName()==='notifs'&&!UI.sheet)render();else updateBadge();
+}
+function startNotifPoll(){stopNotifPoll();refreshNotifs();notifTimer=setInterval(()=>{if(document.visibilityState==='visible')refreshNotifs();},60000);}
+function stopNotifPoll(){clearInterval(notifTimer);notifTimer=null;NOTIFS=[];ANN=[];}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshNotifs();});
+function ago(ts){
+  const d=(Date.now()-new Date(ts).getTime())/1000;
+  if(d<60)return 'à l’instant';if(d<3600)return 'il y a '+Math.floor(d/60)+' min';if(d<86400)return 'il y a '+Math.floor(d/3600)+' h';
+  if(d<172800)return 'hier';if(d<604800)return 'il y a '+Math.floor(d/86400)+' j';return dateFr(new Date(ts).getTime());
+}
+function nText(n){
+  const a=esc(n.actor_name||'Quelqu’un'),t='« '+esc(n.story_title||'ton histoire')+' »';
+  if(n.kind==='follow')return '<b>'+a+'</b> te suit désormais.';
+  if(n.kind==='comment')return '<b>'+a+'</b> a commenté '+t+(n.body?' : « '+esc(n.body)+' »':'.');
+  if(n.kind==='chapter')return 'Nouveau chapitre de '+t+', par <b>'+a+'</b>.';
+  if(n.kind==='story')return '<b>'+a+'</b> a publié '+t+'.';
+  if(n.kind==='moderation')return 'Ton histoire '+t+' a été masquée après plusieurs signalements. Elle est en cours de vérification.';
+  if(n.kind==='restored')return 'Ton histoire '+t+' est de nouveau visible.';
+  return '';
+}
+const NICON={follow:'users',comment:'pen',chapter:'sparkles',story:'sparkles',moderation:'flag',restored:'check'};
+function vNotifs(){
+  if(!SESSION)return topBack('Notifications')+'<section class="pad"><p class="empty">Connecte-toi pour suivre tes abonnés, tes commentaires et les nouveaux chapitres.</p><button class="btn block" data-a="login-go">Se connecter</button></section>';
+  const items=NOTIFS.filter(notifOn).map(n=>({t:new Date(n.visible_at).getTime(),n:n})).concat(ANN.map(a=>({t:new Date(a.created_at).getTime(),a:a}))).sort((x,y)=>y.t-x.t);
+  const rows=items.map(it=>it.n
+    ?'<button class="card nitem'+(it.n.read?'':' unread')+'" data-a="notif-go" data-id="'+it.n.id+'">'+tile(NICON[it.n.kind]||'sparkles',null,'lil')+'<span class="ltxt"><span>'+nText(it.n)+'</span><span class="small muted">'+ago(it.n.visible_at)+'</span></span>'+(it.n.read?'':'<i class="udot" aria-label="Non lue"></i>')+'</button>'
+    :'<div class="card nitem'+(it.a.id>(S.annSeen||0)?' unread':'')+'">'+tile('sparkles',null,'amber')+'<span class="ltxt"><b>'+esc(it.a.title)+'</b>'+(it.a.body?'<span>'+esc(it.a.body)+'</span>':'')+'<span class="small muted">Annonce de l’équipe Plume · '+ago(it.a.created_at)+'</span></span></div>').join('');
+  const sw=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+(S.prefs[k]!==false)+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
+  return topBack('Notifications','<button class="link" data-a="notifs-readall">Tout marquer comme lu</button>')+'<section class="pad">'+(rows||'<p class="empty">Rien de neuf pour l’instant. Les nouveaux abonnés, commentaires et chapitres apparaîtront ici.</p>')+
+    '<h2 class="h2">Ce que je veux recevoir</h2><div class="card rows">'+sw('nFollow','Nouveaux abonnés','Quand quelqu’un te suit')+sw('nComment','Commentaires','Sur tes histoires')+sw('nChapter','Nouveaux chapitres','Des auteurs que tu suis')+'</div></section>';
+}
+A['notifs-open']=()=>{go('notifs');refreshNotifs();if(ANN.length){S.annSeen=Math.max.apply(null,ANN.map(a=>a.id));}};
+A['notifs-readall']=async()=>{const ids=NOTIFS.filter(n=>!n.read).map(n=>n.id);NOTIFS.forEach(n=>{n.read=true;});if(ANN.length)S.annSeen=Math.max.apply(null,ANN.map(a=>a.id));save();render();try{await B.markNotifsRead(ids);}catch(e){console.error(e);}};
+A['notif-go']=d=>{
+  const n=NOTIFS.find(x=>String(x.id)===String(d.id));if(!n)return;
+  if(!n.read){n.read=true;B.markNotifsRead([n.id]);}
+  if(n.kind==='follow'){render();return go('talents');}
+  if(n.kind==='moderation'||n.kind==='restored'){const m=S.manuscripts.find(x=>SESSION&&B.remoteId(x.id,SESSION.user.id)===n.story_id);if(m)return go('publish',{id:m.id});}
+  const st=findStory(n.story_id);if(st)return go('story',{id:st.id});
+  render();toast('Cette histoire n’est plus disponible.');
+};
+// ===== hors connexion et histoires téléchargées =====
+const DLK='plume.offline',DLMAX=4*1024*1024;
+const dlAll=()=>{try{return JSON.parse(localStorage.getItem(DLK)||'{}');}catch(e){return {};}};
+const dlHas=id=>!!dlAll()[id];
+const dlStories=()=>Object.keys(dlAll()).map(k=>dlAll()[k].story);
+function dlSave(o){try{const x=JSON.stringify(o);if(x.length>DLMAX)return false;localStorage.setItem(DLK,x);return true;}catch(e){return false;}}
+let OFFLINE=typeof navigator!=='undefined'&&navigator.onLine===false,BOOT_OFFLINE=false;
+function syncOffbar(){
+  let b=document.getElementById('offbar');
+  if(!b){b=document.createElement('div');b.id='offbar';b.className='offbar';b.setAttribute('role','status');document.body.appendChild(b);}
+  b.hidden=!OFFLINE;b.innerHTML=OFFLINE?IX.wifioff+'<span>Hors connexion : tu peux lire tes histoires téléchargées.</span>':'';
+}
+window.addEventListener('offline',()=>{OFFLINE=true;syncOffbar();});
+window.addEventListener('online',()=>{OFFLINE=false;syncOffbar();if(BOOT_OFFLINE){location.reload();}else{toast('De nouveau en ligne.');refreshNotifs();}});
 IX.more=I('<circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/><circle cx="5" cy="12" r="1.3"/>');
 IX.lib=I('<path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/>');
 IX.flag=I('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>');
@@ -431,7 +569,7 @@ function rollover(){
 const UI={tab:'decouvrir',q:'',cq:'',cgenre:'Tout',csort:'pop',genre:'Tout',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
 
 /* ===== aides métier ===== */
-const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>(!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!r.hidden),S.manuscripts.filter(m=>m.published).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
+const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>(!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!r.hidden),S.manuscripts.filter(m=>m.published&&!isScheduled(m)).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
   .map(st=>Object.assign({},st,{lectures:READS[st.id]||0}));
 const authorsAll=()=>{const seen={},ext=[];REMOTE_STORIES.forEach(r=>{if((!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!seen[r.auteurId]){seen[r.auteurId]=1;ext.push({id:r.auteurId,nom:EXT_AUTHORS[r.auteurId]});}});return ext.concat(AUTHORS);};
 function msToStory(m){
@@ -439,7 +577,10 @@ function msToStory(m){
     c1:DEF_C1,c2:DEF_C2,motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,
     chapitres:m.chapitres.map(c=>({titre:c.titre,texte:c.texte.split(/\n+/).map(s=>s.trim()).filter(Boolean)}))};
 }
-const findStory=id=>allStories().find(s=>s.id===id);
+const isScheduled=m=>!!(m.published&&m.publishAt&&m.publishAt>Date.now());
+const toLocalInput=ts=>{const d=new Date(ts);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);};
+const fmtWhen=ts=>{const d=new Date(ts);return d.getDate()+' '+MOIS[d.getMonth()]+' à '+String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0');};
+const findStory=id=>allStories().find(s=>s.id===id)||dlStories().find(s=>s.id===id);
 const authorName=id=>id==='me'?((S.user&&S.user.name)||'Toi'):(EXT_AUTHORS[id]||(AUTHORS.find(a=>a.id===id)||{nom:''}).nom);
 const cmFor=(key,ch)=>((ch?SEED_CH_COMMENTS:SEED_COMMENTS)[key]||[]).concat((SHARED_CM[(ch?'c:':'s:')+key]||[]).filter(c=>!(c.uid&&BLOCKED.has(c.uid))));
 const getMs=id=>S.manuscripts.find(m=>m.id===id);
@@ -461,8 +602,8 @@ function xpInfo(){
 }
 function fixState(o){
   const d=seed();
-  ['xp','streak','day','week','challenge','lessons','bible','prefs','readSeen','exoXP','pubXP','genres','genresAsked','lib'].forEach(k=>{if(o[k]==null)o[k]=d[k];});
-  o.prefs=Object.assign({coach:true,signals:true,goal:500},o.prefs);
+  ['xp','streak','day','week','challenge','lessons','bible','prefs','readSeen','exoXP','pubXP','genres','genresAsked','annSeen','lib'].forEach(k=>{if(o[k]==null)o[k]=d[k];});
+  o.prefs=Object.assign({coach:true,signals:true,goal:500,nFollow:true,nComment:true,nChapter:true},o.prefs);
   return o;
 }
 function ensureDay(){
@@ -825,9 +966,9 @@ function libRow(s,listId){
 function vBiblio(){
   const tab=UI.libTab||'reading';
   const reading=libByStatus('reading').sort((a,b)=>((libPos(b.id)||{}).t||0)-((libPos(a.id)||{}).t||0));
-  const data={reading:reading,toread:libByStatus('toread'),done:libByStatus('done'),fav:S.saved.map(findStory).filter(Boolean)};
-  const tabs=[['reading','En cours'],['toread','À lire'],['done','Terminés'],['fav','Favoris'],['lists','Dossiers']];
-  const EMPTY={reading:'Tes lectures en cours apparaîtront ici dès que tu ouvriras un chapitre.',toread:'Ajoute des histoires « À lire » depuis leur fiche.',done:'Les histoires que tu as terminées arriveront ici.',fav:'Touche l’étoile d’une histoire pour la retrouver ici.'};
+  const data={reading:reading,toread:libByStatus('toread'),done:libByStatus('done'),fav:S.saved.map(findStory).filter(Boolean),dl:dlStories().map(x=>findStory(x.id)||x)};
+  const tabs=[['reading','En cours'],['toread','À lire'],['done','Terminés'],['fav','Favoris'],['dl','Téléchargées'],['lists','Dossiers']];
+  const EMPTY={reading:'Tes lectures en cours apparaîtront ici dès que tu ouvriras un chapitre.',toread:'Ajoute des histoires « À lire » depuis leur fiche.',done:'Les histoires que tu as terminées arriveront ici.',fav:'Touche l’étoile d’une histoire pour la retrouver ici.',dl:'Télécharge une histoire depuis sa fiche pour la lire sans connexion.'};
   let body;
   if(tab==='lists'){
     body='<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouveau dossier (ex. À lire cet été)" aria-label="Nom du nouveau dossier" data-enter="list-new"><button class="btn sm" data-a="list-new">Créer</button></div>'+
@@ -896,7 +1037,7 @@ function vEcrire(){
   let main;
   if(m){
     const c=activeCh(m),ex=String(c.texte||'').replace(/\s+/g,' ').trim();
-    main='<div class="card mcard"><button class="mmain" data-a="ms-open" data-id="'+m.id+'"><span class="row-between"><span class="gchip'+(m.published?'':' priv')+'">'+(m.published?IX.globe+'Publié':IX.lock+'Brouillon privé')+'</span><span class="saved">'+(SESSION?'Sauvegardé':'Sur cet appareil')+'</span></span>'+
+    main='<div class="card mcard"><button class="mmain" data-a="ms-open" data-id="'+m.id+'"><span class="row-between"><span class="gchip'+(m.published?'':' priv')+'">'+(m.published?IX.globe+(isScheduled(m)?'Programmée · '+fmtWhen(m.publishAt):'Publié'):IX.lock+'Brouillon privé')+'</span><span class="saved">'+(SESSION?'Sauvegardé':'Sur cet appareil')+'</span></span>'+
       '<b class="ptitle">'+esc(m.titre||'Sans titre')+'</b><span class="psub">'+esc(c.titre)+'</span><span class="excerpt">'+esc(ex.slice(0,150))+(ex.length>150?'…':'')+'</span>'+
       '<span class="prog"><b class="bignum">'+fmt(dw)+'</b><span class="bar amber" aria-hidden="true"><i style="width:'+Math.min(100,dw/goal*100)+'%"></i></span></span><span class="row-between small muted"><span>mots aujourd’hui</span><span>Objectif '+fmt(goal)+'</span></span></button>'+
       '<button class="link pub" data-a="publish-open" data-id="'+m.id+'">'+IX.globe+'Préparer la publication</button></div>';
@@ -907,7 +1048,7 @@ function vEcrire(){
   const bs=[['persos','users','Personnages',pl(bib?bib.persos.length:0,'fiche')],['structure','branch','Structure',bib?'Acte '+bib.acte:'Acte I'],['idees','bulb','Idées',pl(bib?bib.idees.length:0,'note')],['chrono','list','Chronologie',pl(bib?bib.chrono.length:0,'repère')]];
   const rows=S.manuscripts.map(x=>{
     const w=x.chapitres.reduce((a,c)=>a+wc(c.texte),0);
-    return '<button class="ms" data-a="ms-open" data-id="'+x.id+'"><span class="mi"><b>'+esc(x.titre||'Sans titre')+'</b><span class="small muted">'+pl(w,'mot')+', '+pl(x.chapitres.length,'chapitre')+'</span></span><span class="pill'+(x.published?' pub':'')+'">'+(x.published?'Publié':'Brouillon')+'</span></button>';
+    return '<button class="ms" data-a="ms-open" data-id="'+x.id+'"><span class="mi"><b>'+esc(x.titre||'Sans titre')+'</b><span class="small muted">'+pl(w,'mot')+', '+pl(x.chapitres.length,'chapitre')+'</span></span><span class="pill'+(x.published?' pub':'')+'">'+(x.published?(isScheduled(x)?'Programmée':'Publié'):'Brouillon')+'</span></button>';
   }).join('');
   return '<section class="pad"><div class="row-between top-hero"><div><p class="eyebrow">TON ATELIER</p><h1 class="hh">Écris. Apprends. Recommence.</h1></div><button class="sprintbtn" data-a="sprint-open" aria-label="Sprint d’écriture chronométré">'+IX.hourglass+'</button></div>'+main+offer+
   '<h2 class="h2">La boussole de ton histoire</h2><div class="compass">'+bs.map(b=>'<button class="cpi" data-a="boussole-open" data-t="'+b[0]+'"><span class="cpi-i">'+IX[b[1]]+'</span><b>'+b[2]+'</b><span class="small muted">'+b[3]+'</span></button>').join('')+'</div>'+
@@ -957,14 +1098,23 @@ function vPublish(p){
   '<h2 class="h2">Synopsis</h2><textarea class="ta" data-in="ms-resume" maxlength="400" placeholder="En deux ou trois phrases, de quoi parle ton histoire ?" aria-label="Synopsis">'+esc(m.resume||'')+'</textarea>'+
   '<h2 class="h2">Jaquette</h2><div class="jq">'+cover(msToStory(m),'mini')+'<div><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
   (S.plan==='free'&&!m.published?'<p class="small muted" style="margin-top:14px">Avec le forfait Gratuit, tu peux publier 1 histoire au total ('+pubs+' sur 1 aujourd’hui).</p>':'')+
-  '<div class="btns"><button class="btn block'+(m.published?' sec':'')+'" data-a="ms-publish" data-id="'+m.id+'">'+(m.published?'Retirer de Découvrir':IX.globe+'Publier cette histoire')+'</button></div></section>';
+  pubControls(m)+'</section>';
+}
+function pubControls(m){
+  if(isScheduled(m))return '<div class="note sched">'+IX.calendar+'<span>Programmée pour le <b>'+fmtWhen(m.publishAt)+'</b>. Personne d’autre que toi ne la voit jusque-là.</span></div>'+(B.schedulingAvailable()?'':'<div class="note or">La programmation n’est pas encore activée sur le serveur : ton histoire n’a pas été envoyée. Elle partira dès l’activation.</div>')+
+    '<div class="btns"><button class="btn block" data-a="ms-publish" data-id="'+m.id+'" data-now="1">'+IX.globe+'Publier maintenant</button><button class="btn sec block" data-a="ms-publish" data-id="'+m.id+'">Annuler la programmation</button></div>';
+  if(m.published)return '<div class="btns"><button class="btn block sec" data-a="ms-publish" data-id="'+m.id+'">Retirer de Découvrir</button></div>';
+  const later=UI.pubMode==='later';
+  return '<h2 class="h2">Quand ?</h2><div class="seg" role="group" aria-label="Moment de publication"><button data-a="pub-mode" data-v="now" aria-pressed="'+!later+'">Maintenant</button><button data-a="pub-mode" data-v="later" aria-pressed="'+later+'">Programmer</button></div>'+
+    (later?'<label class="field"><span>Date et heure de publication</span><input type="datetime-local" id="pub-when" data-in="pub-when" min="'+toLocalInput(Date.now()+10*60000)+'" value="'+esc(UI.pubWhen||'')+'"></label><p class="small muted">Entre 5 minutes et 90 jours. À l’heure dite, l’histoire apparaît dans Découvrir et tes abonnés sont prévenus.</p><div class="btns"><button class="btn block" data-a="ms-schedule" data-id="'+m.id+'">'+IX.calendar+'Programmer la publication</button></div>'
+      :'<div class="btns"><button class="btn block" data-a="ms-publish" data-id="'+m.id+'">'+IX.globe+'Publier cette histoire</button></div>');
 }
 
 function vEditor(p){
   const m=getMs(p.id);if(!m)return topBack('Manuscrit')+'<p class="empty">Ce manuscrit est introuvable.</p>';
   const act=clamp(m.active||0,0,m.chapitres.length-1),c=m.chapitres[act],goal=S.prefs.goal,w=wc(c.texte),focus=!!UI.focus;
   const sc=compOf(UI.editComp)||weakestOrFirst();
-  const head='<header class="edtop"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><span class="savedot"><i></i>'+(SESSION?'Enregistré sur ton compte':'Enregistré sur cet appareil')+'</span><span class="edact"><button class="iconbtn" data-a="coach-open" aria-label="Demander au coach">'+IX.sparkles+'</button><button class="iconbtn" data-a="focus-toggle" aria-pressed="'+focus+'" aria-label="Mode concentration">'+(focus?IX.eye:IX.eyeoff)+'</button></span></header>';
+  const head='<header class="edtop"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><span class="savedot"><i></i>'+(SESSION?'Enregistré sur ton compte':'Enregistré sur cet appareil')+'</span><span class="edact"><button class="iconbtn" data-a="versions-open" aria-label="Versions du chapitre">'+IX.history+'</button><button class="iconbtn" data-a="coach-open" aria-label="Demander au coach">'+IX.sparkles+'</button><button class="iconbtn" data-a="focus-toggle" aria-pressed="'+focus+'" aria-label="Mode concentration">'+(focus?IX.eye:IX.eyeoff)+'</button></span></header>';
   const meta=focus?'':'<div class="pad edhead"><input class="title-in big" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre du manuscrit">'+
     '<input class="line-in chap" id="ch-title" value="'+esc(c.titre)+'" data-in="ch-title" maxlength="80" aria-label="Titre du chapitre">'+
     '<div class="chips" role="group" aria-label="Chapitres">'+m.chapitres.map((ch,i)=>'<button class="chip'+(i===act?' on':'')+'" data-a="ms-ch" data-i="'+i+'">Chapitre '+(i+1)+'</button>').join('')+'<button class="chip" data-a="ms-addch">'+IC.plus+'Chapitre</button></div>'+
@@ -1043,7 +1193,7 @@ function vProfil(){
   const goal=S.prefs.goal;
   const works=S.manuscripts.map(m=>{
     const w=m.chapitres.reduce((a,c)=>a+wc(c.texte),0),pct=Math.min(100,Math.round(w/(goal*m.chapitres.length)*100)),r=READS[SESSION?B.remoteId(m.id,SESSION.user.id):m.id]||0;
-    return '<button class="card work" data-a="ms-open" data-id="'+m.id+'">'+tile(m.published?'globe':'book',null,m.published?'sage':'lil')+'<span class="ltxt"><b>'+esc(m.titre||'Sans titre')+'</b><span class="small muted">'+pl(m.chapitres.length,'chapitre')+' · '+(m.published?'Publiée':'Brouillon privé')+'</span></span><span class="gchip '+(m.published?'sagec':'')+'">'+(m.published?pl(r,'lecture'):pct+' %')+'</span></button>'+(m.published&&SESSION?'<button class="link wstats" data-a="stats-open" data-id="'+m.id+'">'+IX.users+'Statistiques</button>':'');}).join('');
+    return '<button class="card work" data-a="ms-open" data-id="'+m.id+'">'+tile(m.published?'globe':'book',null,m.published?'sage':'lil')+'<span class="ltxt"><b>'+esc(m.titre||'Sans titre')+'</b><span class="small muted">'+pl(m.chapitres.length,'chapitre')+' · '+(m.published?(isScheduled(m)?'Programmée le '+fmtWhen(m.publishAt):'Publiée'):'Brouillon privé')+'</span></span><span class="gchip '+(m.published?'sagec':'')+'">'+(m.published?pl(r,'lecture'):pct+' %')+'</span></button>'+(m.published&&SESSION?'<button class="link wstats" data-a="stats-open" data-id="'+m.id+'">'+IX.users+'Statistiques</button>':'');}).join('');
   const sw=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+!!S.prefs[k]+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
   return '<header class="phead pad">'+avatar(name,72)+'<div class="pn"><h1 class="hh">'+esc(name)+'</h1><p class="small muted">'+esc(handle)+(u?'':' · Mode découverte')+'</p><span class="gchip amberc lvlp">'+IX.feather+'Niveau '+x.n+' · '+esc(x.nom)+'</span></div>'+(u?'':'<button class="link" data-a="login-go">Se connecter</button>')+'</header>'+
   '<section class="pad">'+(S.bio?'<p class="bio">'+esc(S.bio)+' <button class="link small" data-a="bio-open">Modifier</button></p>':'<button class="bio add" data-a="bio-open">Ajoute une phrase qui te présente.</button>')+
@@ -1071,7 +1221,7 @@ function vStory(p){
   const flag=s.authorUid&&!s.mine?'<button class="iconbtn" data-a="report-open" data-type="story" data-id="'+s.id+'" data-uid="'+s.authorUid+'" data-name="'+esc(authorName(s.auteurId))+'" aria-label="Signaler ou bloquer">'+IX.flag+'</button>':'';
   return topBack('Histoire','<span class="topacts">'+flag+'<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter l’histoire aux favoris">'+IC.mark+'</button></span>')+
   '<section class="pad story-head">'+cover(s,'big')+'<div><h1 class="h1">'+esc(s.titre)+'</h1><p>'+esc(authorName(s.auteurId))+'</p><p class="small muted">'+esc(s.genre)+', '+pl(s.chapitres.length,'chapitre')+'</p><p>'+statLine(s.id)+'</p></div></section>'+
-  '<section class="pad"><p class="synopsis">'+esc(fr(s.resume))+'</p><div class="btns">'+(pos?'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="'+pos.ch+'" data-f="'+(pos.f||0)+'">Continuer · chapitre '+(pos.ch+1)+'</button>':'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="0">Lire le chapitre 1</button>')+'<button class="btn sec" data-a="lib-sheet" data-id="'+s.id+'">'+IX.lib+(lst?esc(LIBLABEL[lst]):'Ma bibliothèque')+'</button>'+
+  '<section class="pad"><p class="synopsis">'+esc(fr(s.resume))+'</p><div class="btns">'+(pos?'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="'+pos.ch+'" data-f="'+(pos.f||0)+'">Continuer · chapitre '+(pos.ch+1)+'</button>':'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="0">Lire le chapitre 1</button>')+'<button class="btn sec" data-a="lib-sheet" data-id="'+s.id+'">'+IX.lib+(lst?esc(LIBLABEL[lst]):'Ma bibliothèque')+'</button>'+(s.mine?'':'<button class="btn sec" data-a="dl-toggle" data-id="'+s.id+'" aria-pressed="'+dlHas(s.id)+'">'+IX.download+(dlHas(s.id)?'Téléchargée':'Télécharger')+'</button>')+
   (au?'<button class="btn sec" data-a="follow" data-id="'+au.id+'" aria-pressed="'+!!foll+'">'+(foll?'Suivi':'Suivre '+esc(au.nom.split(' ')[0]))+'</button>':'')+'</div></section>'+
   '<section class="pad"><h2 class="h2">Chapitres</h2><ol class="chlist">'+chs+'</ol></section>'+
   '<section class="pad"><h2 class="h2">Commentaires</h2>'+(cms.length?cms.map(cmHtml).join(''):'<p class="muted">Aucun commentaire. Lance la conversation.</p>')+
@@ -1224,7 +1374,7 @@ function vLogin(){
 const closeBtn='<button class="iconbtn" data-a="sheet-close" aria-label="Fermer">'+IC.x+'</button>';
 const TEND={hausse:['en hausse',IC.up],stable:['stable',IC.flat],baisse:['en baisse',IC.down]};
 const REPORT_REASONS=[['sexuel','Contenu sexuel ou inapproprié'],['violence','Violence ou haine'],['harcelement','Harcèlement'],['spam','Spam ou publicité'],['plagiat','Plagiat ou droit d’auteur'],['autre','Autre']];
-const SHEET_LABEL={report:'Signaler',delete:'Supprimer mon compte',objectifs:'Objectifs de la semaine',sprint:'Sprint d’écriture',bio:'Ta présentation',paywall:'Réservé aux abonnements',budget:'Crédits du coach IA',lecture:'Affichage du texte',coach:'Coach d’écriture',confirm:'Confirmation'};
+const SHEET_LABEL={versions:'Versions du chapitre',report:'Signaler',delete:'Supprimer mon compte',objectifs:'Objectifs de la semaine',sprint:'Sprint d’écriture',bio:'Ta présentation',paywall:'Réservé aux abonnements',budget:'Crédits du coach IA',lecture:'Affichage du texte',coach:'Coach d’écriture',confirm:'Confirmation'};
 function coachGlobalResult(C){
   const r=C.res,prio=compOf(r.priorite),pi=r.items.find(i=>i.id===r.priorite);
   const rows=r.items.map(i=>{
@@ -1277,6 +1427,19 @@ const SHEETS={
   '<div class="sprint-opts">'+[5,10,15,25].map(m=>'<button class="card sp-opt" data-a="sprint-start" data-m="'+m+'"><b>'+m+' min</b><span class="small muted">+'+(m*3)+' XP</span></button>').join('')+'</div>';
  },
  bio:()=>'<div class="sheet-head"><h2 class="h2">Ta présentation</h2>'+closeBtn+'</div><p class="muted">Une ou deux phrases qui disent quelle autrice ou quel auteur tu es.</p><textarea id="bio-in" class="ta" maxlength="160" placeholder="J’écris des histoires où…" aria-label="Ta présentation">'+esc(S.bio||'')+'</textarea><div class="btns"><button class="btn block" data-a="bio-save">Enregistrer</button></div>',
+ versions:()=>{
+  const V=UI.vs||{},m=getMs(V.msId),c=m&&m.chapitres[V.ch];
+  const head='<div class="sheet-head"><h2 class="h2">Versions du chapitre</h2>'+closeBtn+'</div>';
+  if(!c)return head+'<p>Chapitre introuvable.</p>';
+  if(V.loading)return head+'<p class="muted">Chargement de l’historique…</p>';
+  if(V.view!=null){
+    const sn=V.list[V.view];if(!sn)return head;
+    const d=diffText(sn.texte,c.texte||'');
+    return head+'<p class="small muted">'+esc(fmtWhen(sn.t))+' · '+pl(sn.mots,'mot')+' · '+esc(VWHY[sn.why]||sn.why)+'</p>'+(d?'<p class="dsum"><ins>+'+d.add+' mots ajoutés</ins> · <del>−'+d.del+' mots supprimés</del> · '+d.keep+' % de cette version conservé</p><div class="diff">'+d.html+'</div>':'<p class="muted">Texte trop long pour une comparaison mot à mot.</p>')+'<div class="btns"><button class="btn" data-a="v-restore" data-i="'+V.view+'">Restaurer cette version</button><button class="btn sec" data-a="v-list">Retour</button></div>';
+  }
+  const rows=V.list.map((sn,i)=>{const dm=wc(c.texte||'')-sn.mots;return '<div class="vrow"><div><b>'+esc(fmtWhen(sn.t))+'</b><span class="small muted">'+pl(sn.mots,'mot')+' · '+esc(VWHY[sn.why]||sn.why)+(dm?' · texte actuel : '+(dm>0?'+':'−')+Math.abs(dm)+' mots':'')+'</span></div><button class="btn sm sec" data-a="v-view" data-i="'+i+'">Comparer</button></div>';}).join('');
+  return head+'<p class="small muted">Plume garde jusqu’à '+(SESSION?12:5)+' versions de ce chapitre : une avant chaque analyse du coach, une de temps en temps pendant que tu écris, et celles que tu enregistres.'+(SESSION?'':' Connecte-toi pour les retrouver sur tous tes appareils.')+'</p>'+(rows||'<p class="empty">Aucune version enregistrée pour l’instant.</p>')+'<div class="btns"><button class="btn block" data-a="v-save">'+IX.history+'Enregistrer une version maintenant</button></div>';
+ },
  libadd:p=>{
   const s=findStory(p.id),st=libStatus(p.id);if(!s)return '<p>Histoire introuvable.</p>';
   return '<div class="sheet-head"><h2 class="h2">Ma bibliothèque</h2>'+closeBtn+'</div><p class="small muted">'+esc(s.titre)+'</p>'+
@@ -1350,7 +1513,7 @@ function renderSheet(){
 /* ===== rendu principal ===== */
 
 const TABS=[['decouvrir','Découvrir',IX.home],['catalogue','Catalogue',IX.search],['biblio','Ma biblio',IX.lib],['ecrire','Écrire',IX.feather],['exercer','S’exercer',IX.cap],['profil','Profil',IX.user]];
-const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
+const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,notifs:vNotifs,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
 let lastKey='';
 function autosize(el){
   if(!el)return;
@@ -1390,7 +1553,7 @@ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if
 function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else r.removeAttribute('data-theme');syncIcons();}
 
 /* ===== actions ===== */
-const A={};
+
 A.tab=d=>setTab(d.t);
 A.back=()=>{const t=UI.stack[UI.stack.length-1];if(t&&t.name==='genres'){S.genresAsked=true;UI.gsel=null;save();}UI.stack.pop();UI.reader={sel:null};render();};
 A.genre=d=>{UI.cgenre=d.g;setTab('catalogue');};
@@ -1496,14 +1659,30 @@ function coverBlob(file){
 A['ms-addch']=()=>{const m=curMs();m.chapitres.push({id:'c'+Date.now(),titre:'Chapitre '+(m.chapitres.length+1),texte:''});m.active=m.chapitres.length-1;save();render();};
 A['ms-publish']=d=>{
   const m=getMs(d.id);
+  if(isScheduled(m)){
+    if(d.now){m.publishAt=null;toast('Histoire publiée maintenant.');}else{m.published=false;m.publishAt=null;toast('Programmation annulée.');}
+    save();render();return;
+  }
   if(!m.published){
     if(S.plan==='free'&&S.manuscripts.filter(x=>x.published).length>=1)return openSheet('paywall',{why:'publish'});
     if(wc(m.chapitres.map(c=>c.texte).join(' '))<10)return toast('Écris quelques lignes avant de publier.');
-    m.published=true;let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();toast('Histoire publiée. Elle apparaît dans Découvrir.'+bonus);
-  }else{m.published=false;toast('Histoire retirée de Découvrir.');}
+    m.published=true;m.publishAt=null;let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();toast('Histoire publiée. Elle apparaît dans Découvrir.'+bonus);
+  }else{m.published=false;m.publishAt=null;toast('Histoire retirée de Découvrir.');}
   save();render();
 };
-A['coach-open']=()=>{const m=curMs(),c=curCh();openCoach({text:c.texte,title:(m.titre||'Sans titre')+', '+c.titre});};
+A['pub-mode']=d=>{UI.pubMode=d.v;render();};
+A['ms-schedule']=d=>{
+  const m=getMs(d.id);if(!m)return;
+  if(S.plan==='free'&&S.manuscripts.filter(x=>x.published&&x.id!==m.id).length>=1)return openSheet('paywall',{why:'publish'});
+  if(wc(m.chapitres.map(c=>c.texte).join(' '))<10)return toast('Écris quelques lignes avant de programmer.');
+  if(!UI.pubWhen)return toast('Choisis une date et une heure.');
+  const ts=new Date(UI.pubWhen).getTime();
+  if(!(ts>=Date.now()+5*60000))return toast('Choisis une heure au moins 5 minutes dans le futur.');
+  if(ts>Date.now()+90*86400000)return toast('Programme au plus tard dans 90 jours.');
+  m.published=true;m.publishAt=ts;let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();
+  toast('Programmée pour le '+fmtWhen(ts)+'.'+bonus);save();render();
+};
+A['coach-open']=()=>{const m=curMs(),c=curCh();takeSnapshot(m,clamp(m.active||0,0,m.chapitres.length-1),'avant analyse',true);openCoach({text:c.texte,title:(m.titre||'Sans titre')+', '+c.titre});};
 A['coach-open2']=()=>A['coach-open']();
 A['coach-comp']=d=>{UI.coach.compId=d.id;renderSheet();};
 A['coach-run']=()=>{UI.coach.mode='single';runCoach();};
@@ -1604,12 +1783,21 @@ A['delete-yes']=async()=>{
   const b=$('#del-yes');if(b){b.disabled=true;b.textContent='Suppression…';}
   const th=S.theme;
   try{await B.deleteAccount(SESSION.user.id);}catch(e){if(b){b.disabled=false;b.textContent='Supprimer définitivement';}return toast(e.message);}
-  SESSION=null;BLOCKED=new Map();HIDDEN_MINE=new Set();S=seed();S.theme=th;applyTheme();save();
+  SESSION=null;stopNotifPoll();BLOCKED=new Map();HIDDEN_MINE=new Set();S=seed();S.theme=th;applyTheme();save();
   UI.sheet=null;UI.coach=null;renderSheet();UI.stack=[];UI.tab='decouvrir';render();toast('Ton compte a été supprimé.');
 };
 A['lib-open']=d=>{UI.libTab=d.t||'reading';setTab('biblio');};
 A['lib-tab']=d=>{UI.libTab=d.t;render();};
 A['lib-sheet']=d=>openSheet('libadd',{id:d.id});
+A['dl-toggle']=d=>{
+  const s=findStory(d.id);if(!s)return;const all=dlAll();
+  if(all[s.id]){delete all[s.id];dlSave(all);render();return toast('Retirée de tes téléchargements.');}
+  const story=JSON.parse(JSON.stringify({id:s.id,titre:s.titre,auteurId:s.auteurId,authorUid:s.authorUid||null,authorNom:authorName(s.auteurId),genre:s.genre,resume:s.resume,chapitres:s.chapitres,c1:s.c1,c2:s.c2,motif:s.motif,jaquette:s.jaquette||null}));
+  all[s.id]={story:story,t:Date.now()};
+  if(!dlSave(all))return toast('Espace insuffisant sur cet appareil. Retire une histoire téléchargée.');
+  if(s.jaquette){try{fetch(s.jaquette,{mode:'no-cors'}).catch(function(){});}catch(e){}}
+  render();toast('Disponible hors connexion.');
+};
 A['lib-set']=d=>{if(d.st)S.lib.status[d.id]=d.st;else delete S.lib.status[d.id];save();renderSheet();render();toast(d.st?'Ajoutée à « '+LIBLABEL[d.st]+' ».':'Retirée de ta bibliothèque.');};
 A['list-new']=d=>{
   const inp=$('#list-name'),nom=inp?inp.value.trim():'';if(!nom)return toast('Donne un nom à ton dossier.');
@@ -1633,7 +1821,7 @@ A['confirm-yes']=d=>{
   if(d.k==='dellist'){S.lib.lists=S.lib.lists.filter(l=>l.id!==d.l);save();closeSheet();render();toast('Dossier supprimé.');return;}
   const th=S.theme;
   if(d.k==='logout'){
-    B.flush().finally(()=>B.signOut());SESSION=null;BLOCKED=new Map();HIDDEN_MINE=new Set();STATS={};
+    B.flush().finally(()=>B.signOut());SESSION=null;stopNotifPoll();BLOCKED=new Map();HIDDEN_MINE=new Set();STATS={};
     S=seed();S.theme=th;
     toast('Tu es déconnecté.');
   }else{S=seed();S.theme=th;if(SESSION){S=freshAccount();S.theme=th;S.user=userObj(SESSION);}toast('Compte remis à zéro.');}
@@ -1646,9 +1834,10 @@ const IN={
  'ms-title':el=>{curMs().titre=el.value;save();},
  'ch-title':el=>{curCh().titre=el.value;save();},
  'ms-genre':el=>{curMs().genre=el.value;save();},
- 'ms-text':el=>{const c=curCh(),b=wc(c.texte);c.texte=el.value;const a=wc(el.value);if(a>b)addWords(Math.min(40,a-b));curMs().upd=Date.now();autosize(el);updateWc();save();},
+ 'ms-text':el=>{const c=curCh(),b=wc(c.texte);c.texte=el.value;const a=wc(el.value);if(a>b)addWords(Math.min(40,a-b));const mm=curMs();mm.upd=Date.now();autosize(el);updateWc();save();const mid=mm.id,ci=clamp(mm.active||0,0,mm.chapitres.length-1);clearTimeout(snapT);snapT=setTimeout(()=>{const x=getMs(mid);if(x)takeSnapshot(x,ci,'auto');},20000);},
  'ch-intent':el=>{curCh().intention=el.value.replace(/\n/g,' ');autosize(el);save();},
  'ms-resume':el=>{curMs().resume=el.value;save();},
+ 'pub-when':el=>{UI.pubWhen=el.value;},
  'b-notes':el=>{const m=getMs(curP().id)||lastMs();if(m){bibleOf(m.id).notesActe=el.value;save();}},
  csearch:el=>{UI.cq=el.value;const b=$('#clist');if(b)b.innerHTML=catalogList();},
  exo:el=>{S.exos[el.dataset.id]=el.value;autosize(el);save();},
@@ -1776,16 +1965,19 @@ async function attach(se){
   HIDDEN_MINE=new Set(REMOTE_STORIES.filter(r=>r.hidden&&r.authorUid===se.user.id).map(r=>r.id));
   applyTheme();rollover();
   if(SYNC_OFF)toast('Ton compte n’a pas pu être chargé. Vérifie ta connexion puis recharge la page.');
-  else{save();if(S.saved.length)B.syncFavorites(se.user.id,S.saved);NOTICE=cleaned?'Ton profil d’écriture a été remis à zéro : il contenait des scores d’exemple.':'';}
+  else{save();if(S.saved.length)B.syncFavorites(se.user.id,S.saved);NOTICE=cleaned?'Ton profil d’écriture a été remis à zéro : il contenait des scores d’exemple.':'';startNotifPoll();}
 }
 let BOOTED=false;
 B.onRecovery(()=>{if(BOOTED)openRecovery();});
 async function boot(){
+  BOOT_OFFLINE=OFFLINE;syncOffbar();
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
   READS=cnt.reads;FOLL=cnt.follows;SLIKES=cnt.likes;FAVS=cnt.favs;lastRC=Date.now();
-  REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,hidden:!!r.hidden,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
+  if(B.lastFetchFailed()&&!BOOT_OFFLINE){BOOT_OFFLINE=true;OFFLINE=true;syncOffbar();}
+  if(BOOT_OFFLINE){const known=new Set(STORIES.map(x=>x.id));REMOTE_STORIES=dlStories().filter(x=>!known.has(x.id)).map(x=>{const st=Object.assign({},x,{auteurId:x.auteurId,authorUid:x.authorUid,hidden:false,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=x.authorNom||'Auteur Plume';return st;});}
+  else REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,hidden:!!r.hidden,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
   cms.forEach(c=>{if(c.hidden)return;(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body,id:c.id,uid:c.author_id});});
-  try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}
+  if(!BOOT_OFFLINE){try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}}
   render();if(NOTICE&&!SYNC_OFF)toast(NOTICE);
   BOOTED=true;if(B.isRecovering())openRecovery();else maybeAskGenres();
 }

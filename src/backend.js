@@ -95,18 +95,21 @@ export function syncPublished(uid, authorName, items) {
   pubRun = async () => {
     pubRun = null;
     try {
-      if (rows.length) {
-        const strip = (r) => { const c = { ...r }; delete c.publish_at; return c; };
-        let { error } = await sb.from('plume_published').upsert(useSched ? rows : rows.map(strip));
-        // base pas encore mise à jour (colonne d'heure programmée absente) : on publie quand même, sans programmation
+      const due = (r) => !r.publish_at || new Date(r.publish_at) <= new Date();
+      const strip = (r) => { const c = { ...r }; delete c.publish_at; return c; };
+      // Sans colonne d'heure programmée côté base, une histoire programmée ne part PAS en ligne : elle attend la mise à jour.
+      let keep = useSched ? rows : rows.filter(due);
+      if (keep.length) {
+        let { error } = await sb.from('plume_published').upsert(useSched ? keep : keep.map(strip));
         if (error && /publish_at/.test(error.message || '') && useSched) {
           useSched = false;
-          ({ error } = await sb.from('plume_published').upsert(rows.map(strip)));
+          keep = rows.filter(due);
+          ({ error } = keep.length ? await sb.from('plume_published').upsert(keep.map(strip)) : { error: null });
         }
         if (error) console.error('plume_published upsert', error);
       }
       let q = sb.from('plume_published').delete().eq('author_id', uid);
-      if (rows.length) q = q.not('id', 'in', '(' + rows.map((r) => '"' + r.id + '"').join(',') + ')');
+      if (keep.length) q = q.not('id', 'in', '(' + keep.map((r) => '"' + r.id + '"').join(',') + ')');
       const { error } = await q;
       if (error) console.error('plume_published delete', error);
     } catch (e) { console.error(e); }

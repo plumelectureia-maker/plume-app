@@ -732,3 +732,29 @@ header.top+section.pad,header.top+.pad{padding-top:18px}
 .ccount{margin:6px 0 10px}
 .cseg{margin:6px 0 14px}
 .quota{margin:2px 2px 0}.quota .link{display:inline;padding:0;font:inherit;font-weight:700}
+
+/* notifications */
+.bellbtn{position:relative}
+.nbadge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--rouge);color:#fff;font:800 11px/18px 'Inter','Roboto',sans-serif;text-align:center;font-style:normal;box-sizing:border-box}
+.nitem{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;margin-bottom:10px}
+.nitem .ltxt{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.nitem.unread{border-color:var(--bleu);background:var(--bleu-doux)}
+.udot{width:10px;height:10px;border-radius:50%;background:var(--bleu);flex:none;margin-top:7px}
+
+.note.sched{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--warm);color:var(--warm-ink);margin:14px 0}
+.note.sched .ic{width:20px;height:20px;flex:none;margin-top:1px}
+input[type=datetime-local]{width:100%;min-height:48px;border-radius:14px;border:1.5px solid var(--trait);background:var(--carte);color:var(--encre);padding:0 14px;font:500 16px 'Inter','Roboto',sans-serif}
+
+/* historique des versions */
+.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--trait)}
+.vrow>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.diff{max-height:42vh;overflow:auto;padding:12px;border-radius:14px;background:var(--papier);border:1px solid var(--trait);font:500 15px/1.65 'Literata',Georgia,serif;margin:10px 0;color:var(--texte)}
+.diff ins{background:var(--or-doux);color:var(--or);text-decoration:none;border-radius:4px;padding:0 2px}
+.diff del{background:rgba(220,90,100,.14);color:var(--rouge);text-decoration:line-through;border-radius:4px;padding:0 2px}
+.dsum{margin:8px 0}.dsum ins{color:var(--or);text-decoration:none;font-weight:700}.dsum del{color:var(--rouge);font-weight:700;text-decoration:none}
+
+/* hors connexion */
+.offbar{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:center;gap:8px;padding:calc(6px + env(safe-area-inset-top,0px)) 14px 6px;background:var(--encre);color:var(--papier);font:600 13px 'Inter','Roboto',sans-serif}
+.offbar[hidden]{display:none}
+.offbar .ic{width:16px;height:16px}
+.btns [data-a="dl-toggle"][aria-pressed="true"]{border-color:var(--bleu);color:var(--bleu)}
