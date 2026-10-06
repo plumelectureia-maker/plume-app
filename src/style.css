@@ -380,3 +380,8 @@ input,textarea,select{font:inherit;color:inherit}
 .sline .si b{font:600 13px/1.4 'Hanken Grotesk',system-ui,sans-serif;color:var(--texte)}
 .si.s-heart .ic{color:var(--rouge)}.si.s-star .ic{color:var(--or)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.brand .logo-d{display:none;box-shadow:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand .logo-l{display:none}:root:not([data-theme="light"]) .brand .logo-d{display:block}}
+:root[data-theme="dark"] .brand .logo-l{display:none}
+:root[data-theme="dark"] .brand .logo-d{display:block}

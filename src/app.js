@@ -571,7 +571,7 @@ function finishGlobal(res,src,note,promptLen){
 
 /* ===== écrans ===== */
 const topBack=(title,right)=>'<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><b class="top-title">'+esc(title)+'</b>'+(right||'<span class="sp"></span>')+'</header>';
-const LOGO='<img class="logo" src="/logo.png" alt="" width="96" height="96">';
+const LOGO='<img class="logo logo-l" src="/logo.png" alt="" width="96" height="96"><img class="logo logo-d" src="/logo-dark.png" alt="" width="96" height="96">';
 const brandTop=right=>'<header class="top"><div class="brand">'+LOGO+'<span>Plume</span></div>'+(right||'')+'</header>';
 const hasDiag=()=>S.profile.history.length>0;
 const deltaChip=d=>!d?'':'<span class="delta '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' pts</span>';
@@ -852,7 +852,8 @@ const SHEETS={
  lecture:()=>{
   const rp=rprefs();
   return '<div class="sheet-head"><h2 class="h2">Affichage du texte</h2>'+closeBtn+'</div>'+
-  '<h3 class="h3">Taille</h3><div class="rsize"><button class="btn sec" data-a="rsize" data-d="-1" aria-label="Plus petit"'+(rp.size===0?' disabled':'')+'><span style="font-size:14px">A</span></button>'+
+  '<h3 class="h3">Thème</h3><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div>'+
+  '<h3 class="h3" style="margin-top:16px">Taille</h3><div class="rsize"><button class="btn sec" data-a="rsize" data-d="-1" aria-label="Plus petit"'+(rp.size===0?' disabled':'')+'><span style="font-size:14px">A</span></button>'+
   '<div class="rdots" aria-hidden="true">'+RSIZES.map((x,i)=>'<i class="'+(i<=rp.size?'on':'')+'"></i>').join('')+'</div>'+
   '<button class="btn sec" data-a="rsize" data-d="1" aria-label="Plus grand"'+(rp.size===RSIZES.length-1?' disabled':'')+'><span style="font-size:22px">A</span></button></div>'+
   '<h3 class="h3" style="margin-top:16px">Police</h3><div class="rfonts" role="radiogroup" aria-label="Police">'+Object.keys(RFONTS).map(k=>'<button class="rfont'+(rp.font===k?' on':'')+'" role="radio" aria-checked="'+(rp.font===k)+'" data-a="rfont" data-f="'+k+'" style="font-family:'+esc(RFONTS[k][1])+'"><b>'+RFONTS[k][0]+'</b><span>Il était une fois, au bord de la mer…</span></button>').join('')+'</div>'+
@@ -941,7 +942,15 @@ function go(name,p){UI.stack.push({name:name,p:p||{}});render();}
 function setTab(t){UI.tab=t;UI.stack=[];render();if(t==='decouvrir'||t==='profil')refreshCounts();}
 let toastT;
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3200);}
-function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else r.removeAttribute('data-theme');}
+const isDark=()=>S.theme==='dark'||(S.theme!=='light'&&!!window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+// L'icône de l'onglet suit le thème : version claire (carré prune) ou sombre (image d'origine avec sa marge claire).
+function syncIcons(){
+  const d=isDark(),v='?v=3',pre=d?'/favicon-dark':'/favicon';
+  const set=(id,href)=>{const l=document.getElementById(id);if(l&&l.getAttribute('href')!==href)l.setAttribute('href',href);};
+  set('ic-ico',pre+'.ico'+v);set('ic-32',(d?'/favicon-dark-32':'/favicon-32')+'.png'+v);set('ic-48',(d?'/favicon-dark-48':'/favicon-48')+'.png'+v);
+}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(S.theme==='auto')syncIcons();});}catch(e){}
+function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else r.removeAttribute('data-theme');syncIcons();}
 
 /* ===== actions ===== */
 const A={};
@@ -1100,7 +1109,7 @@ A['confirm-yes']=d=>{
   applyTheme();save();UI.sheet=null;UI.coach=null;renderSheet();UI.stack=[];UI.tab='profil';render();
 };
 A.restore=()=>toast('Mode aperçu : la restauration Google Play est inactive. En production, elle relit tes achats depuis Google Play.');
-A.theme=d=>{S.theme=d.v;applyTheme();save();render();};
+A.theme=d=>{S.theme=d.v;applyTheme();save();render();if(UI.sheet)renderSheet();};
 
 const IN={
  'ms-title':el=>{curMs().titre=el.value;save();},
