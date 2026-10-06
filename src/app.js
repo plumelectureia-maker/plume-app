@@ -304,12 +304,22 @@ function stripDemo(o){
 }
 let S=deviceTheme(load());
 let SYNC_OFF=false,NOTICE='';
-let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={},SLIKES={},FAVS={},lastRC=0;
+let SESSION=null,REMOTE_STORIES=[],SHARED_CM={},RC={},LIKES={},READS={},FOLL={},SLIKES={},FAVS={},lastRC=0,mutSeq=0;
 const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
-const statLine=id=>'<span class="sline"><span>'+pl(READS[id]||0,'lecteur')+'</span><span>'+fmt(SLIKES[id]||0)+' J’aime</span><span>'+pl(FAVS[id]||0,'favori')+'</span></span>';
+const SI={
+  eye:I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  heart:I('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/>'),
+  star:I('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>')
+};
+const statItem=(cls,ic,n,one,many)=>'<span class="si '+cls+'" title="'+n+' '+(n>1?many:one)+'">'+ic+'<b>'+fmt(n)+'</b><span class="vh">'+(n>1?many:one)+'</span></span>';
+const statLine=id=>'<span class="sline">'+statItem('s-eye',SI.eye,READS[id]||0,'lecteur','lecteurs')+statItem('s-heart',SI.heart,SLIKES[id]||0,'J’aime','J’aime')+statItem('s-star',SI.star,FAVS[id]||0,'favori','favoris')+'</span>';
 async function refreshCounts(force){
   if(!force&&Date.now()-lastRC<15000)return;lastRC=Date.now();
-  try{const c=await B.loadCounts();READS=c.reads;FOLL=c.follows;SLIKES=c.likes;FAVS=c.favs;}catch(e){return console.error(e);}
+  const seq=mutSeq;
+  let c;try{c=await B.loadCounts();}catch(e){return console.error(e);}
+  // une action de l'utilisateur est partie pendant le chargement : ces totaux sont peut-être périmés, on recharge un peu plus tard
+  if(seq!==mutSeq){setTimeout(()=>refreshCounts(true),1500);return;}
+  READS=c.reads;FOLL=c.follows;SLIKES=c.likes;FAVS=c.favs;
   const top=UI.stack.length?UI.stack[UI.stack.length-1].name:'tab:'+UI.tab;
   if(top!=='reader'&&top!=='editor'&&!UI.sheet)render();
 }
@@ -943,10 +953,10 @@ A.follow=d=>{
   if(!SESSION)return needLogin('Connecte-toi pour suivre un auteur.');
   const i=S.following.indexOf(d.id),on=i<0;
   if(on){S.following.push(d.id);const a=authorsAll().find(x=>x.id===d.id);toast('Tu suis '+(a?a.nom:'cet auteur')+'.');}else S.following.splice(i,1);
-  bump(FOLL,d.id,on?1:-1);B.setFollow(SESSION.user.id,d.id,on);save();render();
+  mutSeq++;bump(FOLL,d.id,on?1:-1);B.setFollow(SESSION.user.id,d.id,on);save();render();
 };
 A.save=d=>{const i=S.saved.indexOf(d.id),on=i<0;if(on){S.saved.push(d.id);toast('Histoire ajoutée à tes favoris.');}else S.saved.splice(i,1);
-  if(SESSION){bump(FAVS,d.id,on?1:-1);B.setFavorite(SESSION.user.id,d.id,on);}save();render();};
+  if(SESSION){mutSeq++;bump(FAVS,d.id,on?1:-1);B.setFavorite(SESSION.user.id,d.id,on);}save();render();};
 A.read=d=>{
   const s=findStory(d.id);if(!s)return;
   const ci=+d.ch,key=s.id+':'+ci;rollover();
@@ -976,7 +986,7 @@ A.like=()=>{
   if(!SESSION)return needLogin('Connecte-toi pour aimer ce chapitre.');
   const p=curP(),key=p.id+':'+p.ch,on=!S.likes[key];
   if(on)S.likes[key]=true;else delete S.likes[key];
-  bump(LIKES,key,on?1:-1);bump(SLIKES,p.id,on?1:-1);B.setLike(SESSION.user.id,key,on);save();render();
+  mutSeq++;bump(LIKES,key,on?1:-1);bump(SLIKES,p.id,on?1:-1);B.setLike(SESSION.user.id,key,on);save();render();
 };
 function loadStats(s,ci){
   const base=s.id+':'+ci,keys=[base].concat(s.chapitres[ci].texte.map((t,i)=>base+':'+i));
