@@ -769,7 +769,7 @@ function vDecouvrir(){
   rollover();
   const all=allStories(),genres=['Tout'].concat(Array.from(new Set(all.map(s=>s.genre))));
   const counter=S.plan==='free'
-    ?'<button class="chip" data-a="plans-open" aria-label="Compteur de lecture gratuit, voir les forfaits">'+S.reads.ids.length+'/3 chapitres cette semaine</button>'
+    ?'<button class="chip" data-a="plans-open" aria-label="'+S.reads.ids.length+' chapitres lus sur 3 cette semaine, voir les forfaits">'+S.reads.ids.length+'/3 cette semaine</button>'
     :'<span class="chip plan-chip">'+esc(PLANS[S.plan].nom)+'</span>';
   const n=authorsAll().length;
   return '<section class="pad dhead"><div class="row-between"><p class="eyebrow">LA COMMUNAUTÉ PLUME</p>'+counter+'</div><h1 class="hh">Trouve ta prochaine obsession.</h1>'+
