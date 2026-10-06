@@ -27,3 +27,8 @@ npm run dev
 - `src/backend.js` : comptes, sauvegarde, histoires publiées, commentaires, appel du coach
 - `api/coach.js` : fonction serveur qui appelle l'API Anthropic (clé jamais exposée au navigateur)
 - `SUPABASE_PLUME.sql` : tables `plume_state`, `plume_published`, `plume_comments` et règles d'accès
+
+## Interface
+
+Cinq onglets : Accueil (niveau, roman en cours, prochain levier, défi du jour), Découvrir (recherche, genres, talents), Écrire (manuscrit, boussole de l'histoire, mini-leçon, sprint), Progrès (école d'écriture, ateliers, semaine) et Profil.
+XP, série de jours, objectifs de la semaine, défi du jour, boussole et préférences sont enregistrés dans l'état du compte (`plume_state`) : aucune table supplémentaire n'est nécessaire.

@@ -37,6 +37,38 @@ const IC={
  down:I('<path d="m7 7 10 10M17 8v9H8"/>'),
  flat:I('<path d="M5 12h14M15 8l4 4-4 4"/>')
 };
+const IX={
+ home:I('<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/>'),
+ compass:IC.compass,feather:IC.feather,user:IC.user,lock:IC.lock,cap:IC.cap,next:IC.next,check:IC.check,mark:IC.mark,plus:IC.plus,back:IC.back,x:IC.x,
+ ring:I('<path d="M21 12a9 9 0 1 1-6.2-8.56"/><path d="M21 4.5V9h-4.5"/>'),
+ flame:I('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'),
+ sparkles:I('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4M5 17v4M3 19h4"/>'),
+ target:I('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'),
+ brain:I('<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v13"/>'),
+ hourglass:I('<path d="M5 22h14M5 2h14M17 22v-4.17a2 2 0 0 0-.59-1.41L12 12l-4.41 4.41A2 2 0 0 0 7 17.83V22M7 2v4.17a2 2 0 0 0 .59 1.41L12 12l4.41-4.41A2 2 0 0 0 17 6.17V2"/>'),
+ globe:I('<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
+ book:I('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+ search:I('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
+ clock:I('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+ bulb:I('<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>'),
+ list:I('<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'),
+ eyeoff:I('<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="M2 2l20 20"/>'),
+ eye:I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+ moon:I('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'),
+ trash:I('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'),
+ users:I('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
+ chat:I('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/>'),
+ zap:I('<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>'),
+ scan:I('<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/>'),
+ branch:I('<path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>'),
+ pulse:I('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'),
+ orb:I('<circle cx="12" cy="11" r="7"/><path d="M8 21h8"/><path d="M12 8v6M9 11h6"/>'),
+ heart:I('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/>'),
+ star:I('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>'),
+ aa:I('<path d="M3 18 8.5 5 14 18M5 14h7M15 18l3.5-8 3.5 8M16.2 15.5h4.6"/>'),
+ pen:IC.pen,compassAlt:IC.compass
+};
+
 
 /* ===== données ===== */
 const PLANS={
@@ -155,7 +187,52 @@ const AUTHORS=[
  {id:'a2',nom:'Malo Devaux',abonnes:860},
  {id:'a3',nom:'Anaïs Rouvière',abonnes:2015},
  {id:'a4',nom:'Karim Belhadj',abonnes:640},
- {id:'a5',nom:'Camille Ferrand',abonnes:320}
+ {id:'a5',nom:'Camille Ferrand',abonnes:320},
+ {id:'a6',nom:'Sacha Lin',abonnes:410}
+];
+
+/* ===== v3 : école d'écriture enrichie, défis, mini-leçons ===== */
+const CX={
+ personnages:{c:'#B4607A',ic:'users',tag:'Nuancer les motivations',court:'Donne à tes personnages un désir, une peur et une contradiction.',levier:'Donner un désir à tes personnages',
+  mt:'Le désir avant la scène',mp:['Un désir précis, formulable en une phrase','Une action qui le sert, même maladroitement','Un coût visible quand il l’obtient ou le rate'],
+  diag:'L’IA repère le désir, l’action et le coût de chaque personnage dans ta scène.'},
+ dialogues:{c:'#7D63B8',ic:'chat',tag:'Faire entendre le sous-texte',court:'Fais parler les intentions, pas les informations.',levier:'Faire parler le non-dit',
+  mt:'Le but caché',mp:['Chaque personnage veut quelque chose de l’autre','Ce qui est dit sert ce but, rarement la vérité','Un silence ou une esquive porte le vrai sujet'],
+  diag:'L’IA distingue exposition, voix, intention et sous-texte dans chaque échange.'},
+ tension:{c:'#C98A2E',ic:'zap',tag:'Escalader la menace',court:'Transforme une inquiétude en choix impossible.',levier:'Retarder la réponse pour faire monter la pression',
+  mt:'La réponse retardée',mp:['Une question posée tôt dans la scène','Une réponse retardée par une complication','Un coût qui grandit à chaque retard'],
+  diag:'L’IA mesure la question posée, le retard de la réponse et le coût du choix.'},
+ descriptions:{c:'#5E9C75',ic:'scan',tag:'Filtrer par le point de vue',court:'Décris ce que ton personnage remarquerait, pas tout ce qui existe.',levier:'Décrire par le regard de ton personnage',
+  mt:'Le regard qui filtre',mp:['Un point de vue clair : qui regarde ?','Trois détails choisis, pas un inventaire','Une émotion révélée par ce qu’il remarque'],
+  diag:'L’IA vérifie le point de vue, le choix des détails et l’émotion qu’ils portent.'},
+ structure:{c:'#5B87A5',ic:'branch',tag:'Relier cause et conséquence',court:'Fais en sorte que chaque scène change la suivante.',levier:'Relier tes scènes par la causalité',
+  mt:'La bascule de scène',desc:'Une scène forte part d’une situation, rencontre une complication et se termine sur un changement. La scène suivante existe à cause de cette bascule, pas seulement après elle.',
+  mp:['Un objectif de scène formulable','Une complication causée par une action','Une sortie différente de la situation d’entrée'],
+  diag:'L’IA vérifie objectif, conflit, bascule et causalité avec la scène suivante.'},
+ rythme:{c:'#CF6B66',ic:'pulse',tag:'Alterner pression et respiration',court:'Contrôle la vitesse par les phrases, les actions et les pauses.',levier:'Alterner action et respiration',
+  mt:'Souffler pour accélérer',mp:['Des phrases longues pour poser le calme','Des phrases courtes quand tout se précipite','Une pause juste avant le moment qui compte'],
+  diag:'L’IA compare la vitesse de tes phrases à ce que la scène demande.'},
+ foreshadowing:{c:'#8A5FB5',ic:'orb',tag:'Semer sans révéler',court:'Prépare les révélations sans rendre leur issue prévisible.',levier:'Semer des indices naturels',
+  mt:'Le présage à double sens',desc:'Un bon présage possède un sens immédiat qui suffit à la scène, puis un second sens révélé plus tard. Le lecteur doit pouvoir le reconnaître après coup sans avoir deviné toute l’issue.',
+  mp:['Un détail ordinaire, planté sans insistance','Un sens immédiat qui suffit à la scène','Un second sens révélé après coup'],
+  diag:'L’IA cherche les indices posés, leur naturel et leur double sens.'}
+};
+COMPS.forEach(c=>{Object.assign(c,CX[c.id]);if(!c.desc)c.desc=c.methode;});
+
+const LESSONS=[
+ {id:'promesse',t:'La promesse dramatique',teaser:'Ce que ton premier chapitre promet silencieusement au lecteur, et comment tenir cette promesse.',comp:'structure',
+  corps:['Dès les premières pages, ton lecteur reçoit une promesse : un genre, un ton, une question. Un mystère promet une réponse, une romance promet un rapprochement, un thriller promet un danger qui grandit.','Tu n’as pas besoin de l’annoncer. Un objet étrange, un silence de trop ou un personnage qui ment suffisent à poser la promesse.','Ensuite, chaque chapitre doit la faire avancer, la compliquer ou la renverser. La rompre sans raison déçoit. La tenir de façon inattendue donne le sentiment d’une histoire inévitable.'],
+  points:['Repère la question que pose ton premier chapitre','Fais-la revenir sous une autre forme au chapitre suivant','Réponds-y d’une manière que le lecteur n’avait pas prévue']}
+].concat(COMPS.map(c=>({id:c.id,t:c.mt,teaser:c.court,comp:c.id,corps:[c.desc],points:c.mp})));
+
+const CHALLENGES=[
+ {t:'Rends un silence mémorable',d:'Écris 100 mots de dialogue où le non-dit compte plus que les paroles.',comp:'dialogues'},
+ {t:'Un désir sans le dire',d:'Écris 100 mots où un personnage veut quelque chose sans jamais le formuler.',comp:'personnages'},
+ {t:'Fais monter la pression',d:'Écris 100 mots où une réponse attendue est repoussée trois fois.',comp:'tension'},
+ {t:'Regarde comme lui',d:'Décris une pièce en 100 mots à travers l’inquiétude d’un personnage, sans nommer l’inquiétude.',comp:'descriptions'},
+ {t:'Cause et conséquence',d:'Écris 100 mots où une décision de la première phrase change tout dans la dernière.',comp:'structure'},
+ {t:'Respire avant le choc',d:'Écris 100 mots : trois phrases longues et calmes, puis une seule, très courte, qui casse tout.',comp:'rythme'},
+ {t:'Sème un indice',d:'Écris 100 mots où un objet banal prend un second sens que le lecteur ne comprendra que plus tard.',comp:'foreshadowing'}
 ];
 
 const STORIES=[
@@ -183,7 +260,7 @@ const STORIES=[
    {titre:'L’encre qui déborde',texte:[
     'Elle ne lut rien le premier jour. Elle lava, elle sépara, elle mesura le pH de chaque fragment avec l’application sérieuse de qui ne veut pas être surpris. L’encre était d’un bleu ancien, un bleu de plume, qui avait bavé aux endroits où le papier avait été serré dans un poing.',
     'Le deuxième jour, elle assembla le premier coin. Un prénom apparut, à l’envers : le sien. Jeanne posa la pince à épiler très doucement, comme on pose une arme, et fixa l’établi pendant un long moment avant de rappeler l’homme.']}]},
- {id:'s3',titre:'Les Saisons de Verre',auteurId:'a3',genre:'Fantasy',lectures:15302,c1:'#1F5F5B',c2:'#2F7A6D',motif:'verre',
+ {id:'s3',jaquette:'/covers/falaise.jpg',titre:'Les Saisons de Verre',auteurId:'a3',genre:'Fantasy',lectures:15302,c1:'#1F5F5B',c2:'#2F7A6D',motif:'verre',
   resume:'À Vitrelle, chaque saison dort dans une jarre de verre gardée par une famille. Le matin du solstice, la jarre de l’hiver est vide.',
   chapitres:[
    {titre:'Le solstice sans neige',texte:[
@@ -193,7 +270,7 @@ const STORIES=[
    {titre:'La cire brisée',texte:[
     'On enferma Iris dans la remise aux poids, pour sa sécurité, disait-on. Elle passa l’après-midi à observer la jarre qu’on avait posée devant elle comme une pièce à conviction. Le verre était intact. Le bouchon n’avait pas été forcé. Pourtant, la cire portait, sur le bord, une minuscule empreinte de doigt.',
     'Une empreinte trop petite pour un adulte. Iris posa son propre pouce dessus et le trouva un peu plus gros. Quelqu’un d’aussi jeune qu’elle, ou plus jeune encore, avait ouvert la jarre avant elle, et l’avait refermée avec soin.']}]},
- {id:'s4',titre:'Ligne 9, dernier départ',auteurId:'a4',genre:'Thriller',lectures:6190,c1:'#232946',c2:'#4A4E8A',motif:'metro',
+ {id:'s4',jaquette:'/covers/paris.jpg',titre:'Ligne 9, dernier départ',auteurId:'a4',genre:'Thriller',lectures:6190,c1:'#232946',c2:'#4A4E8A',motif:'metro',
   resume:'Sur la ligne 9, le conducteur du dernier métro entend frapper contre la cloison de la voiture de queue. Elle est vide. Elle l’est aussi sur les caméras.',
   chapitres:[
    {titre:'23 h 47',texte:[
@@ -224,7 +301,19 @@ const STORIES=[
     '— Rien. Laisse tomber.',
     '— Non, vas-y. Ranger quoi ?',
     'Zoé regarda sa mère, qui regardait la carafe. Puis elle regarda le coussin en trop, et elle dit, d’une voix qui ne tremblait pas :',
-    '— Le coussin. Il est mal placé.']}]}
+    '— Le coussin. Il est mal placé.']}]},
+ {id:'s6',jaquette:'/covers/orbite.jpg',titre:'Nos corps en orbite',auteurId:'a6',genre:'Science-fiction',lectures:0,c1:'#1B2150',c2:'#3B4DB0',motif:'maree',
+  resume:'À 400 kilomètres de la Terre, deux astronautes découvrent qu’un message d’amour peut aussi être un signal de détresse.',
+  chapitres:[
+   {titre:'Le signal',texte:[
+    'À 400 kilomètres de la Terre, le silence n’avait jamais été total. Il y avait le souffle des ventilateurs, le claquement des pompes et, ce matin-là, autre chose : une pulsation brève, régulière, qui revenait toutes les quarante secondes dans le casque d’Ilo.',
+    '— Tu l’entends aussi ? demanda-t-il. Maren leva les yeux de son écran. Elle avait cet air qu’ont les gens qui connaissent déjà la réponse et espèrent se tromper. — Depuis hier soir, dit-elle. Je n’ai rien voulu dire.',
+    'Sur la console, la courbe dessinait trois longues ondes, puis une courte. Trois, une. Trois, une. Ilo sentit sa gorge se serrer : c’était le rythme qu’elle tapotait sur la table le jour où elle lui avait dit je t’aime, six mois plus tôt, au bord d’un autre océan, bien plus bas.']},
+   {titre:'Le message',texte:[
+    'Ils passèrent la nuit à décoder. Maren refusait de dormir, Ilo refusait de la laisser seule devant l’écran. À l’aube, le texte apparut, ligne après ligne, dans une langue qu’ils connaissaient tous les deux sans l’avoir jamais apprise.',
+    '« Si tu lis ceci, je ne suis pas revenue. » Maren se figea. La signature était la sienne, ou celle d’une Maren qui n’avait pas encore vécu ce que la station allait lui faire vivre.',
+    '— Un message d’amour, murmura Ilo. — Non, dit-elle d’une voix blanche. Un signal de détresse. Les deux, peut-être. C’est la même chose quand on est assez loin pour que personne n’entende la différence.']}
+  ]}
 ];
 
 const MOTIFS={
@@ -259,6 +348,7 @@ function seed(){
   const now=Date.now();
   return {
     user:null,plan:'free',
+    xp:0,streak:{last:'',n:0},day:{d:'',words:0},week:{k:'',words:0,days:[],ex:0,reads:0,ch:0},challenge:{d:'',state:''},lessons:{},bible:{},prefs:{coach:true,signals:true,goal:500},readSeen:{},exoXP:{},pubXP:{},
     credits:{month:monthKey(),used:0},
     reads:{week:mondayKey(),ids:[]},
     saved:[],following:[],reactions:{},
@@ -325,7 +415,7 @@ async function refreshCounts(force){
 }
 const needLogin=m=>{toast(m);go('login');};const EXT_AUTHORS={};
 const userObj=se=>({name:B.userName(se),email:se.user.email,mode:'compte Plume (e-mail et mot de passe)'});
-function load(){try{const raw=localStorage.getItem(KEY);if(raw){const o=migrateReacts(Object.assign(seed(),JSON.parse(raw)));o.plan='free';o.user=null;return o;}}catch(e){}return seed();}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){const o=migrateReacts(Object.assign(seed(),JSON.parse(raw)));o.plan='free';o.user=null;return fixState(o);}}catch(e){}return seed();}
 function deviceTheme(o){try{const t=localStorage.getItem('plume.theme');if(t==='light'||t==='dark'||t==='auto')o.theme=t;}catch(e){}return o;}
 let saveT;
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem('plume.theme',S.theme||'auto');if(!SESSION)localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}},250);
@@ -334,7 +424,7 @@ function rollover(){
   if(S.reads.week!==mondayKey())S.reads={week:mondayKey(),ids:[]};
   if(!S.credits||S.credits.month!==monthKey())S.credits={month:monthKey(),used:0};
 }
-const UI={tab:'decouvrir',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
+const UI={tab:'accueil',q:'',ecrireTab:'ms',exFilter:'reco',stack:[],sheet:null,genre:'Tout',reader:{sel:null},coach:null,planSel:'plus',login:{name:'',email:'',pass:'',mode:'signup',busy:false}};
 
 /* ===== aides métier ===== */
 const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>!SESSION||r.authorUid!==SESSION.user.id),S.manuscripts.filter(m=>m.published).map(m=>{const st=msToStory(m);if(SESSION)st.id=B.remoteId(m.id,SESSION.user.id);return st;}))
@@ -354,6 +444,61 @@ const curMs=()=>getMs(curP().id);
 const curCh=()=>{const m=curMs();return m.chapitres[clamp(m.active||0,0,m.chapitres.length-1)];};
 const avg=o=>COMPS.reduce((a,c)=>a+(o[c.id]||0),0)/COMPS.length;
 function level(){const a=avg(S.profile.scores);let i=0;LEVELS.forEach((l,k)=>{if(a>=l[0])i=k;});return {n:i+1,nom:LEVELS[i][1],moy:Math.round(a),prev:Math.round(avg(S.profile.prev))};}
+/* ===== v3 : XP, régularité, objectifs de la semaine ===== */
+const dayKey=(d)=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const dayOff=n=>{const d=new Date();d.setDate(d.getDate()+n);return dayKey(d);};
+const dayOfYear=()=>{const n=new Date();return Math.floor((n-new Date(n.getFullYear(),0,0))/864e5);};
+const XP_TITLES=['Plume naissante','Plume curieuse','Plume appliquée','Plume assurée','Plume inspirée','Plume audacieuse','Plume affûtée','Plume singulière','Plume maîtresse','Grande plume'];
+const xpAt=n=>60*n*(n-1);
+function xpInfo(){
+  const xp=S.xp||0;let n=1;while(xp>=xpAt(n+1))n++;
+  const lo=xpAt(n),hi=xpAt(n+1);
+  return {n:n,xp:xp,nom:XP_TITLES[Math.min(n-1,XP_TITLES.length-1)],pct:Math.round((xp-lo)/(hi-lo)*100),left:hi-xp};
+}
+function fixState(o){
+  const d=seed();
+  ['xp','streak','day','week','challenge','lessons','bible','prefs','readSeen','exoXP','pubXP'].forEach(k=>{if(o[k]==null)o[k]=d[k];});
+  o.prefs=Object.assign({coach:true,signals:true,goal:500},o.prefs);
+  return o;
+}
+function ensureDay(){
+  const t=dayKey(),wk=mondayKey();
+  if(!S.day||S.day.d!==t)S.day={d:t,words:0};
+  if(!S.week||S.week.k!==wk)S.week={k:wk,words:0,days:[],ex:0,reads:0,ch:0};
+}
+function activity(){
+  ensureDay();const t=dayKey();
+  if(S.streak.last!==t){S.streak.n=(S.streak.last===dayOff(-1))?S.streak.n+1:1;S.streak.last=t;}
+  if(!S.week.days.includes(t))S.week.days.push(t);
+}
+const streakNow=()=>{ensureDay();return (S.streak.last===dayKey()||S.streak.last===dayOff(-1))?S.streak.n:0;};
+function addXP(n,msg){
+  if(!n)return;
+  const before=xpInfo().n;S.xp=(S.xp||0)+n;const x=xpInfo();
+  toast(x.n>before?'Niveau '+x.n+' : '+x.nom+' ! (+'+n+' XP)':'+'+n+' XP'+(msg?', '+msg:''));
+}
+function addWords(n){
+  ensureDay();if(n<=0)return;
+  const prev=S.day.words;S.day.words+=n;S.week.words+=n;
+  if(S.day.words>=20)activity();
+  if(prev<2000){const g=Math.floor(Math.min(S.day.words,2000)/20)-Math.floor(prev/20);if(g>0)S.xp=(S.xp||0)+g;}
+}
+const OBJ=[
+ ['jours','Écrire 3 jours cette semaine',()=>S.week.days.length>=3,()=>S.week.days.length+'/3'],
+ ['mots','Écrire 1 500 mots',()=>S.week.words>=1500,()=>fmt(Math.min(S.week.words,1500))+'/1 500'],
+ ['exo','Faire 1 exercice',()=>S.week.ex>=1,()=>Math.min(S.week.ex,1)+'/1'],
+ ['lire','Lire 2 chapitres',()=>S.week.reads>=2,()=>Math.min(S.week.reads,2)+'/2'],
+ ['defi','Relever 1 défi du jour',()=>S.week.ch>=1,()=>Math.min(S.week.ch,1)+'/1']
+];
+const objDone=()=>{ensureDay();return OBJ.filter(o=>o[2]()).length;};
+const lastMs=()=>S.manuscripts.slice().sort((a,b)=>(b.upd||0)-(a.upd||0))[0]||null;
+const activeCh=m=>m?m.chapitres[clamp(m.active||0,0,m.chapitres.length-1)]:null;
+const todayLesson=()=>LESSONS[dayOfYear()%LESSONS.length];
+const todayChallenge=()=>{const c=CHALLENGES[dayOfYear()%CHALLENGES.length];return Object.assign({id:'dc'+dayKey(),xp:50,mots:100},c);};
+const weakestOrFirst=()=>hasDiag()?weakest():COMPS[0];
+const readMin=s=>Math.max(1,Math.round(s.chapitres.reduce((a,c)=>a+wc(Array.isArray(c.texte)?c.texte.join(' '):c.texte),0)/200));
+const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const bibleOf=id=>{S.bible=S.bible||{};return S.bible[id]=S.bible[id]||{persos:[],acte:'I',notesActe:'',idees:[],chrono:[]};};
 const weakest=()=>COMPS.slice().sort((a,b)=>S.profile.scores[a.id]-S.profile.scores[b.id])[0];
 const compOf=id=>COMPS.find(c=>c.id===id);
 const budgetLeft=()=>Math.max(0,PLANS[S.plan].budget-S.credits.used);
@@ -481,6 +626,8 @@ async function runCoach(){
 function finish(res,src,note,promptLen){
   const C=UI.coach,comp=compOf(C.compId),P=S.profile;
   const old=P.scores[comp.id],nw=old?Math.round(old*.65+res.score*.35):Math.max(1,res.score);if(!old)P.prev[comp.id]=nw;
+  let xpGain=20;if(C.exId)xpGain=S.exDone[C.exId]?10:35;else if(C.fixed&&C.compId){const k='co'+C.compId;xpGain=S.exoXP[k]!==dayKey()?35:0;S.exoXP[k]=dayKey();}
+  if(C.exId||C.fixed){ensureDay();S.week.ex++;}activity();
   const tokens=src==='ia'?(C.exId?COST.exercise:COST.single):0;
   P.scores[comp.id]=nw;P.trend[comp.id]=res.tendance;
   P.history.unshift({id:'h'+Date.now(),comp:comp.id,score:res.score,appreciation:res.appreciation||'Diagnostic enregistré.',titre:C.title,quand:Date.now(),src});
@@ -489,6 +636,7 @@ function finish(res,src,note,promptLen){
   rollover();S.credits.used+=tokens;if(src==='ia')syncCredits();save();
   if(C.exId){const at={score:res.score,app:res.appreciation||'',when:Date.now()};S.exDone[C.exId]=at;S.exHist=S.exHist||{};(S.exHist[C.exId]=S.exHist[C.exId]||[]).push(at);S.exHist[C.exId]=S.exHist[C.exId].slice(-20);save();}
   Object.assign(C,{phase:'result',mode:'single',res,src,note,tokens,oldScore:old,newScore:nw});
+  if(xpGain){S.xp=(S.xp||0)+xpGain;save();}
   renderSheet();
   if(C.exId)render();
 }
@@ -566,6 +714,7 @@ function finishGlobal(res,src,note,promptLen){
   P.history=P.history.slice(0,30);P.memory=P.memory.slice(0,12);
   rollover();S.credits.used+=tokens;if(src==='ia')syncCredits();save();
   Object.assign(C,{phase:'result',mode:'global',res,src,note,tokens,olds});
+  activity();S.xp=(S.xp||0)+40;save();
   renderSheet();
 }
 
@@ -582,23 +731,237 @@ function storyRow(s){
     '<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter '+esc(s.titre)+' aux favoris">'+IC.mark+'</button></div>';
 }
 
+
+/* ===== v3 : Accueil, Découvrir, Talents ===== */
+const tile=(ic,cx,cls)=>'<span class="tile'+(cls?' '+cls:'')+'"'+(cx?' style="--cx:'+cx+'"':'')+'>'+IX[ic]+'</span>';
+const chev='<span class="chev" aria-hidden="true">'+IX.next+'</span>';
+
+function vAccueil(){
+  ensureDay();rollover();
+  const u=S.user,x=xpInfo(),m=lastMs(),st=streakNow(),goal=S.prefs.goal;
+  const c=activeCh(m),w=c?wc(c.texte):0,lev=weakestOrFirst(),dc=todayChallenge(),dcs=S.challenge.d===dc.id?S.challenge.state:'';
+  const first=u?String(u.name).split(' ')[0].toUpperCase():'';
+  const roman=m
+    ?'<button class="card pcard" data-a="ms-open" data-id="'+m.id+'"><span class="row-between"><span class="gchip">'+IX.moon+esc(m.genre)+'</span>'+chev+'</span><b class="ptitle">'+esc(m.titre||'Sans titre')+'</b><span class="psub">'+esc(c.titre||'Chapitre')+'</span><span class="prog"><span class="bar lil" aria-hidden="true"><i style="width:'+Math.min(100,w/goal*100)+'%"></i></span><span class="small muted">'+fmt(w)+' / '+fmt(goal)+' mots</span></span>'+(S.prefs.coach&&w>0?'<span class="coachline">'+IX.sparkles+'Le coach a une question sur ta scène.</span>':'')+'</button>'
+    :'<div class="card pcard"><b class="ptitle">Commence ton premier roman</b><span class="psub">Quelques lignes suffisent pour lancer l’histoire.</span><button class="btn" data-a="ms-new">'+IX.plus+'Nouveau manuscrit</button></div>';
+  const nour=allStories().slice(0,6).map(s=>'<button class="hcard" data-a="story" data-id="'+s.id+'">'+cover(s,'sc')+'<b>'+esc(s.titre)+'</b><span class="small muted">'+esc(authorName(s.auteurId))+'</span></button>').join('');
+  return '<header class="hello pad"><span class="hl">'+LOGO+'</span><div class="ht"><p class="eyebrow">'+(u?'BON RETOUR, '+esc(first):'BIENVENUE SUR PLUME')+'</p><h1 class="hh">Une histoire à faire vivre ?</h1></div><button class="flamechip" data-a="obj-open" aria-label="Régularité : '+pl(st,'jour')+'">'+IX.flame+'<b>'+st+'</b></button></header>'+
+  '<section class="pad"><div class="card xpcard"><div class="xrow">'+tile('feather',null,'lil')+'<span class="xt"><span class="eyebrow">NIVEAU '+x.n+'</span><b>'+esc(x.nom)+'</b></span><b class="xpn">'+fmt(x.xp)+' XP</b></div><span class="bar amber" aria-hidden="true"><i style="width:'+x.pct+'%"></i></span><p class="small muted xr">'+fmt(x.left)+' XP avant le niveau '+(x.n+1)+'</p></div></section>'+
+  '<section class="pad"><h2 class="h2 row-between">Ton roman en cours <button class="link" data-a="tab" data-t="ecrire">Tous les projets</button></h2>'+roman+'</section>'+
+  '<section class="pad"><button class="card lever" data-a="atelier" data-id="'+lev.id+'">'+tile(lev.ic,lev.c)+'<span class="ltxt"><span class="eyebrow cxe" style="--cx:'+lev.c+'">TON PROCHAIN LEVIER</span><b>'+esc(lev.levier)+'</b><span class="small muted">Cours, exercice de 10 min et diagnostic IA sur ton chapitre.</span></span>'+chev+'</button></section>'+
+  '<section class="pad"><h2 class="h2">Défi du jour</h2><div class="card dcard">'+tile('zap',null,'amber')+'<div class="dtxt"><span class="eyebrow amberE">+'+dc.xp+' XP</span><b>'+esc(dc.t)+'</b><span class="small muted">'+esc(dc.d)+'</span></div>'+
+    (dcs==='done'?'<span class="link ok">'+IX.check+'Relevé</span>':'<button class="link" data-a="dc-accept">'+(dcs==='accepted'?'Reprendre':'Accepter')+'</button>')+'</div></section>'+
+  '<section class="pad"><h2 class="h2 row-between">Pour nourrir ta plume <button class="link" data-a="tab" data-t="decouvrir">Découvrir</button></h2><div class="hscroll">'+nour+'</div></section>';
+}
+
+function storyCard(s){
+  const saved=S.saved.includes(s.id);
+  return '<article class="scard"><button class="plain scov" data-a="story" data-id="'+s.id+'" aria-label="Ouvrir '+esc(s.titre)+'">'+cover(s,'sc')+'</button>'+
+  '<div class="sbody"><span class="gchip">'+esc(s.genre)+'</span><button class="plain stitle" data-a="story" data-id="'+s.id+'">'+esc(s.titre)+'</button><p class="by">par '+esc(authorName(s.auteurId))+'</p><p class="sres">'+esc(fr(s.resume))+'</p>'+
+  '<div class="smeta">'+statLine(s.id)+'<span class="si s-clock" title="'+readMin(s)+' minutes de lecture">'+IX.clock+'<b>'+readMin(s)+'</b> min</span><button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter '+esc(s.titre)+' aux favoris">'+IC.mark+'</button></div></div></article>';
+}
+function discoverList(){
+  const q=norm(UI.q||'').trim();
+  const list=allStories().filter(s=>(UI.genre==='Tout'||s.genre===UI.genre)&&(!q||norm([s.titre,authorName(s.auteurId),s.genre,s.resume].join(' ')).includes(q)));
+  return list.length?list.map(storyCard).join(''):'<p class="empty">'+(q?'Aucune histoire ne correspond à « '+esc(UI.q)+' ».':'Aucune histoire dans ce genre pour l’instant.')+'</p>';
+}
 function vDecouvrir(){
   rollover();
-  const all=allStories(),feat=all.find(s=>s.id==='s1')||all[0];
-  const genres=['Tout'].concat(Array.from(new Set(all.map(s=>s.genre))));
-  const list=all.filter(s=>UI.genre==='Tout'||s.genre===UI.genre);
+  const all=allStories(),genres=['Tout'].concat(Array.from(new Set(all.map(s=>s.genre))));
   const counter=S.plan==='free'
     ?'<button class="chip" data-a="plans-open" aria-label="Compteur de lecture gratuit, voir les forfaits">'+S.reads.ids.length+'/3 chapitres cette semaine</button>'
     :'<span class="chip plan-chip">'+esc(PLANS[S.plan].nom)+'</span>';
-  const authors=authorsAll().map(a=>{
-    const on=S.following.includes(a.id);
-    return '<div class="author">'+avatar(a.nom,56)+'<b>'+esc(a.nom)+'</b><span class="small muted">'+pl(FOLL[a.id]||0,'abonné')+'</span><button class="btn sm'+(on?' sec':'')+'" data-a="follow" data-id="'+a.id+'" aria-pressed="'+on+'">'+(on?'Suivi':'Suivre')+'</button></div>';
+  const n=authorsAll().length;
+  return '<section class="pad dhead"><div class="row-between"><p class="eyebrow">LA COMMUNAUTÉ PLUME</p>'+counter+'</div><h1 class="hh">Trouve ta prochaine obsession.</h1>'+
+  '<label class="search">'+IX.search+'<input id="q" type="search" placeholder="Titre, auteur, univers…" value="'+esc(UI.q||'')+'" data-in="search" aria-label="Rechercher une histoire" autocomplete="off"></label>'+
+  '<div class="chips" role="group" aria-label="Genres">'+genres.map(g=>'<button class="chip'+(UI.genre===g?' on':'')+'" data-a="genre" data-g="'+esc(g)+'" aria-pressed="'+(UI.genre===g)+'">'+(g==='Tout'?'Pour toi':esc(g))+'</button>').join('')+'</div>'+
+  '<button class="card talents" data-a="talents-open">'+tile('sparkles',null,'white')+'<span class="ltxt"><span class="eyebrow amberE">TALENTS ÉMERGENTS</span><b>'+pl(n,'plume')+' à lire avant tout le monde</b><span class="small muted">Sélectionnées pour leur voix singulière et leur progression.</span></span></button>'+
+  '<h2 class="h2">Histoires pour toi</h2><div id="storylist">'+discoverList()+'</div></section>';
+}
+
+function vTalents(){
+  const au=authorsAll(),stories=allStories();
+  return topBack('Talents émergents')+'<section class="pad"><p class="eyebrow amberE">TALENTS ÉMERGENTS</p><h1 class="hh">'+pl(au.length,'plume')+' à lire avant tout le monde</h1><p class="muted" style="margin:6px 0 16px">Sélectionnées pour leur voix singulière et leur progression.</p>'+
+  au.map(a=>{const on=S.following.includes(a.id),n=stories.filter(s=>s.auteurId===a.id).length;
+    return '<div class="card arow">'+avatar(a.nom,52)+'<span class="atxt"><b>'+esc(a.nom)+'</b><span class="small muted">'+pl(FOLL[a.id]||0,'abonné')+', '+pl(n,'histoire')+'</span></span><button class="btn sm'+(on?' sec':'')+'" data-a="follow" data-id="'+a.id+'" aria-pressed="'+on+'">'+(on?'Suivi':'Suivre')+'</button></div>';}).join('')+'</section>';
+}
+function vSaved(){
+  const list=S.saved.map(findStory).filter(Boolean);
+  return topBack('Histoires sauvegardées')+'<section class="pad"><h1 class="hh">Tes favoris</h1>'+(list.length?list.map(storyCard).join(''):'<p class="empty">Aucun favori pour l’instant. Touche le signet d’une histoire pour la retrouver ici.</p>')+'</section>';
+}
+function vFollowing(){
+  const au=authorsAll().filter(a=>S.following.includes(a.id));
+  return topBack('Auteurs suivis')+'<section class="pad"><h1 class="hh">Les plumes que tu suis</h1>'+(au.length?au.map(a=>'<div class="card arow">'+avatar(a.nom,52)+'<span class="atxt"><b>'+esc(a.nom)+'</b><span class="small muted">'+pl(FOLL[a.id]||0,'abonné')+'</span></span><button class="btn sm sec" data-a="follow" data-id="'+a.id+'" aria-pressed="true">Suivi</button></div>').join(''):'<p class="empty">Tu ne suis personne pour l’instant. Les talents émergents t’attendent dans Découvrir.</p>')+'</section>';
+}
+
+/* ===== v3 : Écrire, boussole, leçon, publication, éditeur ===== */
+function vEcrire(){
+  ensureDay();
+  const m=lastMs(),goal=S.prefs.goal,dw=S.day.words,free=S.plan==='free',les=todayLesson();
+  const bib=m?bibleOf(m.id):null;
+  let main;
+  if(m){
+    const c=activeCh(m),ex=String(c.texte||'').replace(/\s+/g,' ').trim();
+    main='<div class="card mcard"><button class="mmain" data-a="ms-open" data-id="'+m.id+'"><span class="row-between"><span class="gchip'+(m.published?'':' priv')+'">'+(m.published?IX.globe+'Publié':IX.lock+'Brouillon privé')+'</span><span class="saved">'+(SESSION?'Sauvegardé':'Sur cet appareil')+'</span></span>'+
+      '<b class="ptitle">'+esc(m.titre||'Sans titre')+'</b><span class="psub">'+esc(c.titre)+'</span><span class="excerpt">'+esc(ex.slice(0,150))+(ex.length>150?'…':'')+'</span>'+
+      '<span class="prog"><b class="bignum">'+fmt(dw)+'</b><span class="bar amber" aria-hidden="true"><i style="width:'+Math.min(100,dw/goal*100)+'%"></i></span></span><span class="row-between small muted"><span>mots aujourd’hui</span><span>Objectif '+fmt(goal)+'</span></span></button>'+
+      '<button class="link pub" data-a="publish-open" data-id="'+m.id+'">'+IX.globe+'Préparer la publication</button></div>';
+  }else main='<div class="card mcard"><b class="ptitle">Ton premier manuscrit t’attend</b><span class="psub">Écris quelques lignes, Plume s’occupe du reste.</span><button class="btn" data-a="ms-new">'+IX.plus+'Nouveau manuscrit</button></div>';
+  const offer=free
+    ?'<div class="card offer">'+IX.lock+'<span class="ltxt"><b>Offre gratuite</b><span class="small muted">1 publication · coach non inclus</span></span><button class="link" data-a="plans-open">Voir Plume +</button></div>'
+    :'<div class="card offer">'+IX.sparkles+'<span class="ltxt"><b>'+esc(PLANS[S.plan].nom)+'</b><span class="small muted">'+cr(budgetLeft())+' de coach ce mois-ci</span></span><button class="link" data-a="go-account">Mon espace</button></div>';
+  const bs=[['persos','users','Personnages',pl(bib?bib.persos.length:0,'fiche')],['structure','branch','Structure',bib?'Acte '+bib.acte:'Acte I'],['idees','bulb','Idées',pl(bib?bib.idees.length:0,'note')],['chrono','list','Chronologie',pl(bib?bib.chrono.length:0,'repère')]];
+  const rows=S.manuscripts.map(x=>{
+    const w=x.chapitres.reduce((a,c)=>a+wc(c.texte),0);
+    return '<button class="ms" data-a="ms-open" data-id="'+x.id+'"><span class="mi"><b>'+esc(x.titre||'Sans titre')+'</b><span class="small muted">'+pl(w,'mot')+', '+pl(x.chapitres.length,'chapitre')+'</span></span><span class="pill'+(x.published?' pub':'')+'">'+(x.published?'Publié':'Brouillon')+'</span></button>';
   }).join('');
-  return brandTop(counter)+
-  '<section class="pad"><div class="chips" role="group" aria-label="Genres">'+genres.map(g=>'<button class="chip'+(UI.genre===g?' on':'')+'" data-a="genre" data-g="'+esc(g)+'" aria-pressed="'+(UI.genre===g)+'">'+esc(g)+'</button>').join('')+'</div></section>'+
-  '<section class="pad"><h2 class="h2">À la une</h2><div class="feat"><button class="plain" data-a="story" data-id="'+feat.id+'" aria-label="Ouvrir '+esc(feat.titre)+'">'+cover(feat,'feat-c')+'</button><div class="ft"><h3><button class="plain" data-a="story" data-id="'+feat.id+'">'+esc(feat.titre)+'</button></h3><span class="small">'+esc(authorName(feat.auteurId))+'</span><p>'+statLine(feat.id)+'</p><p class="rs">'+esc(fr(feat.resume))+'</p><button class="btn sm" data-a="read" data-id="'+feat.id+'" data-ch="0">Lire le chapitre 1</button></div></div></section>'+
-  '<section class="pad"><h2 class="h2">Talents émergents</h2><div class="authors">'+authors+'</div></section>'+
-  '<section class="pad"><h2 class="h2">Histoires</h2>'+(list.length?list.map(storyRow).join(''):'<p class="empty">Aucune histoire dans ce genre pour l’instant.</p>')+'</section>';
+  return '<section class="pad"><div class="row-between top-hero"><div><p class="eyebrow">TON ATELIER</p><h1 class="hh">Écris. Apprends. Recommence.</h1></div><button class="sprintbtn" data-a="sprint-open" aria-label="Sprint d’écriture chronométré">'+IX.hourglass+'</button></div>'+main+offer+
+  '<h2 class="h2">La boussole de ton histoire</h2><div class="compass">'+bs.map(b=>'<button class="cpi" data-a="boussole-open" data-t="'+b[0]+'"><span class="cpi-i">'+IX[b[1]]+'</span><b>'+b[2]+'</b><span class="small muted">'+b[3]+'</span></button>').join('')+'</div>'+
+  '<button class="card lesson" data-a="lesson-open" data-id="'+les.id+'">'+tile('cap',null,'lil')+'<span class="ltxt"><span class="eyebrow">MINI-LEÇON · 3 MIN</span><b>'+esc(les.t)+'</b><span class="small muted">'+esc(les.teaser)+'</span></span>'+chev+'</button>'+
+  '<h2 class="h2">Mes manuscrits</h2><div>'+rows+'</div><div class="btns"><button class="btn block" data-a="ms-new">'+IC.plus+'Nouveau manuscrit</button></div>'+
+  '<button class="card lever" data-a="exlib-open" style="margin-top:18px">'+tile('pen',null,'lil')+'<span class="ltxt"><b>S’exercer à écrire</b><span class="small muted">'+EXOS.length+' exercices guidés, corrigés par le coach autant de fois que tu veux.</span></span>'+chev+'</button></section>';
+}
+
+function vExLib(){return topBack('S’exercer à écrire')+'<section class="pad"><h1 class="hh">Exercices guidés</h1></section>'+vExercices();}
+
+function vBoussole(p){
+  const m=getMs(p.id)||lastMs();
+  if(!m)return topBack('Boussole')+'<section class="pad"><p class="empty">Crée d’abord un manuscrit pour utiliser la boussole.</p></section>';
+  const b=bibleOf(m.id),t=UI.bTab||'persos';
+  const tabs=[['persos','Personnages'],['structure','Structure'],['idees','Idées'],['chrono','Chronologie']];
+  const del=(k,i)=>'<button class="iconbtn" data-a="b-del" data-k="'+k+'" data-i="'+i+'" aria-label="Supprimer">'+IX.trash+'</button>';
+  const add=(ph1,ph2,k,label)=>'<div class="card bform"><input id="b-a" class="line-in" placeholder="'+ph1+'" maxlength="80" data-enter="b-add" data-k="'+k+'" aria-label="'+ph1+'">'+(ph2?'<input id="b-b" class="line-in" placeholder="'+ph2+'" maxlength="200" data-enter="b-add" data-k="'+k+'" aria-label="'+ph2+'">':'')+'<button class="btn sm" data-a="b-add" data-k="'+k+'">'+label+'</button></div>';
+  let body='';
+  if(t==='persos')body=(b.persos.length?b.persos.map((x,i)=>'<div class="card brow"><span class="ltxt"><b>'+esc(x.nom)+'</b><span class="small muted">'+esc(x.note)+'</span></span>'+del('persos',i)+'</div>').join(''):'<p class="empty">Aucune fiche. Note le désir, la peur et la contradiction de chaque personnage.</p>')+add('Nom du personnage','Désir, peur, contradiction…','persos','Ajouter une fiche');
+  else if(t==='structure')body='<div class="card"><p class="eyebrow">OÙ EN ES-TU ?</p><div class="seg" role="group" aria-label="Acte">'+['I','II','III'].map(a=>'<button data-a="b-acte" data-v="'+a+'" aria-pressed="'+(b.acte===a)+'">Acte '+a+'</button>').join('')+'</div><label class="small muted" for="b-notes" style="display:block;margin:14px 0 6px">Notes de structure</label><textarea id="b-notes" class="ta" data-in="b-notes" placeholder="Situation de départ, bascule, résolution…" aria-label="Notes de structure">'+esc(b.notesActe||'')+'</textarea></div>';
+  else if(t==='idees')body=(b.idees.length?b.idees.map((x,i)=>'<div class="card brow"><span class="ltxt"><b>'+esc(x)+'</b></span>'+del('idees',i)+'</div>').join(''):'<p class="empty">Aucune note. Garde ici tes idées avant qu’elles ne s’envolent.</p>')+add('Une idée, un détail, une réplique…','','idees','Ajouter une note');
+  else body=(b.chrono.length?b.chrono.map((x,i)=>'<div class="card brow"><span class="ltxt"><b>'+esc(x.quand)+'</b><span class="small muted">'+esc(x.quoi)+'</span></span>'+del('chrono',i)+'</div>').join(''):'<p class="empty">Aucun repère. Note les dates et les événements qui rythment ton récit.</p>')+add('Quand ? (ex. Nuit du 14 mars)','Que se passe-t-il ?','chrono','Ajouter un repère');
+  return topBack('La boussole')+'<section class="pad"><p class="eyebrow">'+esc((m.titre||'Sans titre').toUpperCase())+'</p><h1 class="hh">La boussole de ton histoire</h1>'+
+  '<div class="seg" role="group" aria-label="Section" style="margin:14px 0">'+tabs.map(x=>'<button data-a="boussole-tab" data-t="'+x[0]+'" aria-pressed="'+(t===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+body+'</section>';
+}
+
+function vLesson(p){
+  const L=LESSONS.find(x=>x.id===p.id);if(!L)return topBack('Mini-leçon')+'<p class="empty">Leçon introuvable.</p>';
+  const done=!!S.lessons[L.id],c=L.comp?compOf(L.comp):null;
+  return topBack('Mini-leçon')+'<section class="pad"><p class="eyebrow">MINI-LEÇON · 3 MIN</p><h1 class="hh">'+esc(L.t)+'</h1><p class="muted" style="margin:6px 0 16px">'+esc(L.teaser)+'</p>'+
+  '<div class="card method">'+L.corps.map(x=>'<p>'+esc(fr(x))+'</p>').join('')+'<ol class="mpts">'+L.points.map((x,i)=>'<li><span class="num">'+(i+1)+'</span><b>'+esc(x)+'</b></li>').join('')+'</ol></div>'+
+  '<div class="btns">'+(done?'<span class="link ok">'+IX.check+'Leçon terminée</span>':'<button class="btn block" data-a="lesson-done" data-id="'+L.id+'">J’ai lu la leçon (+20 XP)</button>')+(c?'<button class="btn sec block" data-a="atelier" data-id="'+c.id+'">Ouvrir l’atelier '+esc(c.nom)+'</button>':'')+'</div></section>';
+}
+
+function vPublish(p){
+  const m=getMs(p.id);if(!m)return topBack('Publication')+'<p class="empty">Ce manuscrit est introuvable.</p>';
+  const words=wc(m.chapitres.map(c=>c.texte).join(' ')),pubs=S.manuscripts.filter(x=>x.published).length;
+  const checks=[
+    ['Au moins 10 mots écrits',words>=10,true,pl(words,'mot')+' pour l’instant'],
+    ['Un titre',!!(m.titre||'').trim()&&m.titre!=='Sans titre',false,'Visible dans Découvrir'],
+    ['Un synopsis d’au moins 40 caractères',(m.resume||'').trim().length>=40,false,'Il donne envie de lire le premier chapitre'],
+    ['Une jaquette',!!m.jaquette,false,'Sinon, une couverture par défaut est utilisée']
+  ];
+  return topBack('Préparer la publication')+'<section class="pad"><p class="eyebrow">VÉRIFIE AVANT DE PUBLIER</p><h1 class="hh">'+esc(m.titre||'Sans titre')+'</h1><p class="muted" style="margin:6px 0 14px">Vérifie les informations avant de rendre cette histoire visible par la communauté. Tu pourras la retirer à tout moment.</p>'+
+  '<div class="card">'+checks.map(c=>'<div class="chk"><span class="chk-i'+(c[1]?' ok':'')+'">'+(c[1]?IX.check:'')+'</span><span class="ltxt"><b>'+c[0]+(c[2]?' <em class="req">requis</em>':'')+'</b><span class="small muted">'+c[3]+'</span></span></div>').join('')+'</div>'+
+  '<h2 class="h2">Titre</h2><input class="line-in field" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre">'+
+  '<h2 class="h2">Genre</h2><select class="sel-in field" data-in="ms-genre" aria-label="Genre">'+GENRES_EDIT.map(g=>'<option'+(g===m.genre?' selected':'')+'>'+g+'</option>').join('')+'</select>'+
+  '<h2 class="h2">Synopsis</h2><textarea class="ta" data-in="ms-resume" maxlength="400" placeholder="En deux ou trois phrases, de quoi parle ton histoire ?" aria-label="Synopsis">'+esc(m.resume||'')+'</textarea>'+
+  '<h2 class="h2">Jaquette</h2><div class="jq">'+cover(msToStory(m),'mini')+'<div><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
+  (S.plan==='free'&&!m.published?'<p class="small muted" style="margin-top:14px">Avec le forfait Gratuit, tu peux publier 1 histoire au total ('+pubs+' sur 1 aujourd’hui).</p>':'')+
+  '<div class="btns"><button class="btn block'+(m.published?' sec':'')+'" data-a="ms-publish" data-id="'+m.id+'">'+(m.published?'Retirer de Découvrir':IX.globe+'Publier cette histoire')+'</button></div></section>';
+}
+
+function vEditor(p){
+  const m=getMs(p.id);if(!m)return topBack('Manuscrit')+'<p class="empty">Ce manuscrit est introuvable.</p>';
+  const act=clamp(m.active||0,0,m.chapitres.length-1),c=m.chapitres[act],goal=S.prefs.goal,w=wc(c.texte),focus=!!UI.focus;
+  const sc=compOf(UI.editComp)||weakestOrFirst();
+  const head='<header class="edtop"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><span class="savedot"><i></i>'+(SESSION?'Enregistré sur ton compte':'Enregistré sur cet appareil')+'</span><span class="edact"><button class="iconbtn" data-a="coach-open" aria-label="Demander au coach">'+IX.sparkles+'</button><button class="iconbtn" data-a="focus-toggle" aria-pressed="'+focus+'" aria-label="Mode concentration">'+(focus?IX.eye:IX.eyeoff)+'</button></span></header>';
+  const meta=focus?'':'<div class="pad edhead"><input class="title-in big" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre du manuscrit">'+
+    '<input class="line-in chap" id="ch-title" value="'+esc(c.titre)+'" data-in="ch-title" maxlength="80" aria-label="Titre du chapitre">'+
+    '<div class="chips" role="group" aria-label="Chapitres">'+m.chapitres.map((ch,i)=>'<button class="chip'+(i===act?' on':'')+'" data-a="ms-ch" data-i="'+i+'">Chapitre '+(i+1)+'</button>').join('')+'<button class="chip" data-a="ms-addch">'+IC.plus+'Chapitre</button></div>'+
+    '<label class="intent">'+IX.compass+'<span>Intention actuelle :</span><textarea id="ch-intent" class="autog" rows="1" data-in="ch-intent" maxlength="140" placeholder="ce que la scène change" aria-label="Intention de la scène">'+esc(c.intention||'')+'</textarea></label>'+
+    '<div class="row-between pubrow"><span class="small muted">'+(m.published?'Publié dans Découvrir':'Brouillon privé')+'</span><button class="link" data-a="publish-open" data-id="'+m.id+'">'+IX.globe+'Préparer la publication</button></div></div>';
+  const aide=(focus||!S.prefs.coach)?'':'<div class="pad aide"><div class="row-between"><b class="h3">Aide ciblée</b><span class="small muted">Cours accessibles</span></div>'+
+    '<div class="ctabs" role="group" aria-label="Compétence">'+COMPS.map(x=>'<button class="ctab'+(x.id===sc.id?' on':'')+'" style="--cx:'+x.c+'" data-a="edit-comp" data-id="'+x.id+'" aria-pressed="'+(x.id===sc.id)+'">'+IX[x.ic]+'<span>'+esc(x.nom)+'</span></button>').join('')+'</div>'+
+    '<div class="card mpanel" style="--cx:'+sc.c+'"><span class="mhead">'+IX[sc.ic]+'Méthode · '+esc(sc.nom)+'</span><p>'+esc(fr(sc.desc))+'</p><p class="q">'+esc(fr(sc.question))+'</p><button class="link" data-a="atelier" data-id="'+sc.id+'">Ouvrir l’atelier</button></div><button class="btn block" data-a="coach-open2">'+IC.cap+'Demander au coach'+(S.plan==='free'?'':' ('+cr(COST.single)+')')+'</button></div>';
+  return head+meta+'<textarea class="ta write" id="ms-text" data-in="ms-text" placeholder="Écris ta scène ici…" spellcheck="true" lang="fr" aria-label="Texte du chapitre">'+esc(c.texte)+'</textarea>'+aide+
+  '<div class="edbar"><div class="wcrow"><span class="wcn" id="wc">'+pl(w,'mot')+'</span><span class="bar amber" aria-hidden="true"><i id="wcbar" style="width:'+Math.min(100,w/goal*100)+'%"></i></span><span class="small muted">objectif '+fmt(goal)+'</span></div></div>';
+}
+
+/* ===== v3 : Progrès, atelier, profil ===== */
+const kfmt=n=>n>=1000?(n/1000).toFixed(1).replace('.',',')+' k':String(n);
+function vProgression(){
+  ensureDay();
+  const x=xpInfo(),w=weakestOrFirst(),L=level(),d=L.moy-L.prev,diag=S.profile.history.length;
+  const C=326.7;
+  const ring='<svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Niveau '+x.n+'"><circle cx="60" cy="60" r="52" class="rt"/><circle cx="60" cy="60" r="52" class="rf" style="stroke-dasharray:'+(C*Math.max(3,x.pct)/100).toFixed(1)+' '+C+'"/><text x="60" y="64" text-anchor="middle" class="rn">'+x.n+'</text><text x="60" y="84" text-anchor="middle" class="rl">NIVEAU</text></svg>';
+  const reco='<button class="card reco" data-a="atelier" data-id="'+w.id+'">'+tile('sparkles',null,'white')+'<span class="ltxt"><span class="eyebrow amberE">RECOMMANDÉ PAR PLUME</span><b>Renforce '+esc(w.nom.toLowerCase())+'</b><span class="small muted">'+esc(noteFor(w.id)||w.court)+'</span></span>'+chev+'</button>';
+  const atl=COMPS.map(c=>{
+    const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
+    return '<button class="card acard" data-a="atelier" data-id="'+c.id+'" style="--cx:'+c.c+'">'+tile(c.ic,c.c)+'<span class="atxt"><span class="row-between"><b class="aname">'+esc(c.nom)+'</b><span class="ascore">'+(sc?sc:'–')+deltaChip(dv)+'</span></span><span class="atag">'+esc(c.tag)+'</span><span class="small muted">'+esc(c.court)+'</span><span class="bar cx" aria-hidden="true"><i style="width:'+sc+'%"></i></span></span></button>';
+  }).join('');
+  const mentor=S.plan==='free'
+    ?'<div class="card mentor">'+tile('lock',null,'lil')+'<span class="ltxt"><b>Mentor IA avec Plume +</b><span class="small muted">Les cours restent accessibles ; l’analyse personnalisée de ton texte est réservée aux abonnés.</span></span><button class="link" data-a="plans-open">Voir Plume +</button></div>'
+    :'<div class="card mentor">'+tile('sparkles',null,'lil')+'<span class="ltxt"><b>Mentor IA actif</b><span class="small muted">'+cr(budgetLeft())+' de coach ce mois-ci. Lance une analyse depuis l’éditeur ou un atelier.</span></span></div>';
+  const mem=S.profile.memory.slice(0,2).map(m=>'<div class="mem"><p class="hand">'+esc(fr(m.note))+'</p><p class="small muted">'+esc(compOf(m.comp).nom)+', '+dateFr(m.quand)+'</p></div>').join('');
+  const hist=S.profile.history.slice(0,5).map(h=>'<div class="hist"><span class="hs">'+h.score+'</span><div><p><b>'+esc(h.comp==='global'?'Analyse globale':compOf(h.comp).nom)+'</b>, '+esc(h.titre)+'</p><p class="muted">'+esc(fr(h.appreciation))+'</p><p class="small muted">'+dateFr(h.quand)+(h.src==='local'?', analyse locale':'')+'</p></div></div>').join('');
+  return '<section class="pad"><p class="eyebrow">TON ÉCOLE D’ÉCRITURE</p><h1 class="hh">Une compétence, une méthode.</h1><p class="muted" style="margin:8px 0 16px">Chaque atelier travaille un mécanisme différent sur ton propre manuscrit.</p>'+
+  '<div class="card levelc">'+ring+'<div class="lt"><span class="gchip amberc">'+IX.feather+esc(x.nom)+'</span><b class="xpbig">'+fmt(x.xp)+' XP accumulés</b><span class="bar amber" aria-hidden="true"><i style="width:'+x.pct+'%"></i></span><span class="small muted">'+pl(diag,'diagnostic')+(diag?' · évolution suivie depuis 3 mois':' · premier diagnostic à venir')+'</span></div></div>'+reco+
+  '<h2 class="h2">Choisis ton atelier</h2>'+atl+mentor+
+  '<h2 class="h2">Cette semaine</h2><div class="wstats"><div class="card ws">'+IX.aa+'<b>'+fmt(S.week.words)+'</b><span class="small muted">mots écrits</span></div><div class="card ws">'+IX.flame+'<b>'+pl(streakNow(),'jour')+'</b><span class="small muted">de régularité</span></div><button class="card ws" data-a="obj-open">'+IX.target+'<b>'+objDone()+'/'+OBJ.length+'</b><span class="small muted">objectifs</span></button></div>'+
+  '<h2 class="h2">Ton profil d’écriture</h2>'+
+  (hasDiag()?'<p class="small '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' points par rapport au niveau observé il y a trois mois ('+L.prev+').</p>':'<p class="small muted">Aucun diagnostic pour l’instant : tes scores apparaîtront après ta première analyse par le coach.</p>')+
+  radar()+'<div class="legend"><span><i></i>Aujourd’hui</span>'+(hasDiag()?'<span><i class="off"></i>Il y a trois mois</span>':'')+'</div>'+
+  '<h2 class="h2">Ce que le coach a retenu</h2>'+(mem||'<p class="muted">Le coach notera tes habitudes d’écriture après ton premier diagnostic.</p>')+
+  '<h2 class="h2">Historique des diagnostics</h2>'+(hist||'<p class="muted">Aucun diagnostic pour l’instant.</p>')+
+  (SESSION?'':'<p class="small muted" style="margin-top:14px">Les scores de départ sont des données de démonstration. Ils évoluent avec chaque diagnostic.</p>')+'</section>';
+}
+
+function vAtelier(p){
+  const c=compOf(p.id);if(!c)return topBack('Atelier')+'<p class="empty">Atelier introuvable.</p>';
+  const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id],mem=noteFor(c.id),m=lastMs(),ch=activeCh(m);
+  const n=S.profile.history.filter(h=>h.comp===c.id||h.comp==='global').length;
+  const free=S.plan==='free',draft=S.exos[c.id]||'';
+  const where=ch?'<p class="applyto">Applique-le à « '+esc((m.titre||'Sans titre')+' · '+ch.titre)+' ».</p>':'';
+  return topBack('Atelier '+c.nom)+'<section class="pad" style="--cx:'+c.c+'">'+
+  '<div class="hero"><span class="tile big white">'+IX[c.ic]+'</span><div class="htx"><span class="gchip cxchip">'+esc(c.tag.toUpperCase())+'</span><h1 class="hh">'+esc(c.nom)+'</h1><p class="muted">'+esc(c.court)+'</p><b class="hsc">'+(sc?sc:'–')+deltaChip(dv)+'</b></div></div>'+
+  '<div class="card qcard">'+IX.target+'<span class="ltxt"><span class="eyebrow">QUESTION POUR TON CHAPITRE</span><b>'+esc(fr(c.question))+'</b></span></div>'+
+  '<div class="card memc">'+IX.brain+'<span class="ltxt"><span class="eyebrow amberE">MÉMOIRE DU COACH · '+pl(n,'ANALYSE')+'</span><b>'+esc(fr(mem||'Le coach notera ici ce qu’il remarque dans tes textes, dès ta première analyse.'))+'</b></span></div>'+
+  '<div class="card method"><span class="eyebrow">LA MÉTHODE</span><h2 class="mt">'+esc(c.mt)+'</h2><p>'+esc(fr(c.desc))+'</p><ol class="mpts">'+c.mp.map((x,i)=>'<li><span class="num">'+(i+1)+'</span><b>'+esc(x)+'</b></li>').join('')+'</ol></div>'+
+  '<div class="card excard"><div class="row-between"><span class="exh">'+tile('pen',null,'lil')+'<span><span class="eyebrow">EXERCICE GUIDÉ · 10 MIN</span><b class="exn">À toi de jouer</b></span></span><span class="xpchip">+35 XP</span></div>'+
+  '<p class="extxt">'+esc(fr(c.exercice))+'</p>'+where+
+  '<textarea class="ta" data-in="exo" data-id="'+c.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton exercice">'+esc(draft)+'</textarea>'+
+  '<div class="btns"><button class="btn block" data-a="exo-done" data-id="'+c.id+'">'+IX.hourglass+'J’ai fait l’exercice (+35 XP)</button><button class="btn sec block" data-a="exo-run" data-id="'+c.id+'">'+IC.cap+'Faire corriger par le coach'+(free?'':' ('+cr(COST.exercise)+')')+'</button></div></div>'+
+  '<p class="eyebrow" style="margin-top:22px">MENTOR IA</p><h2 class="h2 sparkh">Un retour sur ton texte, pas un texte à ta place.'+IX.sparkles+'</h2>'+
+  (free?'<div class="card lockc"><span class="lockic">'+IX.lock+'</span><b>Diagnostic '+esc(c.nom.toLowerCase())+' avec Plume +</b><span class="small muted">'+esc(c.diag)+'</span><button class="btn sm" data-a="plans-open">Voir Plume +</button></div>'
+    :'<div class="card lockc"><span class="lockic ok">'+IX.sparkles+'</span><b>Diagnostic '+esc(c.nom.toLowerCase())+'</b><span class="small muted">'+esc(c.diag)+'</span><button class="btn sm" data-a="atelier-diag" data-id="'+c.id+'">Analyser ma scène ('+cr(COST.single)+')</button></div>')+
+  '<h2 class="h2">Grille d’analyse</h2><ul class="gr">'+c.grille.map(g=>'<li>'+IC.check+'<span>'+esc(g)+'</span></li>').join('')+'</ul></section>'+
+  '<nav class="atabs" aria-label="Ateliers">'+COMPS.map(x=>'<button class="atab'+(x.id===c.id?' on':'')+'" style="--cx:'+x.c+'" data-a="atelier-sw" data-id="'+x.id+'" aria-current="'+(x.id===c.id)+'">'+IX[x.ic]+'<span>'+esc(x.nom)+'</span></button>').join('')+'</nav>';
+}
+
+function vProfil(){
+  ensureDay();
+  const u=S.user,x=xpInfo(),pl_=PLANS[S.plan],pubs=S.manuscripts.filter(m=>m.published),diag=S.profile.history.length;
+  const name=u?u.name:'Invité',handle=u?'@'+norm(name).replace(/[^a-z0-9]+/g,'.').replace(/^\.|\.$/g,''):'@invite';
+  const reads=pubs.reduce((a,m)=>a+(READS[SESSION?B.remoteId(m.id,SESSION.user.id):m.id]||0),0);
+  const memo=S.profile.memory[0],ord=COMPS.slice().sort((a,b)=>S.profile.scores[b.id]-S.profile.scores[a.id]);
+  const bars=COMPS.map(c=>{const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
+    return '<button class="trow" data-a="atelier" data-id="'+c.id+'" style="--cx:'+c.c+'">'+tile(c.ic,c.c)+'<span class="tr"><span class="row-between"><b>'+esc(c.nom)+'</b><span class="ascore">'+deltaChip(dv)+(sc?sc:'–')+'</span></span><span class="bar cx" aria-hidden="true"><i style="width:'+sc+'%"></i></span></span></button>';}).join('');
+  const goal=S.prefs.goal;
+  const works=S.manuscripts.map(m=>{
+    const w=m.chapitres.reduce((a,c)=>a+wc(c.texte),0),pct=Math.min(100,Math.round(w/(goal*m.chapitres.length)*100)),r=READS[SESSION?B.remoteId(m.id,SESSION.user.id):m.id]||0;
+    return '<button class="card work" data-a="ms-open" data-id="'+m.id+'">'+tile(m.published?'globe':'book',null,m.published?'sage':'lil')+'<span class="ltxt"><b>'+esc(m.titre||'Sans titre')+'</b><span class="small muted">'+pl(m.chapitres.length,'chapitre')+' · '+(m.published?'Publiée':'Brouillon privé')+'</span></span><span class="gchip '+(m.published?'sagec':'')+'">'+(m.published?pl(r,'lecture'):pct+' %')+'</span></button>';}).join('');
+  const sw=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+!!S.prefs[k]+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
+  return '<header class="phead pad">'+avatar(name,72)+'<div class="pn"><h1 class="hh">'+esc(name)+'</h1><p class="small muted">'+esc(handle)+(u?'':' · Mode découverte')+'</p><span class="gchip amberc lvlp">'+IX.feather+'Niveau '+x.n+' · '+esc(x.nom)+'</span></div>'+(u?'':'<button class="link" data-a="login-go">Se connecter</button>')+'</header>'+
+  '<section class="pad">'+(S.bio?'<p class="bio">'+esc(S.bio)+' <button class="link small" data-a="bio-open">Modifier</button></p>':'<button class="bio add" data-a="bio-open">Ajoute une phrase qui te présente.</button>')+
+  (u?'<button class="card cta" data-a="go-account">'+tile('user',null,'white')+'<span class="ltxt"><b>Mon espace client</b><span class="small muted">'+esc(u.email)+'</span></span>'+chev+'</button>'
+    :'<button class="card cta" data-a="login-go">'+tile('user',null,'white')+'<span class="ltxt"><b>Crée ton espace client</b><span class="small muted">Connecte-toi pour synchroniser ton profil, tes manuscrits et tes abonnements.</span></span>'+chev+'</button>')+
+  '<div class="card planc">'+tile('feather',null,'white')+'<span class="ltxt"><b>'+(S.plan==='free'?'Offre gratuite':esc(pl_.nom))+'</b><span class="small muted">'+(S.plan==='free'?pubs.length+'/1 publication · '+S.reads.ids.length+'/3 chapitres cette semaine':cr(budgetLeft())+' de coach ce mois-ci')+'</span></span><button class="link" data-a="plans-open">'+(S.plan==='free'?'Passer à Plume +':'Voir les forfaits')+'</button></div>'+
+  '<div class="statsp"><div><b>'+S.manuscripts.length+'</b><span>Histoires</span></div><div><b>'+kfmt(reads)+'</b><span>Lecteurs</span></div><div><b>'+fmt(x.xp)+'</b><span>XP</span></div></div>'+
+  '<h2 class="h2 row-between">Ma transformation <button class="link" data-a="tab" data-t="progression">Voir les ateliers</button></h2>'+
+  '<div class="card transf"><div class="row-between"><div><span class="eyebrow">DEPUIS 3 MOIS</span><h3 class="th">'+(diag?'Tu n’écris plus comme avant.':'Ta transformation commence ici.')+'</h3></div><span class="gchip sagec">'+pl(diag,'diagnostic')+'</span></div>'+bars+'</div>'+
+  '<div class="card memc">'+IX.brain+'<span class="ltxt"><span class="eyebrow amberE">CE QUE TON COACH A APPRIS</span><b>'+esc(fr(memo?memo.note:'Le coach notera tes habitudes d’écriture après ton premier diagnostic.'))+'</b>'+(diag?'<span class="small muted">Point fort : '+esc(ord[0].nom)+' · Priorité : '+esc(ord[ord.length-1].nom)+'</span>':'')+'</span></div>'+
+  '<h2 class="h2 row-between">Mes œuvres '+(S.manuscripts.length?'<button class="link" data-a="publish-last">'+IX.globe+'Publier une histoire</button>':'')+'</h2>'+(works||'<p class="empty">Tes histoires apparaîtront ici dès ton premier manuscrit.</p>')+
+  '<h2 class="h2">Mon espace lecteur</h2><div class="card rows"><button class="rowitem" data-a="saved-open">'+IC.mark+'<b>Histoires sauvegardées</b><span class="cnt">'+S.saved.length+'</span></button><button class="rowitem" data-a="following-open">'+IX.users+'<b>Auteurs suivis</b><span class="cnt">'+S.following.length+'</span></button></div>'+
+  '<h2 class="h2">Préférences</h2><div class="card rows">'+sw('coach','Conseils du coach','Recevoir des questions pendant l’écriture')+sw('signals','Signaux de lecture','Voir où les lecteurs réagissent ou décrochent')+
+  '<div class="rowitem col"><b>Objectif de mots par jour</b><div class="seg" role="group" aria-label="Objectif de mots">'+[250,500,750,1000].map(g=>'<button data-a="goal" data-v="'+g+'" aria-pressed="'+(S.prefs.goal===g)+'">'+g+'</button>').join('')+'</div></div>'+
+  '<div class="rowitem col"><b>Apparence</b><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div></div></div></section>';
 }
 
 function vStory(p){
@@ -618,7 +981,7 @@ function vStory(p){
 }
 
 const rbtn=(k,on,action,n)=>'<button class="rbtn'+(on?' on':'')+'" data-a="'+action+'" data-r="'+k+'" aria-pressed="'+on+'"><span class="re" aria-hidden="true">'+REACTS[k].e+'</span><span class="rl2">'+esc(REACTS[k].l)+'</span>'+(n?'<b class="rn">'+fmt(n)+'</b>':'')+'</button>';
-const rcounts=key=>{const c=RC[key]||{},ks=Object.keys(REACTS).filter(k=>c[k]>0);return ks.length?'<span class="rcnt">'+ks.map(k=>'<span><span class="re" aria-hidden="true">'+REACTS[k].e+'</span>'+fmt(c[k])+'</span>').join('')+'</span>':'';};
+const rcounts=key=>{if(!S.prefs.signals)return '';const c=RC[key]||{},ks=Object.keys(REACTS).filter(k=>c[k]>0);return ks.length?'<span class="rcnt">'+ks.map(k=>'<span><span class="re" aria-hidden="true">'+REACTS[k].e+'</span>'+fmt(c[k])+'</span>').join('')+'</span>':'';};
 function vReader(p){
   const s=findStory(p.id);if(!s)return topBack('Lecture')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
   const ci=clamp(p.ch,0,s.chapitres.length-1),ch=s.chapitres[ci],R=UI.reader,last=ci===s.chapitres.length-1;
@@ -692,13 +1055,14 @@ function vExercices(){
   ((f==='reco'&&(S.coachExos||[]).length)?'<section class="pad"><h2 class="h2">Exercices proposés par le coach</h2><div>'+S.coachExos.slice(0,10).map(exCard).join('')+'</div></section>':'')+
   (doneList.length?'<section class="pad"><h2 class="h2">Exercices corrigés</h2><div>'+doneList.map(exCard).join('')+'</div></section>':'');
 }
-const findEx=id=>EXOS.find(x=>x.id===id)||(S.coachExos||[]).find(x=>x.id===id);
+const dailyEx=()=>{const c=todayChallenge();return {id:c.id,comp:c.comp,titre:c.t,min:5,mots:c.mots,tags:[],consigne:c.d,daily:true,xp:c.xp};};
+const findEx=id=>EXOS.find(x=>x.id===id)||(S.coachExos||[]).find(x=>x.id===id)||(id===todayChallenge().id?dailyEx():null);
 function exWcText(e,t){return pl(wc(t),'mot')+', vise environ '+e.mots+'.';}
 function vExercice(p){
   const e=findEx(p.id);if(!e)return topBack('Exercice')+'<p class="empty">Exercice introuvable.</p>';
   const c=compOf(e.comp),r=roleOf(e.comp),sc=S.profile.scores[c.id],d=S.exDone[e.id],n=noteFor(c.id),draft=S.exDraft[e.id]||'';
   const hist=(S.exHist&&S.exHist[e.id])||[];
-  const why=!hasDiag()&&!e.fromCoach?'Un bon exercice pour démarrer : il donnera au coach de la matière à analyser.':e.fromCoach?'Proposé par le coach après l’analyse de « '+e.source+' », pour travailler '+c.nom+' ('+sc+').':r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
+  const why=e.daily?'Le défi du jour : une courte écriture pour garder le rythme et gagner '+e.xp+' XP.':!hasDiag()&&!e.fromCoach?'Un bon exercice pour démarrer : il donnera au coach de la matière à analyser.':e.fromCoach?'Proposé par le coach après l’analyse de « '+e.source+' », pour travailler '+c.nom+' ('+sc+').':r.rank===0?c.nom+' est ta compétence la plus basse ('+sc+').':(r.rank===1?c.nom+' est ta deuxième compétence la plus basse ('+sc+').':(r.cls==='g'?c.nom+' est ton point fort ('+sc+') : cet exercice te pousse à le consolider.':'Tu es à '+sc+' en '+c.nom+'.'));
   return topBack('Exercice')+'<section class="pad"><div class="exc-l"><span class="tagc '+r.cls+'">'+r.label+'</span><span class="exc-c">'+esc(c.nom)+'</span></div>'+
   '<h1 class="h1">'+esc(e.titre)+'</h1><p class="small muted">'+e.min+' min, environ '+e.mots+' mots</p>'+
   '<div class="why"><p><b>Pourquoi cet exercice</b></p><p>'+esc(why)+'</p>'+(n?'<p class="hand">'+esc(fr(n))+'</p>':'')+'</div>'+
@@ -707,76 +1071,16 @@ function vExercice(p){
   '<h2 class="h2">Ton texte</h2><textarea class="ta seyes" data-in="exd" data-id="'+e.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton texte pour l’exercice">'+esc(draft)+'</textarea>'+
   '<p class="small muted" id="exwc" style="margin-top:8px">'+esc(exWcText(e,draft))+'</p>'+
   (d?'<div class="note"><b>Dernière correction : '+d.score+'/100.</b> '+esc(fr(d.app))+(hist.length>1?'<br><span class="small">Tes '+hist.length+' corrections : '+hist.map(h=>h.score).join(' → ')+'</span>':'')+'<br><span class="small">Tu peux réécrire ton texte et le faire corriger à nouveau, autant de fois que tu veux.</span></div>':'')+
-  '<div class="btns"><button class="btn block" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+(d?'Faire corriger à nouveau':'Faire corriger par le coach')+(S.plan==='free'?'':' ('+cr(COST.exercise)+')')+'</button></div>'+
+  (e.daily?(S.challenge.d===e.id&&S.challenge.state==='done'?'<p class="ok-line">'+IX.check+'Défi relevé aujourd’hui</p>':'<div class="btns"><button class="btn block" data-a="dc-done" data-id="'+e.id+'">'+IX.check+'Valider mon défi (+'+e.xp+' XP)</button></div>'):'')+
+  '<div class="btns"><button class="btn block'+(e.daily?' sec':'')+'" data-a="exd-run" data-id="'+e.id+'">'+IC.cap+(d?'Faire corriger à nouveau':'Faire corriger par le coach')+(S.plan==='free'?'':' ('+cr(COST.exercise)+')')+'</button></div>'+
   (S.plan==='free'?'':'<p class="small muted credit-note">Chaque correction coûte '+cr(COST.exercise)+'. Il te reste '+cr(budgetLeft())+' ce mois-ci, tu peux te faire corriger autant de fois que tu veux tant qu’il t’en reste.</p>')+
   (S.plan==='free'?'<p class="small muted" style="margin-top:10px">La correction par le coach est incluse dans Plume + et Plume ++.</p>':'')+'</section>';
 }
 
-function vEcrire(){
-  const pubs=S.manuscripts.filter(m=>m.published).length;
-  const rows=S.manuscripts.map(m=>{
-    const w=m.chapitres.reduce((a,c)=>a+wc(c.texte),0);
-    return '<button class="ms" data-a="ms-open" data-id="'+m.id+'"><span class="mi"><b>'+esc(m.titre||'Sans titre')+'</b><span class="small muted">'+pl(w,'mot')+', '+pl(m.chapitres.length,'chapitre')+'</span></span><span class="pill'+(m.published?' pub':'')+'">'+(m.published?'Publié':'Brouillon')+'</span></button>';
-  }).join('');
-  const seg='<div class="seg top-seg" role="group" aria-label="Section"><button data-a="ecrire-tab" data-t="ms" aria-pressed="'+(UI.ecrireTab!=='ex')+'">Mes manuscrits</button><button data-a="ecrire-tab" data-t="ex" aria-pressed="'+(UI.ecrireTab==='ex')+'">S’exercer à écrire</button></div>';
-  if(UI.ecrireTab==='ex')return brandTop()+'<section class="pad"><h1 class="h1">Écrire</h1>'+seg+'</section>'+vExercices();
-  return brandTop()+'<section class="pad"><h1 class="h1">Écrire</h1>'+seg+'<p class="muted" style="margin-top:14px">Tes manuscrits sont enregistrés sur cet appareil.</p>'+
-  (S.plan==='free'?'<div class="note or">Avec le forfait Gratuit, tu peux publier 1 histoire au total ('+pubs+' sur 1 aujourd’hui).</div>':'')+
-  '<div>'+rows+'</div><div class="btns"><button class="btn block" data-a="ms-new">'+IC.plus+'Nouveau manuscrit</button></div></section>';
-}
 
-function vEditor(p){
-  const m=getMs(p.id);if(!m)return topBack('Manuscrit')+'<p class="empty">Ce manuscrit est introuvable.</p>';
-  const act=clamp(m.active||0,0,m.chapitres.length-1),c=m.chapitres[act];
-  return '<header class="top"><button class="iconbtn" data-a="back" aria-label="Retour">'+IC.back+'</button><input class="title-in" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre du manuscrit"><button class="btn sm'+(m.published?' sec':'')+'" data-a="ms-publish" data-id="'+m.id+'">'+(m.published?'Publié':'Publier')+'</button></header>'+
-  '<div class="pad"><div class="chips" role="group" aria-label="Chapitres">'+m.chapitres.map((ch,i)=>'<button class="chip'+(i===act?' on':'')+'" data-a="ms-ch" data-i="'+i+'">Chapitre '+(i+1)+'</button>').join('')+'<button class="chip" data-a="ms-addch">'+IC.plus+'Chapitre</button></div>'+
-  '<div class="jq">'+cover(msToStory(m),'mini')+'<div><b>Jaquette</b><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
-  '<div class="ed-meta"><input class="line-in" id="ch-title" value="'+esc(c.titre)+'" data-in="ch-title" maxlength="80" aria-label="Titre du chapitre"><select class="sel-in" data-in="ms-genre" aria-label="Genre">'+GENRES_EDIT.map(g=>'<option'+(g===m.genre?' selected':'')+'>'+g+'</option>').join('')+'</select></div></div>'+
-  '<textarea class="ta seyes" id="ms-text" data-in="ms-text" placeholder="Écris ta scène ici…" spellcheck="true" lang="fr" aria-label="Texte du chapitre">'+esc(c.texte)+'</textarea>'+
-  '<div class="dock"><span class="small muted" id="wc">'+pl(wc(c.texte),'mot')+'</span><button class="btn" data-a="coach-open">'+IC.cap+'Demander au coach</button></div>';
-}
 
-function vProgression(){
-  const L=level(),w=weakest(),ws=S.profile.scores[w.id],d=L.moy-L.prev;
-  const mem=S.profile.memory.slice(0,2).map(x=>'<div class="mem"><p class="hand">'+esc(fr(x.note))+'</p><p class="small muted">'+esc(compOf(x.comp).nom)+', '+dateFr(x.quand)+'</p></div>').join('');
-  const atl=COMPS.map(c=>{
-    const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
-    return '<button class="atl" data-a="atelier" data-id="'+c.id+'"><span class="t"><b>'+esc(c.nom)+'</b><span class="small muted">'+esc(c.objectif)+'</span></span><span class="sc"><b>'+(sc?sc:'–')+'</b>'+deltaChip(dv)+'</span><span class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></span></button>';
-  }).join('');
-  const hist=S.profile.history.slice(0,5).map(h=>'<div class="hist"><span class="hs">'+h.score+'</span><div><p><b>'+esc(h.comp==='global'?'Analyse globale':compOf(h.comp).nom)+'</b>, '+esc(h.titre)+'</p><p class="muted">'+esc(fr(h.appreciation))+'</p><p class="small muted">'+dateFr(h.quand)+(h.src==='local'?', analyse locale':'')+'</p></div></div>').join('');
-  return brandTop()+'<section class="pad"><h1 class="h1">Progression</h1>'+
-  '<div class="lvl"><div><span class="lv-n">Niveau '+L.n+'</span><b class="serif lv-name">'+L.nom+'</b></div><div class="lv-score"><b>'+L.moy+'</b><span>sur 100 en moyenne</span></div></div>'+
-  (hasDiag()?'<p class="small '+(d>=0?'pos':'neg')+'">'+(d>0?'+':(d<0?'−':''))+Math.abs(d)+' points par rapport au niveau observé il y a trois mois ('+L.prev+').</p>':'<p class="small muted">Aucun diagnostic pour l’instant : tes scores apparaîtront après ta première analyse par le coach.</p>')+
-  radar()+'<div class="legend"><span><i></i>Aujourd’hui</span>'+(hasDiag()?'<span><i class="off"></i>Il y a trois mois</span>':'')+'</div></section>'+
-  (hasDiag()?'<section class="pad"><h2 class="h2">Objectif du mois</h2><div class="goal"><p><b>'+esc(w.nom)+'</b>, ta compétence la plus basse : passe de '+ws+' à '+Math.min(100,ws+7)+'.</p><p class="small muted">'+esc(w.methode)+'</p><button class="btn sm" data-a="atelier" data-id="'+w.id+'">Ouvrir l’atelier</button></div></section>':'<section class="pad"><h2 class="h2">Objectif du mois</h2><p class="muted">Écris un premier chapitre et demande une analyse au coach : il définira ton objectif.</p></section>')+
-  '<section class="pad"><h2 class="h2">Ce que le coach a retenu</h2>'+(mem||'<p class="muted">Le coach notera tes habitudes d’écriture après ton premier diagnostic.</p>')+'</section>'+
-  '<section class="pad"><h2 class="h2">École d’écriture</h2>'+atl+'</section>'+
-  '<section class="pad"><h2 class="h2">Historique des diagnostics</h2>'+(hist||'<p class="muted">Aucun diagnostic pour l’instant.</p>')+'</section>'+
-  (SESSION?'':'<p class="pad small muted">Les scores de départ sont des données de démonstration. Ils évoluent avec chaque diagnostic.</p>');
-}
 
-function vAtelier(p){
-  const c=compOf(p.id);if(!c)return topBack('Atelier')+'<p class="empty">Atelier introuvable.</p>';
-  const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
-  return topBack('Atelier')+'<section class="pad"><h1 class="h1">'+esc(c.nom)+'</h1><p class="muted">'+esc(c.objectif)+'</p>'+
-  '<div class="lvl"><div><span class="lv-n">Ton score</span></div><div class="lv-score"><b>'+(sc?sc:'–')+'</b>'+deltaChip(dv)+'</div></div><div class="bar" aria-hidden="true"><i style="width:'+sc+'%"></i></div></section>'+
-  '<section class="pad"><h2 class="h2">Méthode</h2><p>'+esc(fr(c.methode))+'</p></section>'+
-  '<section class="pad"><h2 class="h2">Question de travail</h2><p class="q">'+esc(fr(c.question))+'</p></section>'+
-  '<section class="pad"><h2 class="h2">Exercice</h2><p>'+esc(fr(c.exercice))+'</p><div style="height:12px"></div><textarea class="ta seyes" data-in="exo" data-id="'+c.id+'" placeholder="Écris ton exercice ici…" spellcheck="true" lang="fr" aria-label="Ton exercice">'+esc(S.exos[c.id]||'')+'</textarea><div class="btns"><button class="btn block" data-a="exo-run" data-id="'+c.id+'">'+IC.cap+'Faire analyser par le coach</button></div></section>'+
-  '<section class="pad"><h2 class="h2">Grille d’analyse</h2><ul class="gr">'+c.grille.map(g=>'<li>'+IC.check+'<span>'+esc(g)+'</span></li>').join('')+'</ul><p class="small muted">Le coach utilise cette grille pour analyser tes textes sur cette compétence.</p></section>';
-}
 
-function vProfil(){
-  const u=S.user,L=level(),pub=S.manuscripts.filter(m=>m.published).length,pl_=PLANS[S.plan];
-  const saved=S.saved.map(findStory).filter(Boolean);
-  return brandTop()+'<section class="pad prof-head">'+avatar(u?u.name:'Invité',64)+'<div><h1 class="h1" style="margin:0">'+esc(u?u.name:'Invité')+'</h1><p class="muted">Niveau '+L.n+', '+L.nom+'</p></div></section>'+
-  '<section class="pad">'+(u
-    ?'<div class="panel"><div class="split"><b>'+esc(pl_.nom)+'</b><span>'+esc(pl_.prixTxt)+'</span></div><p class="small muted">'+(S.plan==='free'?'Diagnostic personnalisé réservé aux abonnements.':cr(budgetLeft())+' de coach restants ce mois-ci.')+'</p><button class="btn sec block" data-a="go-account">Mon espace client</button></div>'
-    :'<div class="note"><b>Tu explores Plume en mode découverte.</b><br>Crée ton espace client pour retrouver ton abonnement, ton budget de coach et tes manuscrits.</div><button class="btn block" data-a="login-go">Se connecter</button>')+'</section>'+
-  '<section class="pad"><div class="stats"><div><b>'+pub+'</b><span>Publiées</span></div><div><b>'+saved.length+'</b><span>Favoris</span></div><div><b>'+S.profile.history.length+'</b><span>Diagnostics</span></div></div>'+
-  '<h2 class="h2" style="margin-top:6px">Mes favoris</h2>'+(saved.length?saved.map(storyRow).join(''):'<p class="empty">Aucun favori pour l’instant. Touche l’étoile d’une histoire pour la retrouver ici.</p>')+'</section>'+
-  '<section class="pad"><h2 class="h2">Apparence</h2><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div>'+'</section>';
-}
 
 function vAccount(){
   const u=S.user;
@@ -820,7 +1124,7 @@ function vLogin(){
 /* ===== feuilles ===== */
 const closeBtn='<button class="iconbtn" data-a="sheet-close" aria-label="Fermer">'+IC.x+'</button>';
 const TEND={hausse:['en hausse',IC.up],stable:['stable',IC.flat],baisse:['en baisse',IC.down]};
-const SHEET_LABEL={paywall:'Réservé aux abonnements',budget:'Crédits du coach IA',lecture:'Affichage du texte',coach:'Coach d’écriture',confirm:'Confirmation'};
+const SHEET_LABEL={objectifs:'Objectifs de la semaine',sprint:'Sprint d’écriture',bio:'Ta présentation',paywall:'Réservé aux abonnements',budget:'Crédits du coach IA',lecture:'Affichage du texte',coach:'Coach d’écriture',confirm:'Confirmation'};
 function coachGlobalResult(C){
   const r=C.res,prio=compOf(r.priorite),pi=r.items.find(i=>i.id===r.priorite);
   const rows=r.items.map(i=>{
@@ -859,6 +1163,20 @@ const SHEETS={
   '<h3 class="h3" style="margin-top:16px">Police</h3><div class="rfonts" role="radiogroup" aria-label="Police">'+Object.keys(RFONTS).map(k=>'<button class="rfont'+(rp.font===k?' on':'')+'" role="radio" aria-checked="'+(rp.font===k)+'" data-a="rfont" data-f="'+k+'" style="font-family:'+esc(RFONTS[k][1])+'"><b>'+RFONTS[k][0]+'</b><span>Il était une fois, au bord de la mer…</span></button>').join('')+'</div>'+
   '<div class="btns"><button class="btn block" data-a="sheet-close">OK</button></div>';
  },
+ objectifs:()=>{
+  ensureDay();
+  return '<div class="sheet-head"><h2 class="h2">Objectifs de la semaine</h2>'+closeBtn+'</div>'+
+  '<p class="muted">Régularité : <b>'+pl(streakNow(),'jour')+'</b> d’affilée. Chaque jour où tu écris, relèves un défi ou travailles un atelier la prolonge.</p>'+
+  '<div class="card rows" style="margin-top:12px">'+OBJ.map(o=>'<div class="rowitem"><span class="chk-i'+(o[2]()?' ok':'')+'">'+(o[2]()?IX.check:'')+'</span><b>'+o[1]+'</b><span class="cnt">'+o[3]()+'</span></div>').join('')+'</div>'+
+  '<div class="btns"><button class="btn block" data-a="sheet-close">OK</button></div>';
+ },
+ sprint:()=>{
+  const sp=UI.sprint;
+  if(sp)return '<div class="sheet-head"><h2 class="h2">Sprint d’écriture</h2>'+closeBtn+'</div><div class="sprint-run"><b id="sp-time" class="sp-time">'+fmtT(Math.max(0,Math.ceil((sp.end-Date.now())/1000)))+'</b><p class="muted">Écris sans te relire. Tu peux fermer cette fenêtre : le sprint continue et te le dira à la fin.</p></div><div class="btns"><button class="btn sec block" data-a="sprint-stop">Arrêter le sprint</button></div>';
+  return '<div class="sheet-head"><h2 class="h2">Sprint d’écriture</h2>'+closeBtn+'</div><p class="muted">Un minuteur pour écrire sans t’arrêter. À la fin, tu gagnes des XP et ta régularité avance.</p>'+
+  '<div class="sprint-opts">'+[5,10,15,25].map(m=>'<button class="card sp-opt" data-a="sprint-start" data-m="'+m+'"><b>'+m+' min</b><span class="small muted">+'+(m*3)+' XP</span></button>').join('')+'</div>';
+ },
+ bio:()=>'<div class="sheet-head"><h2 class="h2">Ta présentation</h2>'+closeBtn+'</div><p class="muted">Une ou deux phrases qui disent quelle autrice ou quel auteur tu es.</p><textarea id="bio-in" class="ta" maxlength="160" placeholder="J’écris des histoires où…" aria-label="Ta présentation">'+esc(S.bio||'')+'</textarea><div class="btns"><button class="btn block" data-a="bio-save">Enregistrer</button></div>',
  confirm:p=>{
   const T=p.kind==='logout'
    ?['Se déconnecter ?','Tes manuscrits et ta progression sont sauvegardés sur ton compte. Tu les retrouveras en te reconnectant.','Se déconnecter']
@@ -915,18 +1233,22 @@ function renderSheet(){
 }
 
 /* ===== rendu principal ===== */
-const TABS=[['decouvrir','Découvrir',IC.compass],['ecrire','Écrire',IC.pen],['progression','Progression',IC.chart],['profil','Profil',IC.user]];
-const SCREENS={'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:progression':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
+
+const TABS=[['accueil','Accueil',IX.home],['decouvrir','Découvrir',IX.compass],['ecrire','Écrire',IX.feather],['progression','Progrès',IX.ring],['profil','Profil',IX.user]];
+const SCREENS={'tab:accueil':vAccueil,talents:vTalents,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:progression':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
 let lastKey='';
 function autosize(el){
   if(!el)return;
+  // On garde la position de défilement : le recalcul de hauteur ne doit jamais faire sauter la page.
+  const v=$('#view'),st=v?v.scrollTop:0;
   el.style.height='auto';
   const min=parseInt(getComputedStyle(el).minHeight,10)||0;
   el.style.height=Math.max(min,el.scrollHeight+(el.id==='ms-text'?64:0))+'px';
+  if(v&&v.scrollTop!==st)v.scrollTop=st;
 }
 function updateWc(){
   const el=$('#wc');if(!el||!UI.stack.length||UI.stack[UI.stack.length-1].name!=='editor')return;
-  const m=curMs();if(m)el.textContent=pl(wc(curCh().texte),'mot');
+  const m=curMs();if(m){const w=wc(curCh().texte);el.textContent=pl(w,'mot');const b=$('#wcbar');if(b)b.style.width=Math.min(100,w/S.prefs.goal*100)+'%';}
 }
 function render(){
   const c=UI.stack.length?UI.stack[UI.stack.length-1]:{name:'tab:'+UI.tab,p:{}};
@@ -936,7 +1258,7 @@ function render(){
   v.innerHTML=html;v.scrollTop=st;lastKey=key;
   $('#tabs').hidden=UI.stack.length>0;
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',(!UI.stack.length&&b.dataset.t===UI.tab)?'page':'false'));
-  document.querySelectorAll('.ta').forEach(autosize);
+  document.querySelectorAll('.ta,.autog').forEach(autosize);
 }
 function go(name,p){UI.stack.push({name:name,p:p||{}});render();}
 function setTab(t){UI.tab=t;UI.stack=[];render();if(t==='decouvrir'||t==='profil')refreshCounts();}
@@ -973,6 +1295,7 @@ A.read=d=>{
     if(S.reads.ids.length>=3)return openSheet('paywall',{why:'read'});
     S.reads.ids.push(key);save();
   }
+  if(!S.readSeen[key]){S.readSeen[key]=1;ensureDay();S.week.reads++;activity();S.xp=(S.xp||0)+5;}
   UI.reader={sel:null};
   const top=UI.stack[UI.stack.length-1];
   if(top&&top.name==='reader'){top.p={id:s.id,ch:ci};render();}else go('reader',{id:s.id,ch:ci});
@@ -1008,8 +1331,8 @@ async function postComment(key,t){
 }
 A.chcomment=()=>{const inp=$('#chcm-input');const t=inp?inp.value.trim():'';if(!t)return;const p=curP();postComment('c:'+p.id+':'+p.ch,t);};
 A.comment=d=>{const inp=$('#cm-input');const t=inp?inp.value.trim():'';if(!t)return;postComment('s:'+d.id,t);};
-A['ms-open']=d=>go('editor',{id:d.id});
-A['ms-new']=()=>{const id='m'+Date.now();S.manuscripts.push({id:id,titre:'Sans titre',genre:'Drame',resume:'',published:false,active:0,chapitres:[{id:'c'+Date.now(),titre:'Chapitre 1',texte:''}]});save();go('editor',{id:id});};
+A['ms-open']=d=>{const m=getMs(d.id);if(m)m.upd=Date.now();UI.focus=false;go('editor',{id:d.id});};
+A['ms-new']=()=>{const id='m'+Date.now();S.manuscripts.push({id:id,upd:Date.now(),titre:'Sans titre',genre:'Drame',resume:'',published:false,active:0,chapitres:[{id:'c'+Date.now(),titre:'Chapitre 1',texte:''}]});save();go('editor',{id:id});};
 A['ms-ch']=d=>{curMs().active=+d.i;save();render();};
 A['ms-cover']=()=>{if(UI.coverBusy)return;if(!SESSION)return needLogin('Connecte-toi pour ajouter une jaquette.');const i=$('#cover-in');if(i)i.click();};
 A['ms-cover-rm']=()=>{const m=curMs();m.jaquette=null;save();render();toast('Jaquette retirée.');};
@@ -1040,11 +1363,12 @@ A['ms-publish']=d=>{
   if(!m.published){
     if(S.plan==='free'&&S.manuscripts.filter(x=>x.published).length>=1)return openSheet('paywall',{why:'publish'});
     if(wc(m.chapitres.map(c=>c.texte).join(' '))<10)return toast('Écris quelques lignes avant de publier.');
-    m.published=true;toast('Histoire publiée. Elle apparaît dans Découvrir.');
+    m.published=true;let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();toast('Histoire publiée. Elle apparaît dans Découvrir.'+bonus);
   }else{m.published=false;toast('Histoire retirée de Découvrir.');}
   save();render();
 };
 A['coach-open']=()=>{const m=curMs(),c=curCh();openCoach({text:c.texte,title:(m.titre||'Sans titre')+', '+c.titre});};
+A['coach-open2']=()=>A['coach-open']();
 A['coach-comp']=d=>{UI.coach.compId=d.id;renderSheet();};
 A['coach-run']=()=>{UI.coach.mode='single';runCoach();};
 A['coach-global']=()=>runGlobal();
@@ -1115,7 +1439,11 @@ const IN={
  'ms-title':el=>{curMs().titre=el.value;save();},
  'ch-title':el=>{curCh().titre=el.value;save();},
  'ms-genre':el=>{curMs().genre=el.value;save();},
- 'ms-text':el=>{curCh().texte=el.value;autosize(el);updateWc();save();},
+ 'ms-text':el=>{const c=curCh(),b=wc(c.texte);c.texte=el.value;const a=wc(el.value);if(a>b)addWords(Math.min(40,a-b));curMs().upd=Date.now();autosize(el);updateWc();save();},
+ 'ch-intent':el=>{curCh().intention=el.value.replace(/\n/g,' ');autosize(el);save();},
+ 'ms-resume':el=>{curMs().resume=el.value;save();},
+ 'b-notes':el=>{const m=getMs(curP().id)||lastMs();if(m){bibleOf(m.id).notesActe=el.value;save();}},
+ search:el=>{UI.q=el.value;const b=$('#storylist');if(b)b.innerHTML=discoverList();},
  exo:el=>{S.exos[el.dataset.id]=el.value;autosize(el);save();},
  exd:el=>{S.exDraft[el.dataset.id]=el.value;autosize(el);const e=findEx(el.dataset.id),w=$('#exwc');if(w&&e)w.textContent=exWcText(e,el.value);save();},
  'lg-name':el=>{UI.login.name=el.value;},
@@ -1140,6 +1468,78 @@ document.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&t.dataset.a&&!/^(BUTTON|INPUT|TEXTAREA|SELECT|A)$/.test(t.tagName)){e.preventDefault();t.click();}
 });
 
+/* ===== v3 : actions ===== */
+A['talents-open']=()=>go('talents');
+A['saved-open']=()=>go('saved');
+A['following-open']=()=>go('following');
+A['exlib-open']=()=>go('exlib');
+A['obj-open']=()=>openSheet('objectifs');
+A['sprint-open']=()=>openSheet('sprint');
+const fmtT=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+let sprintT=null;
+function sprintTick(){
+  const sp=UI.sprint;if(!sp){clearInterval(sprintT);return;}
+  const left=Math.max(0,Math.ceil((sp.end-Date.now())/1000)),el=$('#sp-time');
+  if(el)el.textContent=fmtT(left);
+  if(left<=0){clearInterval(sprintT);UI.sprint=null;activity();addXP(sp.mins*3,'sprint terminé');save();if(UI.sheet&&UI.sheet.name==='sprint')renderSheet();render();}
+}
+A['sprint-start']=d=>{clearInterval(sprintT);UI.sprint={mins:+d.m,end:Date.now()+(+d.m)*60000};sprintT=setInterval(sprintTick,1000);renderSheet();};
+A['sprint-stop']=()=>{clearInterval(sprintT);UI.sprint=null;renderSheet();toast('Sprint arrêté.');};
+// défi du jour
+A['dc-accept']=()=>{
+  const dc=todayChallenge();
+  if(!(S.challenge.d===dc.id&&S.challenge.state==='done'))S.challenge={d:dc.id,state:'accepted'};
+  save();go('exercice',{id:dc.id});
+};
+A['dc-done']=d=>{
+  const e=findEx(d.id);if(!e)return;
+  const w=wc(S.exDraft[e.id]||'');
+  if(w<e.mots)return toast('Encore '+(e.mots-w)+' mots pour relever le défi.');
+  if(S.challenge.d===e.id&&S.challenge.state==='done')return;
+  S.challenge={d:e.id,state:'done'};ensureDay();S.week.ch++;activity();addXP(e.xp,'défi relevé');save();render();
+};
+// leçons
+A['lesson-open']=d=>go('lesson',{id:d.id});
+A['lesson-done']=d=>{if(S.lessons[d.id])return;S.lessons[d.id]=Date.now();activity();addXP(20,'leçon terminée');save();render();};
+// boussole
+A['boussole-open']=d=>{const m=lastMs();if(!m)return toast('Crée d’abord un manuscrit.');UI.bTab=d.t||'persos';go('boussole',{id:m.id});};
+A['boussole-tab']=d=>{UI.bTab=d.t;render();};
+A['b-add']=d=>{
+  const m=getMs(curP().id)||lastMs();if(!m)return;
+  const b=bibleOf(m.id),k=d.k,a=($('#b-a')||{value:''}).value.trim(),c=($('#b-b')||{value:''}).value.trim();
+  if(!a)return toast('Écris d’abord quelques mots.');
+  if(k==='persos')b.persos.push({nom:a,note:c});
+  else if(k==='idees')b.idees.push(a);
+  else if(k==='chrono')b.chrono.push({quand:a,quoi:c});
+  save();render();
+};
+A['b-del']=d=>{const m=getMs(curP().id)||lastMs();if(!m)return;bibleOf(m.id)[d.k].splice(+d.i,1);save();render();};
+A['b-acte']=d=>{const m=getMs(curP().id)||lastMs();if(!m)return;bibleOf(m.id).acte=d.v;save();render();};
+// publication, édition
+A['publish-open']=d=>go('publish',{id:d.id});
+A['publish-last']=()=>{const m=lastMs();if(m)go('publish',{id:m.id});};
+A['focus-toggle']=()=>{UI.focus=!UI.focus;render();};
+A['edit-comp']=d=>{UI.editComp=d.id;render();};
+// ateliers
+A['atelier-sw']=d=>{UI.stack[UI.stack.length-1].p={id:d.id};render();$('#view').scrollTop=0;};
+A['exo-done']=d=>{
+  const w=wc(S.exos[d.id]||'');
+  if(w<40)return toast('Écris au moins 40 mots avant de valider l’exercice.');
+  const k='ex'+d.id;
+  if(S.exoXP[k]===dayKey())return toast('Exercice déjà validé aujourd’hui. Reviens demain pour gagner des XP.');
+  S.exoXP[k]=dayKey();ensureDay();S.week.ex++;activity();addXP(35,'exercice fait');save();render();
+};
+A['atelier-diag']=d=>{
+  const m=lastMs(),ch=activeCh(m);
+  if(!ch||wc(ch.texte)<20)return toast('Écris d’abord quelques lignes dans un manuscrit.');
+  openCoach({text:ch.texte,title:(m.titre||'Sans titre')+', '+ch.titre,compId:d.id,fixed:true});
+};
+// profil
+A.pref=d=>{S.prefs[d.k]=!S.prefs[d.k];save();render();};
+A.goal=d=>{S.prefs.goal=+d.v;save();render();};
+A['bio-open']=()=>openSheet('bio');
+A['bio-save']=()=>{S.bio=(($('#bio-in')||{value:''}).value||'').trim().slice(0,160);closeSheet();save();render();};
+
 /* ===== démarrage ===== */
 applyTheme();rollover();
 $('#tabs').innerHTML=TABS.map(t=>'<button class="tab" data-a="tab" data-t="'+t[0]+'">'+t[2]+'<span>'+t[1]+'</span></button>').join('');
@@ -1155,7 +1555,7 @@ async function attach(se){
     const o=stripDemo(Object.assign(freshAccount(),remote));
     // Compte enregistré avant le correctif : ses scores partaient d'une base de démonstration. On remet le profil à zéro.
     if(remote.v!==2){o.profile=freshAccount().profile;cleaned=!!((remote.profile&&remote.profile.history||[]).length||(remote.profile&&COMPS.some(c=>remote.profile.scores&&remote.profile.scores[c.id])));}
-    o.v=2;S=migrateReacts(o);
+    o.v=2;S=fixState(migrateReacts(o));
   }else S=freshAccount();
   S.theme=th;S.user=userObj(se);S.plan='free';
   try{const plan=await B.loadPlan();S.plan=plan||'free';}catch(e){console.error(e);}
