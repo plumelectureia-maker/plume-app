@@ -13,7 +13,7 @@ async function verifyUser(token) {
 }
 
 // Crédits mensuels par forfait et coût de chaque utilisation.
-const QUOTA = { plus: 50, pp: 200 };
+const QUOTA = { free: 3, plus: 50, pp: 200 };
 const costOf = (prompt) => (prompt.includes('"priorite"') ? 4 : 1);
 
 const rest = (token, path, init = {}) =>
@@ -22,13 +22,13 @@ const rest = (token, path, init = {}) =>
     headers: { apikey: supabaseKey(), Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', ...(init.headers || {}) },
   });
 
-// Seuls les comptes dont le forfait est attribué dans plume_entitlements utilisent l'IA.
+// Forfait attribué dans plume_entitlements ; sans entrée, le compte est au forfait gratuit (3 crédits par mois).
 async function getPlan(token) {
   const r = await rest(token, 'plume_entitlements?select=plan');
   if (!r.ok) return null;
   const rows = await r.json();
-  const p = rows.map((x) => x.plan).find((x) => QUOTA[x]);
-  return p || null;
+  const p = rows.map((x) => x.plan).find((x) => x === 'plus' || x === 'pp');
+  return p || 'free';
 }
 
 async function creditsUsed(token) {
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
   const user = await verifyUser(token);
   if (!user) return res.status(401).json({ error: 'session_expired' });
   const plan = await getPlan(token);
-  if (!plan) return res.status(403).json({ error: 'not_subscribed' });
+  if (!plan) return res.status(503).json({ error: 'plan_unavailable' });
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const prompt = String(body.prompt || '');
