@@ -72,21 +72,37 @@ export function saveState(uid, state) {
 
 /* ===== histoires publiées ===== */
 export const remoteId = (msId, uid) => msId + '.' + uid.slice(0, 8);
+let fetchFailed = false;
+export const lastFetchFailed = () => fetchFailed;
 export async function loadPublished() {
+  fetchFailed = false;
   if (!sb) return [];
-  const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story,hidden').order('updated_at', { ascending: false });
-  if (error) { console.error('plume_published', error); return []; }
-  return data || [];
+  try {
+    const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story,hidden').order('updated_at', { ascending: false });
+    if (error) { console.error('plume_published', error); fetchFailed = true; return []; }
+    return data || [];
+  } catch (e) { fetchFailed = true; return []; }
 }
-let pubT = null, pubRun = null;
-export function syncPublished(uid, authorName, stories) {
+let pubT = null, pubRun = null, useSched = true;
+export const schedulingAvailable = () => useSched;
+export function syncPublished(uid, authorName, items) {
   clearTimeout(pubT);
-  const rows = stories.map((s) => ({ id: remoteId(s.id, uid), author_id: uid, author_name: authorName, story: s, updated_at: new Date().toISOString() }));
+  const rows = items.map((it) => ({
+    id: remoteId(it.story.id, uid), author_id: uid, author_name: authorName, story: it.story,
+    publish_at: it.publishAt ? new Date(it.publishAt).toISOString() : null,
+    updated_at: new Date().toISOString(),
+  }));
   pubRun = async () => {
     pubRun = null;
     try {
       if (rows.length) {
-        const { error } = await sb.from('plume_published').upsert(rows);
+        const strip = (r) => { const c = { ...r }; delete c.publish_at; return c; };
+        let { error } = await sb.from('plume_published').upsert(useSched ? rows : rows.map(strip));
+        // base pas encore mise à jour (colonne d'heure programmée absente) : on publie quand même, sans programmation
+        if (error && /publish_at/.test(error.message || '') && useSched) {
+          useSched = false;
+          ({ error } = await sb.from('plume_published').upsert(rows.map(strip)));
+        }
         if (error) console.error('plume_published upsert', error);
       }
       let q = sb.from('plume_published').delete().eq('author_id', uid);
@@ -327,4 +343,34 @@ export async function loadStoryStats(storyId, nChapters) {
   });
   const tr = (t.data && t.data[0]) || { d7: 0, d14: 0 };
   return { chapters, storyComments, d7: tr.d7, d14: tr.d14 };
+}
+
+/* ===== notifications ===== */
+export async function loadNotifications() {
+  const [n, a] = await Promise.all([
+    need().from('plume_notifications').select('id,kind,actor_id,actor_name,story_id,story_title,body,read,visible_at').order('visible_at', { ascending: false }).limit(60),
+    sb.from('plume_announcements').select('id,title,body,created_at').order('created_at', { ascending: false }).limit(10),
+  ]);
+  if (n.error) throw new Error('notifications');
+  return { notifs: n.data || [], announcements: a.error ? [] : (a.data || []) };
+}
+export async function markNotifsRead(ids) {
+  if (!ids.length) return;
+  const { error } = await need().from('plume_notifications').update({ read: true }).in('id', ids);
+  if (error) console.error('notifications', error);
+}
+export async function clearNotifications(uid) {
+  const { error } = await need().from('plume_notifications').delete().eq('user_id', uid);
+  if (error) fail('Les notifications n’ont pas pu être effacées.');
+}
+
+/* ===== historique des versions ===== */
+export async function loadVersions(uid, msId, ch) {
+  const { data, error } = await need().from('plume_versions').select('snaps').eq('user_id', uid).eq('ms_id', msId).eq('ch', ch).maybeSingle();
+  if (error) throw new Error('versions');
+  return data && Array.isArray(data.snaps) ? data.snaps : [];
+}
+export async function saveVersions(uid, msId, ch, snaps) {
+  const { error } = await need().from('plume_versions').upsert({ user_id: uid, ms_id: msId, ch, snaps, updated_at: new Date().toISOString() });
+  if (error) throw new Error('versions');
 }

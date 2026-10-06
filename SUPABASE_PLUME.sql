@@ -263,3 +263,125 @@ begin
 end $$;
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- ===== Lot 4 : notifications, publication programmée, historique des versions =====
+
+-- Publication programmée : la ligne existe, mais personne d'autre que l'auteur ne la voit avant l'heure prévue
+alter table public.plume_published add column if not exists publish_at timestamptz;
+drop policy if exists "plume_published read" on public.plume_published;
+create policy "plume_published read" on public.plume_published for select
+  using ((not hidden or auth.uid() = author_id) and (publish_at is null or publish_at <= now() or auth.uid() = author_id));
+
+-- Notifications (créées par la base, jamais par les utilisateurs)
+create table if not exists public.plume_notifications (
+  id bigserial primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  kind text not null check (kind in ('follow','comment','chapter','story','moderation','restored')),
+  actor_id uuid,
+  actor_name text,
+  story_id text,
+  story_title text,
+  body text,
+  read boolean not null default false,
+  created_at timestamptz not null default now(),
+  visible_at timestamptz not null default now()
+);
+create index if not exists plume_notifications_user on public.plume_notifications(user_id, visible_at desc);
+alter table public.plume_notifications enable row level security;
+drop policy if exists "notif read own" on public.plume_notifications;
+drop policy if exists "notif update own" on public.plume_notifications;
+drop policy if exists "notif delete own" on public.plume_notifications;
+create policy "notif read own" on public.plume_notifications for select using (user_id = auth.uid() and visible_at <= now());
+create policy "notif update own" on public.plume_notifications for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "notif delete own" on public.plume_notifications for delete using (user_id = auth.uid());
+revoke insert, update on public.plume_notifications from anon, authenticated;
+grant update (read) on public.plume_notifications to authenticated;
+
+-- Nouvel abonné
+create or replace function public.plume_notify_follow() returns trigger language plpgsql security definer set search_path = public, auth as $$
+declare target uuid; nm text;
+begin
+  if new.followee not like 'ext:%' then return new; end if;
+  begin target := substr(new.followee, 5)::uuid; exception when others then return new; end;
+  if target = new.follower then return new; end if;
+  select coalesce(nullif(raw_user_meta_data->>'name', ''), split_part(email, '@', 1)) into nm from auth.users where id = new.follower;
+  if not exists (select 1 from public.plume_notifications where user_id = target and kind = 'follow' and actor_id = new.follower and created_at > now() - interval '1 day') then
+    insert into public.plume_notifications(user_id, kind, actor_id, actor_name) values (target, 'follow', new.follower, nm);
+  end if;
+  return new;
+end $$;
+drop trigger if exists plume_notify_follow_t on public.plume_follows;
+create trigger plume_notify_follow_t after insert on public.plume_follows for each row execute function public.plume_notify_follow();
+
+-- Nouveau commentaire sur une de tes histoires
+create or replace function public.plume_notify_comment() returns trigger language plpgsql security definer set search_path = public as $$
+declare sid text; au uuid; ttl text;
+begin
+  sid := case when new.key like 's:%' then substr(new.key, 3) else split_part(new.key, ':', 2) end;
+  select author_id, story->>'titre' into au, ttl from public.plume_published where id = sid;
+  if au is null or au = new.author_id then return new; end if;
+  insert into public.plume_notifications(user_id, kind, actor_id, actor_name, story_id, story_title, body)
+    values (au, 'comment', new.author_id, new.author_name, sid, ttl, left(new.body, 120));
+  return new;
+end $$;
+drop trigger if exists plume_notify_comment_t on public.plume_comments;
+create trigger plume_notify_comment_t after insert on public.plume_comments for each row execute function public.plume_notify_comment();
+
+-- Nouvelle histoire, nouveau chapitre (un chapitre compte à partir de ~300 caractères) et décisions de modération
+create or replace function public.plume_notify_publish() returns trigger language plpgsql security definer set search_path = public as $$
+declare n_new int; n_old int; f record; vis timestamptz := coalesce(new.publish_at, now());
+begin
+  if tg_op = 'UPDATE' and new.hidden is distinct from old.hidden then
+    insert into public.plume_notifications(user_id, kind, story_id, story_title)
+      values (new.author_id, case when new.hidden then 'moderation' else 'restored' end, new.id, new.story->>'titre');
+  end if;
+  if new.hidden then return new; end if;
+  select count(*) into n_new from jsonb_array_elements(coalesce(new.story->'chapitres', '[]'::jsonb)) c where length((c->'texte')::text) >= 300;
+  if tg_op = 'INSERT' then
+    if n_new >= 1 then
+      for f in select follower from public.plume_follows where followee = 'ext:' || new.author_id::text loop
+        if not exists (select 1 from public.plume_notifications where user_id = f.follower and kind = 'story' and story_id = new.id and created_at > now() - interval '7 days') then
+          insert into public.plume_notifications(user_id, kind, actor_id, actor_name, story_id, story_title, visible_at)
+            values (f.follower, 'story', new.author_id, new.author_name, new.id, new.story->>'titre', vis);
+        end if;
+      end loop;
+    end if;
+  else
+    select count(*) into n_old from jsonb_array_elements(coalesce(old.story->'chapitres', '[]'::jsonb)) c where length((c->'texte')::text) >= 300;
+    if n_new > n_old then
+      for f in select follower from public.plume_follows where followee = 'ext:' || new.author_id::text loop
+        delete from public.plume_notifications where user_id = f.follower and kind = 'chapter' and story_id = new.id and not read;
+        insert into public.plume_notifications(user_id, kind, actor_id, actor_name, story_id, story_title, body, visible_at)
+          values (f.follower, 'chapter', new.author_id, new.author_name, new.id, new.story->>'titre', 'Chapitre ' || n_new, vis);
+      end loop;
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists plume_notify_publish_t on public.plume_published;
+create trigger plume_notify_publish_t after insert or update on public.plume_published for each row execute function public.plume_notify_publish();
+
+-- Annonces de l'équipe : insert into plume_announcements(title, body) values ('Titre', 'Texte');
+create table if not exists public.plume_announcements (
+  id bigserial primary key,
+  title text not null,
+  body text,
+  created_at timestamptz not null default now()
+);
+alter table public.plume_announcements enable row level security;
+drop policy if exists "announce read" on public.plume_announcements;
+create policy "announce read" on public.plume_announcements for select using (true);
+revoke insert, update, delete on public.plume_announcements from anon, authenticated;
+
+-- Historique des versions d'un chapitre (une ligne par chapitre, 12 versions au plus, gérées par l'appli)
+create table if not exists public.plume_versions (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  ms_id text not null,
+  ch int not null,
+  snaps jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, ms_id, ch)
+);
+alter table public.plume_versions enable row level security;
+drop policy if exists "own" on public.plume_versions;
+create policy "own" on public.plume_versions for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
