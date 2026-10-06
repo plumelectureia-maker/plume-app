@@ -1,6 +1,6 @@
 # Plume pour Android
 
-Coque Android (WebView plein écran) qui affiche https://n-plume9.vercel.app.
+Coque Android (WebView plein écran) qui affiche https://plume-app-lyart.vercel.app.
 Elle suit toujours la dernière version du site : pas besoin de regénérer l'APK à chaque mise à jour.
 
 - `src/app/plume/web/MainActivity.java` : WebView, bouton retour, choix de fichier (jaquette), couleur des barres système, page hors connexion

@@ -22,8 +22,8 @@ import android.webkit.WebViewClient;
 /** Plume en plein écran : affiche le site, gère le retour, le choix de fichier et la couleur des barres. */
 public class MainActivity extends Activity {
 
-    private static final String HOME = "https://n-plume9.vercel.app/";
-    private static final String HOST = "n-plume9.vercel.app";
+    private static final String HOME = "https://plume-app-lyart.vercel.app/";
+    private static final String HOST = "plume-app-lyart.vercel.app";
     private static final int REQ_FILE = 7;
 
     // Bouton retour : ferme la fenêtre ouverte, sinon l'écran précédent de Plume, sinon quitte.

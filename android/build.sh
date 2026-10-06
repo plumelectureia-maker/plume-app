@@ -7,7 +7,7 @@ JAR=android-34.jar
   -storepass plumeplume -keypass plumeplume -dname "CN=Plume, OU=Test, O=Plume, C=FR" >/dev/null 2>&1
 rm -rf build && mkdir -p build/gen build/classes build/dex
 aapt package -f -M AndroidManifest.xml -S res -I $JAR -J build/gen -F build/unsigned.apk \
-  --min-sdk-version 23 --target-sdk-version 34 --version-code 1 --version-name 1.0.0
+  --min-sdk-version 23 --target-sdk-version 34 --version-code 2 --version-name 1.0.1
 javac --release 8 -Xlint:-options -cp $JAR -d build/classes $(find src build/gen -name '*.java')
 dalvik-exchange --dex --min-sdk-version=23 --output=build/dex/classes.dex build/classes
 (cd build/dex && aapt add -f ../unsigned.apk classes.dex >/dev/null)
