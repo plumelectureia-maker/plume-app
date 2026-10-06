@@ -673,3 +673,40 @@ header.top+section.pad,header.top+.pad{padding-top:18px}
 .gbar .btn{width:100%}.gbar .btn[disabled]{opacity:.45}
 .rowitem .cnt.gl{max-width:55%;text-align:right;font-weight:500;color:var(--texte-2);font-size:13px;white-space:normal}
 .trial{display:block;margin-top:6px;color:var(--texte-2)}
+
+/* signalement, blocage, comptes */
+.topacts{display:flex;align-items:center;gap:2px}
+.cm-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.iconbtn.sm{width:30px;height:30px;min-width:30px}.iconbtn.sm .ic{width:16px;height:16px}
+.reasons{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.reason{text-align:left;padding:12px 14px;border-radius:14px;border:1.5px solid var(--trait);background:var(--carte);font:600 15px 'Inter','Roboto',sans-serif;color:var(--encre)}
+.reason.on{border-color:var(--bleu);box-shadow:0 0 0 1.5px var(--bleu);background:var(--bleu-doux)}
+.btn.danger-o{background:transparent;border:1.5px solid var(--rouge);color:var(--rouge)}
+.link.center{display:block;margin:10px auto 0;text-align:center}
+.btn[disabled]{opacity:.5}
+
+/* bibliothèque, reprise de lecture */
+.rprogbar{position:sticky;top:0;z-index:7;height:3px;margin-bottom:-3px;pointer-events:none}
+.rprogbar i{display:block;height:100%;width:0;background:var(--or);transition:width .15s}
+.lrow{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px}
+.lmain{display:flex;gap:12px;align-items:center;flex:1;min-width:0;text-align:left}
+.lmain .ltxt,.lcont .ltxt{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.lmain .ltxt b,.lcont .ltxt b{font:700 15px/1.25 'Inter','Roboto',sans-serif;color:var(--encre)}
+.lrow .bar,.lcont .bar{height:6px}
+.lcont{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px}
+.lcont .cover.mini,.lrow .cover.mini{width:48px;flex:none}
+.lst{margin-top:22px}.libbody{margin-top:8px}
+.wstats{display:flex;align-items:center;gap:6px;margin:-4px 0 12px auto;font-size:13.5px}.wstats .ic{width:16px;height:16px}
+.statc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px}
+/* statistiques d'auteur */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.kpi{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:16px;background:var(--carte);border:1px solid var(--trait)}
+.kpi b{font:800 22px/1.1 'Plus Jakarta Sans','Inter',sans-serif;color:var(--encre)}.kpi span{font-size:12.5px;color:var(--texte-2)}
+.trendchip{display:inline-flex;padding:5px 12px;border-radius:999px;background:var(--bleu-doux);color:var(--bleu);font:700 13px 'Inter','Roboto',sans-serif}
+.trendchip.up{background:var(--or-doux);color:var(--or)}.trendchip.down{background:var(--rose-doux,#FAEFEE);color:var(--rouge)}
+.insight{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:14px;margin-bottom:12px}
+.insight.warn{border-color:var(--rouge);background:var(--rose-doux,#FBEDEE)}.insight.ok{background:var(--or-doux)}
+.retlist{display:flex;flex-direction:column;gap:14px}
+.ret .bar{height:10px;margin:6px 0 4px}.ret.warn .bar i{background:var(--rouge)}.ret.warn b{color:var(--rouge)}
+.ret .bar{display:block;border-radius:999px;background:var(--trait);overflow:hidden}.ret .bar i{display:block;height:100%;border-radius:999px;background:var(--bleu)}
+#sheet .ta{min-height:84px;height:84px}

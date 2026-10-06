@@ -32,3 +32,22 @@ npm run dev
 
 Cinq onglets : Accueil (niveau, roman en cours, prochain levier, défi du jour), Découvrir (recherche, genres, talents), Écrire (manuscrit, boussole de l'histoire, mini-leçon, sprint), Progrès (école d'écriture, ateliers, semaine) et Profil.
 XP, série de jours, objectifs de la semaine, défi du jour, boussole et préférences sont enregistrés dans l'état du compte (`plume_state`) : aucune table supplémentaire n'est nécessaire.
+
+## Modération (à faire dans Supabase > SQL Editor)
+
+Les signalements sont stockés dans `plume_reports` (personne d'autre que toi ne peut les lire). À partir de 3 personnes différentes, une histoire ou un commentaire est masqué automatiquement.
+
+```sql
+-- Voir les derniers signalements
+select created_at, target_type, target_id, reason, details from plume_reports order by created_at desc limit 50;
+
+-- Masquer / rétablir à la main (histoire ou commentaire)
+select plume_moderate('story', 'IDENTIFIANT_DE_L_HISTOIRE', true);
+select plume_moderate('comment', 'IDENTIFIANT_DU_COMMENTAIRE', false);
+
+-- Supprimer définitivement une histoire ou un commentaire
+delete from plume_published where id = 'IDENTIFIANT_DE_L_HISTOIRE';
+delete from plume_comments where id = 123;
+```
+
+Mot de passe oublié : l'e-mail et le lien viennent de Supabase (Authentication > Email Templates > Reset Password). L'adresse du site doit figurer dans Authentication > URL Configuration (Site URL et Redirect URLs).

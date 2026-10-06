@@ -74,7 +74,7 @@ export function saveState(uid, state) {
 export const remoteId = (msId, uid) => msId + '.' + uid.slice(0, 8);
 export async function loadPublished() {
   if (!sb) return [];
-  const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story').order('updated_at', { ascending: false });
+  const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story,hidden').order('updated_at', { ascending: false });
   if (error) { console.error('plume_published', error); return []; }
   return data || [];
 }
@@ -107,13 +107,14 @@ export async function flush() {
 /* ===== commentaires partagés ===== */
 export async function loadComments() {
   if (!sb) return [];
-  const { data, error } = await sb.from('plume_comments').select('key,author_name,body').order('created_at', { ascending: true }).limit(5000);
+  const { data, error } = await sb.from('plume_comments').select('id,key,author_id,author_name,body').order('created_at', { ascending: true }).limit(5000);
   if (error) { console.error('plume_comments', error); return []; }
   return data || [];
 }
 export async function addComment(uid, authorName, key, body) {
-  const { error } = await need().from('plume_comments').insert({ key, author_id: uid, author_name: authorName, body });
+  const { data, error } = await need().from('plume_comments').insert({ key, author_id: uid, author_name: authorName, body }).select('id');
   if (error) fail('Le commentaire n’a pas pu être publié.');
+  return data && data[0] ? data[0].id : null;
 }
 
 /* ===== coach IA (fonction serveur /api/coach) ===== */
@@ -237,4 +238,93 @@ export async function uploadCover(uid, blob) {
   const { error } = await need().storage.from('covers').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
   if (error) fail('La jaquette n’a pas pu être envoyée.');
   return sb.storage.from('covers').getPublicUrl(path).data.publicUrl;
+}
+
+/* ===== mot de passe oublié ===== */
+let recovering = false;
+const recoveryCbs = [];
+if (sb) {
+  sb.auth.onAuthStateChange((ev) => {
+    if (ev === 'PASSWORD_RECOVERY') { recovering = true; recoveryCbs.forEach((f) => f()); }
+  });
+}
+export const isRecovering = () => recovering;
+export const clearRecovering = () => { recovering = false; };
+export const onRecovery = (f) => { recoveryCbs.push(f); };
+export async function resetPassword(email) {
+  const { error } = await need().auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+  // On ne révèle jamais si l'adresse existe ; seul un blocage de fréquence est signalé.
+  if (error && /rate|seconds/i.test(error.message || '')) fail('Trop de demandes. Réessaie dans quelques minutes.');
+}
+export async function updatePassword(pw) {
+  const { error } = await need().auth.updateUser({ password: pw });
+  if (error) {
+    if (/same/i.test(error.message || '')) fail('Choisis un mot de passe différent de l’ancien.');
+    if (/at least/i.test(error.message || '')) fail('Le mot de passe doit contenir au moins 6 caractères.');
+    fail('Le mot de passe n’a pas pu être modifié. Le lien a peut-être expiré : redemande-en un.');
+  }
+}
+
+/* ===== suppression du compte ===== */
+export function cancelPending() { clearTimeout(stateT); clearTimeout(pubT); stateRun = null; pubRun = null; }
+export async function deleteAccount(uid) {
+  cancelPending();
+  try {
+    const { data } = await need().storage.from('covers').list(uid, { limit: 200 });
+    if (data && data.length) await sb.storage.from('covers').remove(data.map((f) => uid + '/' + f.name));
+  } catch (e) { console.error('covers', e); }
+  const { error } = await sb.rpc('delete_my_account');
+  if (error) fail('La suppression n’a pas pu aboutir. Réessaie plus tard.');
+  await sb.auth.signOut();
+}
+
+/* ===== signalements, blocages, commentaires ===== */
+export async function reportContent(uid, type, id, reason, details) {
+  const { error } = await need().from('plume_reports').upsert(
+    { reporter: uid, target_type: type, target_id: String(id), reason, details: details || null },
+    { onConflict: 'reporter,target_type,target_id', ignoreDuplicates: true });
+  if (error) fail('Le signalement n’a pas pu être envoyé.');
+}
+export async function loadBlocks() {
+  if (!sb) return [];
+  const { data, error } = await sb.from('plume_blocks').select('blocked,blocked_name');
+  if (error) { console.error('plume_blocks', error); return []; }
+  return data || [];
+}
+export async function blockUser(uid, blocked, name) {
+  const { error } = await need().from('plume_blocks').upsert({ blocker: uid, blocked, blocked_name: name || null });
+  if (error) fail('Le blocage n’a pas pu être enregistré.');
+}
+export async function unblockUser(uid, blocked) {
+  const { error } = await need().from('plume_blocks').delete().eq('blocker', uid).eq('blocked', blocked);
+  if (error) fail('Le déblocage n’a pas pu être enregistré.');
+}
+export async function deleteComment(id) {
+  const { error } = await need().from('plume_comments').delete().eq('id', id);
+  if (error) fail('Le commentaire n’a pas pu être supprimé.');
+}
+
+/* ===== statistiques d'auteur ===== */
+export async function loadStoryStats(storyId, nChapters) {
+  const chKeys = [], cmKeys = ['s:' + storyId];
+  for (let i = 0; i < nChapters; i++) { chKeys.push(storyId + ':' + i); cmKeys.push('c:' + storyId + ':' + i); }
+  const [r, l, c, t] = await Promise.all([
+    need().from('plume_chapter_reads').select('ch,n').eq('story_id', storyId),
+    sb.from('plume_like_counts').select('key,n').in('key', chKeys),
+    sb.from('plume_comment_counts').select('key,n').in('key', cmKeys),
+    sb.from('plume_read_trend').select('d7,d14').eq('story_id', storyId),
+  ]);
+  [r, l, c, t].forEach((q) => { if (q.error) console.error('stats', q.error); });
+  if (r.error) throw new Error('stats');
+  const chapters = [];
+  for (let i = 0; i < nChapters; i++) chapters.push({ reads: 0, likes: 0, comments: 0 });
+  (r.data || []).forEach((x) => { if (chapters[x.ch]) chapters[x.ch].reads = x.n; });
+  (l.data || []).forEach((x) => { const i = +x.key.split(':').pop(); if (chapters[i]) chapters[i].likes = x.n; });
+  let storyComments = 0;
+  (c.data || []).forEach((x) => {
+    if (x.key === 's:' + storyId) storyComments = x.n;
+    else { const i = +x.key.split(':').pop(); if (chapters[i]) chapters[i].comments = x.n; }
+  });
+  const tr = (t.data && t.data[0]) || { d7: 0, d14: 0 };
+  return { chapters, storyComments, d7: tr.d7, d14: tr.d14 };
 }
