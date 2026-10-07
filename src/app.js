@@ -15,7 +15,8 @@ const p2=n=>String(n).padStart(2,'0');
 const mondayKey=()=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());};
 const monthKey=()=>{const d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1);};
 const resetLabel=()=>{const d=new Date();return '1er '+MOIS[(d.getMonth()+1)%12];};
-const dateFr=t=>{const d=new Date(t);const m=MOIS[d.getMonth()];return d.getDate()+' '+(m.length>4?m.slice(0,4)+'.':m);};
+const MOIS_C=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const dateFr=t=>{const d=new Date(t);return d.getDate()+' '+MOIS_C[d.getMonth()];};
 
 /* ===== icônes ===== */
 const I=p=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
@@ -236,7 +237,7 @@ const CHALLENGES=[
 ];
 
 const STORIES=[
- {id:'s1',titre:'La Dernière Marée',auteurId:'a1',genre:'Mystère',lectures:12480,c1:'#1E3A5F',c2:'#2F6A94',motif:'maree',
+ {id:'s1',titre:'La Dernière Marée',auteurId:'a1',genre:'Mystère',tags:['phare','île','secrets de famille','mer'],fini:false,maj:Date.parse('2026-10-04'),lectures:12480,c1:'#1E3A5F',c2:'#2F6A94',motif:'maree',
   resume:'À la mort de son grand-père, Nolwenn revient sur l’île Sainte-Odile pour vider le phare. Personne n’a remonté le mécanisme depuis des mois, pourtant la lampe tourne encore chaque nuit.',
   chapitres:[
    {titre:'Une lampe sans gardien',texte:[
@@ -247,7 +248,7 @@ const STORIES=[
     'Au matin, Nolwenn avait décidé de ne rien croire. Un ressort à long débit, un contrepoids astucieux : son grand-père aurait ri de la voir chercher un fantôme là où il y avait de la mécanique. Elle démonta la plaque du socle et ne trouva que de la graisse séchée.',
     'Le carnet était glissé derrière, dans un sachet de toile cirée. Des colonnes de dates, de hauteurs d’eau, et une seule phrase répétée en marge, d’une écriture qu’elle ne connaissait pas : « Elle est revenue ce soir. »',
     'La dernière entrée datait de la veille de la mort de son grand-père. Nolwenn relut la phrase trois fois, puis referma le carnet et regarda par la fenêtre. Sur la digue, quelqu’un venait d’allumer une cigarette.']}]},
- {id:'s2',titre:'Sous la peau du papier',auteurId:'a2',genre:'Romance',lectures:8213,c1:'#6B2D3E',c2:'#A04760',motif:'papier',
+ {id:'s2',titre:'Sous la peau du papier',auteurId:'a2',genre:'Romance',tags:['lettres','deuxième chance','amour','papier'],fini:true,maj:Date.parse('2026-08-17'),lectures:8213,c1:'#6B2D3E',c2:'#A04760',motif:'papier',
   resume:'Restauratrice de documents anciens, Jeanne reçoit une lettre déchirée en quatre. Celui qui la lui confie pose une seule condition : qu’elle ne la lise pas.',
   chapitres:[
    {titre:'Quatre morceaux',texte:[
@@ -260,7 +261,7 @@ const STORIES=[
    {titre:'L’encre qui déborde',texte:[
     'Elle ne lut rien le premier jour. Elle lava, elle sépara, elle mesura le pH de chaque fragment avec l’application sérieuse de qui ne veut pas être surpris. L’encre était d’un bleu ancien, un bleu de plume, qui avait bavé aux endroits où le papier avait été serré dans un poing.',
     'Le deuxième jour, elle assembla le premier coin. Un prénom apparut, à l’envers : le sien. Jeanne posa la pince à épiler très doucement, comme on pose une arme, et fixa l’établi pendant un long moment avant de rappeler l’homme.']}]},
- {id:'s3',jaquette:'/covers/falaise.jpg',titre:'Les Saisons de Verre',auteurId:'a3',genre:'Fantasy',lectures:15302,c1:'#1F5F5B',c2:'#2F7A6D',motif:'verre',
+ {id:'s3',jaquette:'/covers/falaise.jpg',titre:'Les Saisons de Verre',auteurId:'a3',genre:'Fantasy',tags:['verre','saisons','quête','magie'],fini:false,maj:Date.parse('2026-09-29'),lectures:15302,c1:'#1F5F5B',c2:'#2F7A6D',motif:'verre',
   resume:'À Vitrelle, chaque saison dort dans une jarre de verre gardée par une famille. Le matin du solstice, la jarre de l’hiver est vide.',
   chapitres:[
    {titre:'Le solstice sans neige',texte:[
@@ -270,7 +271,7 @@ const STORIES=[
    {titre:'La cire brisée',texte:[
     'On enferma Iris dans la remise aux poids, pour sa sécurité, disait-on. Elle passa l’après-midi à observer la jarre qu’on avait posée devant elle comme une pièce à conviction. Le verre était intact. Le bouchon n’avait pas été forcé. Pourtant, la cire portait, sur le bord, une minuscule empreinte de doigt.',
     'Une empreinte trop petite pour un adulte. Iris posa son propre pouce dessus et le trouva un peu plus gros. Quelqu’un d’aussi jeune qu’elle, ou plus jeune encore, avait ouvert la jarre avant elle, et l’avait refermée avec soin.']}]},
- {id:'s4',jaquette:'/covers/paris.jpg',titre:'Ligne 9, dernier départ',auteurId:'a4',genre:'Thriller',lectures:6190,c1:'#232946',c2:'#4A4E8A',motif:'metro',
+ {id:'s4',jaquette:'/covers/paris.jpg',titre:'Ligne 9, dernier départ',auteurId:'a4',genre:'Thriller',tags:['métro','disparition','suspense','paris'],fini:false,maj:Date.parse('2026-10-02'),lectures:6190,c1:'#232946',c2:'#4A4E8A',motif:'metro',
   resume:'Sur la ligne 9, le conducteur du dernier métro entend frapper contre la cloison de la voiture de queue. Elle est vide. Elle l’est aussi sur les caméras.',
   chapitres:[
    {titre:'23 h 47',texte:[
@@ -280,7 +281,7 @@ const STORIES=[
    {titre:'Le manteau rouge',texte:[
     'Sofiane n’était pas censé quitter sa cabine. Le règlement était clair là-dessus, et il l’avait toujours respecté, sauf une fois, dix ans plus tôt, dont il n’aimait pas parler. Il garda la main sur le levier, laissa le métro glisser jusqu’à la station suivante et ouvrit les portes.',
     'Le quai était désert. Il compta jusqu’à vingt, referma les portes, repartit. À Saint-Ambroise, le manteau rouge n’était plus sur le siège. Sur la vitre, en revanche, quelqu’un avait écrit dans la buée : « Tu t’en souviens ? »']}]},
- {id:'s5',titre:'Ce que dit le silence',auteurId:'a5',genre:'Drame',lectures:3467,c1:'#5A3E2B',c2:'#8A5E3B',motif:'silence',
+ {id:'s5',titre:'Ce que dit le silence',auteurId:'a5',genre:'Drame',tags:['silence','famille','deuil'],fini:false,maj:Date.parse('2026-09-11'),lectures:3467,c1:'#5A3E2B',c2:'#8A5E3B',motif:'silence',
   resume:'Pour la première fois depuis l’enterrement, les Morel se retrouvent autour d’une même table. Personne ne parle de la chaise vide, et c’est exactement de cela qu’ils parlent.',
   chapitres:[
    {titre:'Le gratin',texte:[
@@ -302,7 +303,7 @@ const STORIES=[
     '— Non, vas-y. Ranger quoi ?',
     'Zoé regarda sa mère, qui regardait la carafe. Puis elle regarda le coussin en trop, et elle dit, d’une voix qui ne tremblait pas :',
     '— Le coussin. Il est mal placé.']}]},
- {id:'s6',jaquette:'/covers/orbite.jpg',titre:'Nos corps en orbite',auteurId:'a6',genre:'Science-fiction',lectures:0,c1:'#1B2150',c2:'#3B4DB0',motif:'maree',
+ {id:'s6',jaquette:'/covers/orbite.jpg',titre:'Nos corps en orbite',auteurId:'a6',genre:'Science-fiction',tags:['orbite','astronautes','amour','espace'],fini:false,maj:Date.parse('2026-10-05'),lectures:0,c1:'#1B2150',c2:'#3B4DB0',motif:'maree',
   resume:'À 400 kilomètres de la Terre, deux astronautes découvrent qu’un message d’amour peut aussi être un signal de détresse.',
   chapitres:[
    {titre:'Le signal',texte:[
@@ -348,7 +349,7 @@ function seed(){
   const now=Date.now();
   return {
     user:null,plan:'free',genres:[],genresAsked:false,lib:{status:{},lists:[],pos:{}},
-    xp:0,streak:{last:'',n:0},day:{d:'',words:0},week:{k:'',words:0,days:[],ex:0,reads:0,ch:0},challenge:{d:'',state:''},lessons:{},bible:{},prefs:{coach:true,signals:true,goal:500},readSeen:{},exoXP:{},pubXP:{},
+    xp:0,streak:{last:'',n:0},day:{d:'',words:0},week:{k:'',words:0,days:[],ex:0,reads:0,ch:0},challenge:{d:'',state:''},lessons:{},bible:{},prefs:{coach:true,signals:true,goal:500,nFollow:true,nComment:true,nChapter:true},readSeen:{},exoXP:{},pubXP:{},
     credits:{month:monthKey(),used:0},
     reads:{week:mondayKey(),ids:[]},
     saved:[],following:[],reactions:{},
@@ -400,13 +401,15 @@ IX.more=I('<circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/><ci
 IX.lib=I('<path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/>');
 IX.flag=I('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>');
 IX.gear=I('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>');
+IX.bell=I('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>');
 IX.ban=I('<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>');
 const SI={
   eye:I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
   heart:I('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/>'),
   star:I('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>')
 };
-const statItem=(cls,ic,n,one,many)=>'<span class="si '+cls+'" title="'+n+' '+(n>1?many:one)+'">'+ic+'<b>'+fmt(n)+'</b><span class="vh">'+(n>1?many:one)+'</span></span>';
+const cfmt=n=>n>=1e6?(n/1e6).toFixed(n>=1e7?0:1).replace('.',',')+' M':n>=1e4?(n/1e3).toFixed(n>=1e5?0:1).replace('.',',')+' k':fmt(n);
+const statItem=(cls,ic,n,one,many)=>'<span class="si '+cls+'" title="'+fmt(n)+' '+(n>1?many:one)+'">'+ic+'<b>'+cfmt(n)+'</b><span class="vh">'+(n>1?many:one)+'</span></span>';
 const statLine=id=>'<span class="sline">'+statItem('s-eye',SI.eye,READS[id]||0,'lecteur','lecteurs')+statItem('s-heart',SI.heart,SLIKES[id]||0,'J’aime','J’aime')+statItem('s-star',SI.star,FAVS[id]||0,'favori','favoris')+'</span>';
 async function refreshCounts(force){
   if(!force&&Date.now()-lastRC<15000)return;lastRC=Date.now();
@@ -437,7 +440,7 @@ const allStories=()=>STORIES.concat(REMOTE_STORIES.filter(r=>(!SESSION||r.author
 const authorsAll=()=>{const seen={},ext=[];REMOTE_STORIES.forEach(r=>{if((!SESSION||r.authorUid!==SESSION.user.id)&&!BLOCKED.has(r.authorUid)&&!seen[r.auteurId]){seen[r.auteurId]=1;ext.push({id:r.auteurId,nom:EXT_AUTHORS[r.auteurId]});}});return ext.concat(AUTHORS);};
 function msToStory(m){
   return {id:m.id,titre:m.titre||'Sans titre',auteurId:'me',genre:m.genre||'Drame',resume:m.resume||'Une histoire écrite sur Plume.',
-    c1:DEF_C1,c2:DEF_C2,motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,
+    c1:DEF_C1,c2:DEF_C2,motif:'plume',lectures:0,mine:true,jaquette:m.jaquette||null,tags:m.tags||[],fini:!!m.fini,maj:m.pubAt||null,
     chapitres:m.chapitres.map(c=>({titre:c.titre,texte:c.texte.split(/\n+/).map(s=>s.trim()).filter(Boolean)}))};
 }
 const findStory=id=>allStories().find(s=>s.id===id);
@@ -463,7 +466,7 @@ function xpInfo(){
 function fixState(o){
   const d=seed();
   ['xp','streak','day','week','challenge','lessons','bible','prefs','readSeen','exoXP','pubXP','genres','genresAsked','lib'].forEach(k=>{if(o[k]==null)o[k]=d[k];});
-  o.prefs=Object.assign({coach:true,signals:true,goal:500},o.prefs);
+  o.prefs=Object.assign({coach:true,signals:true,goal:500,nFollow:true,nComment:true,nChapter:true},o.prefs);
   return o;
 }
 function ensureDay(){
@@ -745,11 +748,11 @@ function storyCard(s){
   const saved=S.saved.includes(s.id);
   return '<article class="scard"><button class="plain scov" data-a="story" data-id="'+s.id+'" aria-label="Ouvrir '+esc(s.titre)+'">'+cover(s,'sc')+'</button>'+
   '<div class="sbody"><span class="gchip">'+esc(s.genre)+'</span><button class="plain stitle" data-a="story" data-id="'+s.id+'">'+esc(s.titre)+'</button><p class="by">par '+esc(authorName(s.auteurId))+'</p><p class="sres">'+esc(fr(s.resume))+'</p>'+
-  '<div class="smeta">'+statLine(s.id)+'<span class="si s-clock" title="'+readMin(s)+' minutes de lecture">'+IX.clock+'<b>'+readMin(s)+'</b> min</span><button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter '+esc(s.titre)+' aux favoris">'+IC.mark+'</button></div></div></article>';
+  '<div class="smeta">'+statLine(s.id)+'<span class="si s-clock" title="'+readMin(s)+' minutes de lecture">'+IX.clock+'<b>'+readMin(s)+'</b> min</span><button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter '+esc(s.titre)+' aux favoris">'+IC.mark+'</button><button class="iconbtn" data-a="lib-sheet" data-id="'+s.id+'" aria-label="Ajouter '+esc(s.titre)+' à une liste de lecture">'+IX.plus+'</button></div></div></article>';
 }
 const byPop=s=>(READS[s.id]||0)+3*(SLIKES[s.id]||0)+5*(FAVS[s.id]||0);
 function railCard(s){
-  return '<button class="rcard" role="listitem" data-a="story" data-id="'+s.id+'">'+cover(s,'sc')+'<span class="rgenre">'+esc(s.genre)+'</span><b>'+esc(s.titre)+'</b><span class="rmeta"><span class="si s-eye">'+SI.eye+'<b>'+fmt(READS[s.id]||0)+'</b></span><span class="si s-heart">'+SI.heart+'<b>'+fmt(SLIKES[s.id]||0)+'</b></span></span></button>';
+  return '<button class="rcard" role="listitem" data-a="story" data-id="'+s.id+'">'+cover(s,'sc')+'<span class="rgenre">'+esc(s.genre)+'</span><b>'+esc(s.titre)+'</b><span class="rmeta"><span class="si s-eye">'+SI.eye+'<b>'+cfmt(READS[s.id]||0)+'</b></span><span class="si s-heart">'+SI.heart+'<b>'+cfmt(SLIKES[s.id]||0)+'</b></span></span></button>';
 }
 function discoverRows(){
   const all=allStories(),pref=S.genres||[],rows=[];
@@ -764,10 +767,10 @@ function discoverRows(){
 function discoverRails(){
   return discoverRows().map(r=>'<section class="rail-sec"><h2 class="h2 row-between">'+esc(r.t)+(r.g?'<button class="link" data-a="genre" data-g="'+esc(r.g)+'">Voir tout</button>':'')+'</h2><div class="hscroll rail" role="list" aria-label="'+esc(r.t)+'">'+r.list.map(railCard).join('')+'</div></section>').join('');
 }
-const rankCard=(s,i)=>'<button class="tcard" role="listitem" data-a="story" data-id="'+s.id+'"><span class="rank" aria-hidden="true">'+(i+1)+'</span><span class="tbody">'+cover(s,'sc')+'<b><span class="vh">N° '+(i+1)+', </span>'+esc(s.titre)+'</b><span class="rmeta"><span class="si s-eye">'+SI.eye+'<b>'+fmt(READS[s.id]||0)+'</b></span><span class="si s-heart">'+SI.heart+'<b>'+fmt(SLIKES[s.id]||0)+'</b></span></span></span></button>';
+const rankCard=(s,i)=>'<button class="tcard" role="listitem" data-a="story" data-id="'+s.id+'"><span class="rank" aria-hidden="true">'+(i+1)+'</span><span class="tbody">'+cover(s,'sc')+'<b><span class="vh">N° '+(i+1)+', </span>'+esc(s.titre)+'</b><span class="rmeta"><span class="si s-eye">'+SI.eye+'<b>'+cfmt(READS[s.id]||0)+'</b></span><span class="si s-heart">'+SI.heart+'<b>'+cfmt(SLIKES[s.id]||0)+'</b></span></span></span></button>';
 function catalogList(){
   const q=norm(UI.cq||'').trim(),g=UI.cgenre||'Tout',so=UI.csort||'pop';
-  let list=allStories().filter(s=>(g==='Tout'||s.genre===g)&&(!q||norm([s.titre,authorName(s.auteurId),s.genre,s.resume].join(' ')).includes(q)));
+  let list=allStories().filter(s=>(g==='Tout'||s.genre===g)&&(!q||norm([s.titre,authorName(s.auteurId),s.genre,s.resume,(s.tags||[]).join(' ')].join(' ')).includes(q)));
   if(so==='pop')list=list.slice().sort((a,b)=>byPop(b)-byPop(a));else if(so==='new')list=list.slice().reverse();else list=list.slice().sort((a,b)=>a.titre.localeCompare(b.titre,'fr'));
   return '<p class="small muted ccount">'+pl(list.length,'histoire')+'</p>'+(list.length?list.map(storyCard).join(''):'<p class="empty">'+(q?'Aucune histoire ne correspond à « '+esc(UI.cq)+' ».':'Aucune histoire dans ce genre pour l’instant.')+'</p>');
 }
@@ -821,18 +824,18 @@ function libRow(s,listId){
   return '<div class="card lrow"><button class="plain lmain" data-a="story" data-id="'+s.id+'">'+cover(s,'mini')+'<span class="ltxt"><b>'+esc(s.titre)+'</b><span class="small muted">'+esc(authorName(s.auteurId))+' · '+esc(s.genre)+'</span>'+
     (p&&st!=='toread'?'<span class="bar" aria-hidden="true"><i style="width:'+pr+'%"></i></span><span class="small muted">Chapitre '+(p.ch+1)+' sur '+s.chapitres.length+' · '+pr+' %</span>':'')+'</span></button>'+
     (st==='reading'&&p?'<button class="btn sm" data-a="read" data-id="'+s.id+'" data-ch="'+p.ch+'" data-f="'+(p.f||0)+'">Continuer</button>':'')+
-    (listId?'<button class="iconbtn sm" data-a="list-toggle" data-l="'+listId+'" data-id="'+s.id+'" aria-label="Retirer du dossier">'+IX.trash+'</button>':'<button class="iconbtn sm" data-a="lib-sheet" data-id="'+s.id+'" aria-label="Gérer dans ma bibliothèque">'+IX.more+'</button>')+'</div>';
+    (listId?'<button class="iconbtn sm" data-a="list-toggle" data-l="'+listId+'" data-id="'+s.id+'" aria-label="Retirer de la liste">'+IX.trash+'</button>':'<button class="iconbtn sm" data-a="lib-sheet" data-id="'+s.id+'" aria-label="Gérer dans ma bibliothèque">'+IX.more+'</button>')+'</div>';
 }
 function vBiblio(){
   const tab=UI.libTab||'reading';
   const reading=libByStatus('reading').sort((a,b)=>((libPos(b.id)||{}).t||0)-((libPos(a.id)||{}).t||0));
   const data={reading:reading,toread:libByStatus('toread'),done:libByStatus('done'),fav:S.saved.map(findStory).filter(Boolean)};
-  const tabs=[['reading','En cours'],['toread','À lire'],['done','Terminés'],['fav','Favoris'],['lists','Dossiers']];
+  const tabs=[['reading','En cours'],['toread','À lire'],['done','Terminés'],['fav','Favoris'],['lists','Listes']];
   const EMPTY={reading:'Tes lectures en cours apparaîtront ici dès que tu ouvriras un chapitre.',toread:'Ajoute des histoires « À lire » depuis leur fiche.',done:'Les histoires que tu as terminées arriveront ici.',fav:'Touche l’étoile d’une histoire pour la retrouver ici.'};
   let body;
   if(tab==='lists'){
-    body='<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouveau dossier (ex. À lire cet été)" aria-label="Nom du nouveau dossier" data-enter="list-new"><button class="btn sm" data-a="list-new">Créer</button></div>'+
-      (S.lib.lists.length?S.lib.lists.map(l=>{const ss=l.ids.map(findStory).filter(Boolean);return '<section class="lst"><div class="row-between"><h3 class="h3">'+esc(l.nom)+' <span class="small muted">('+ss.length+')</span></h3><button class="iconbtn sm" data-a="list-del" data-l="'+l.id+'" aria-label="Supprimer le dossier '+esc(l.nom)+'">'+IX.trash+'</button></div>'+(ss.length?ss.map(x=>libRow(x,l.id)).join(''):'<p class="small muted">Dossier vide. Ajoute des histoires depuis leur fiche.</p>')+'</section>';}).join(''):'<p class="empty">Crée un dossier pour ranger tes histoires comme tu veux : par envie, par thème, par saison.</p>');
+    body='<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouvelle liste de lecture (ex. À lire cet été)" aria-label="Nom de la nouvelle liste" data-enter="list-new"><button class="btn sm" data-a="list-new">Créer</button></div>'+
+      (S.lib.lists.length?S.lib.lists.map(l=>{const ss=l.ids.map(findStory).filter(Boolean);return '<section class="lst"><div class="row-between"><h3 class="h3">'+esc(l.nom)+' <span class="small muted">('+ss.length+')</span></h3><button class="iconbtn sm" data-a="list-ren" data-l="'+l.id+'" aria-label="Renommer la liste '+esc(l.nom)+'">'+IC.pen+'</button><button class="iconbtn sm" data-a="list-del" data-l="'+l.id+'" aria-label="Supprimer la liste '+esc(l.nom)+'">'+IX.trash+'</button></div>'+(ss.length?ss.map(x=>libRow(x,l.id)).join(''):'<p class="small muted">Liste vide. Ajoute des histoires depuis leur fiche.</p>')+'</section>';}).join(''):'<p class="empty">Crée autant de listes de lecture que tu veux pour ranger tes histoires : par envie, par thème, par saison.</p>');
   }else body=data[tab].length?data[tab].map(x=>libRow(x)).join(''):'<p class="empty">'+EMPTY[tab]+'</p>';
   return '<section class="pad dhead"><p class="eyebrow">MA BIBLIOTHÈQUE</p><h1 class="hh">Tes lectures, rangées comme tu veux.</h1><h2 class="h2">Mon espace lecteur</h2><div class="rtiles"><button class="rtile" data-a="following-open">'+IX.users+'<b>'+S.following.length+'</b><span>Auteurs suivis</span></button><button class="rtile" data-a="genres-open">'+IX.compass+'<b>'+(S.genres||[]).length+'</b><span>Genres préférés</span></button>'+(SESSION?'<button class="rtile" data-a="blocked-open">'+IX.ban+'<b>'+BLOCKED.size+'</b><span>Bloqués</span></button>':'')+'</div><div class="chips" role="tablist" aria-label="Sections de la bibliothèque">'+tabs.map(t=>'<button class="chip'+(tab===t[0]?' on':'')+'" role="tab" aria-selected="'+(tab===t[0])+'" data-a="lib-tab" data-t="'+t[0]+'">'+t[1]+(t[0]==='lists'?(S.lib.lists.length?' '+S.lib.lists.length:''):(data[t[0]].length?' '+data[t[0]].length:''))+'</button>').join('')+'</div><div class="libbody">'+body+'</div></section>';
 }
@@ -955,6 +958,8 @@ function vPublish(p){
   '<div class="card">'+checks.map(c=>'<div class="chk"><span class="chk-i'+(c[1]?' ok':'')+'">'+(c[1]?IX.check:'')+'</span><span class="ltxt"><b>'+c[0]+(c[2]?' <em class="req">requis</em>':'')+'</b><span class="small muted">'+c[3]+'</span></span></div>').join('')+'</div>'+
   ''+(m.published&&SESSION?'<button class="btn sec block" data-a="stats-open" data-id="'+m.id+'" style="margin-top:14px">'+IX.users+'Voir mes statistiques</button>':'')+'<h2 class="h2">Titre</h2><input class="line-in field" id="ms-title" value="'+esc(m.titre)+'" data-in="ms-title" maxlength="80" aria-label="Titre">'+
   '<h2 class="h2">Genre</h2><select class="sel-in field" data-in="ms-genre" aria-label="Genre">'+GENRES_EDIT.map(g=>'<option'+(g===m.genre?' selected':'')+'>'+g+'</option>').join('')+'</select>'+
+  '<h2 class="h2">Mots-clés</h2><input class="line-in field" data-in="ms-tags" value="'+esc((m.tags||[]).join(', '))+'" placeholder="ex. amitié, piraterie, capitaine (8 au maximum)" aria-label="Mots-clés" maxlength="160"><p class="small muted">Sépare-les par des virgules. Ils aident les lecteurs à te trouver.</p>'+
+  '<h2 class="h2">Statut</h2><div class="seg" role="group" aria-label="Statut de l’histoire"><button data-a="ms-fini" data-v="0" aria-pressed="'+!m.fini+'">En cours</button><button data-a="ms-fini" data-v="1" aria-pressed="'+!!m.fini+'">Terminée</button></div>'+
   '<h2 class="h2">Synopsis</h2><textarea class="ta" data-in="ms-resume" maxlength="400" placeholder="En deux ou trois phrases, de quoi parle ton histoire ?" aria-label="Synopsis">'+esc(m.resume||'')+'</textarea>'+
   '<h2 class="h2">Jaquette</h2><div class="jq">'+cover(msToStory(m),'mini')+'<div><span class="small muted">'+(m.jaquette?'Ta jaquette personnalisée.':'Couverture par défaut. Tu peux ajouter ta propre image.')+'</span><div class="jq-btns"><button class="btn sm sec" data-a="ms-cover">'+(UI.coverBusy?'Envoi…':(m.jaquette?'Changer':'Ajouter une jaquette'))+'</button>'+(m.jaquette?'<button class="btn sm ghost" data-a="ms-cover-rm">Retirer</button>':'')+'</div></div><input type="file" accept="image/*" id="cover-in" data-in="cover-file" hidden></div>'+
   (S.plan==='free'&&!m.published?'<p class="small muted" style="margin-top:14px">Avec le forfait Gratuit, tu peux publier 1 histoire au total ('+pubs+' sur 1 aujourd’hui).</p>':'')+
@@ -1077,21 +1082,41 @@ function transfSummary(){
   const spark=COMPS.map(c=>'<i style="height:'+Math.max(14,S.profile.scores[c.id])+'%;background:'+c.c+'"></i>').join('');
   return '<button class="card tsum" data-a="transf-open"><span class="spark" aria-hidden="true">'+spark+'</span><span class="ltxt"><b>Ma transformation</b><span class="small muted">'+(diag?pl(diag,'diagnostic')+' · Point fort : '+esc(ord[0].nom)+' · Priorité : '+esc(ord[ord.length-1].nom):'Ta transformation commence ici : lance ton premier diagnostic.')+'</span></span>'+chev+'</button>';
 }
+const dateLong=t=>{const d=new Date(t);return d.getDate()+' '+MOIS_C[d.getMonth()]+' '+d.getFullYear();};
 function vStory(p){
-  const s=findStory(p.id);if(!s)return topBack('Histoire')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
-  const saved=S.saved.includes(s.id),au=authorsAll().find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),cms=cmFor(s.id),pos=libPos(s.id),lst=libStatus(s.id);
+  const s=findStory(p.id);if(!s)return topBack('')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
+  if(UI.lastStory!==p.id){UI.lastStory=p.id;UI.synAll=false;UI.tagsAll=false;}
+  const tab=p.tab||'resume',saved=S.saved.includes(s.id),au=authorsAll().find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),cms=cmFor(s.id),pos=libPos(s.id),lst=libStatus(s.id),inList=S.lib.lists.some(l=>l.ids.includes(s.id));
+  const tags=Array.isArray(s.tags)?s.tags:[],n=s.chapitres.length;
   const chs=s.chapitres.map((c,i)=>{
     const key=s.id+':'+i,read=S.reads.ids.includes(key),locked=S.plan==='free'&&!read&&S.reads.ids.length>=3;
     return '<li><button data-a="read" data-id="'+s.id+'" data-ch="'+i+'"><span class="num">'+(i+1)+'</span><span>'+esc(c.titre)+'</span><span class="st">'+(locked?IC.lock:(read?IC.check:''))+'</span></button></li>';
   }).join('');
-  const flag=s.authorUid&&!s.mine?'<button class="iconbtn" data-a="report-open" data-type="story" data-id="'+s.id+'" data-uid="'+s.authorUid+'" data-name="'+esc(authorName(s.auteurId))+'" aria-label="Signaler ou bloquer">'+IX.flag+'</button>':'';
-  return topBack('Histoire','<span class="topacts">'+flag+'<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter l’histoire aux favoris">'+IC.mark+'</button></span>')+
-  '<section class="pad story-head">'+cover(s,'big')+'<div><h1 class="h1">'+esc(s.titre)+'</h1><p>'+esc(authorName(s.auteurId))+'</p><p class="small muted">'+esc(s.genre)+', '+pl(s.chapitres.length,'chapitre')+'</p><p>'+statLine(s.id)+'</p></div></section>'+
-  '<section class="pad"><p class="synopsis">'+esc(fr(s.resume))+'</p><div class="btns">'+(pos?'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="'+pos.ch+'" data-f="'+(pos.f||0)+'">Continuer · chapitre '+(pos.ch+1)+'</button>':'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="0">Lire le chapitre 1</button>')+'<button class="btn sec" data-a="lib-sheet" data-id="'+s.id+'">'+IX.lib+(lst?esc(LIBLABEL[lst]):'Ma bibliothèque')+'</button>'+
-  (au?'<button class="btn sec" data-a="follow" data-id="'+au.id+'" aria-pressed="'+!!foll+'">'+(foll?'Suivi':'Suivre '+esc(au.nom.split(' ')[0]))+'</button>':'')+'</div></section>'+
-  '<section class="pad"><h2 class="h2">Chapitres</h2><ol class="chlist">'+chs+'</ol></section>'+
-  '<section class="pad"><h2 class="h2">Commentaires</h2>'+(cms.length?cms.map(cmHtml).join(''):'<p class="muted">Aucun commentaire. Lance la conversation.</p>')+
-  '<div class="cm-row"><input class="cm-in" id="cm-input" maxlength="280" placeholder="Ajouter un commentaire" aria-label="Ajouter un commentaire" data-enter="comment" data-id="'+s.id+'"><button class="btn sm" data-a="comment" data-id="'+s.id+'">Publier</button></div></section>';
+  const star='<button class="iconbtn'+(saved?' on':'')+'" data-a="save" data-id="'+s.id+'" aria-pressed="'+saved+'" aria-label="Ajouter l’histoire aux favoris">'+IC.mark+'</button>';
+  const menu='<button class="iconbtn" data-a="smenu-open" data-id="'+s.id+'" aria-label="Plus d’options">'+IX.more+'</button>';
+  const hero='<section class="pad shero"><div class="shc">'+cover(s,'big')+'</div><div class="shi"><h1 class="stl">'+esc(s.titre)+'</h1><div class="sau">'+avatar(authorName(s.auteurId),30)+'<span class="san">'+esc(authorName(s.auteurId))+'</span>'+(au?'<button class="chip sm'+(foll?' on':'')+'" data-a="follow" data-id="'+au.id+'" aria-pressed="'+!!foll+'">'+(foll?'Suivi':'Suivre')+'</button>':'')+'</div><div class="sst">'+statLine(s.id)+'<span class="schap">'+IX.list+'<b>'+n+'</b> '+(n>1?'chapitres':'chapitre')+'</span></div></div></section>';
+  const tabs=[['resume','Résumé'],['chapitres','Chapitres'],['avis','Avis'+(cms.length?' ('+cms.length+')':'')]];
+  const tabBar='<div class="stabs" role="tablist" aria-label="Sections de l’histoire">'+tabs.map(t=>'<button class="stab'+(tab===t[0]?' on':'')+'" role="tab" aria-selected="'+(tab===t[0])+'" data-a="stab" data-t="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+  let body;
+  if(tab==='chapitres'){
+    body='<section class="pad"><h2 class="h2">'+pl(n,'chapitre')+'</h2><ol class="chlist">'+chs+'</ol></section>';
+  }else if(tab==='avis'){
+    body='<section class="pad"><h2 class="h2">Commentaires</h2>'+(cms.length?cms.map(cmHtml).join(''):'<p class="muted">Aucun commentaire. Lance la conversation.</p>')+
+      '<div class="cm-row"><input class="cm-in" id="cm-input" maxlength="280" placeholder="Ajouter un commentaire" aria-label="Ajouter un commentaire" data-enter="comment" data-id="'+s.id+'"><button class="btn sm" data-a="comment" data-id="'+s.id+'">Publier</button></div></section>';
+  }else{
+    const shown=UI.tagsAll?tags:tags.slice(0,4),long=String(s.resume||'').length>220&&!UI.synAll;
+    let sim=allStories().filter(x=>x.id!==s.id&&(x.genre===s.genre||(x.tags||[]).some(t=>tags.includes(t)))).sort((a,b)=>byPop(b)-byPop(a)).slice(0,8);
+    if(!sim.length)sim=allStories().filter(x=>x.id!==s.id).sort((a,b)=>byPop(b)-byPop(a)).slice(0,8);
+    body='<section class="pad"><ul class="sinfo-l"><li>'+IX.book+'<b>'+(s.fini?'Terminée':'En cours')+'</b></li>'+(s.maj?'<li>'+IX.clock+'<span>Dernière mise à jour : '+dateLong(s.maj)+'</span></li>':'')+'<li>'+IX.globe+'<span>Fiction · '+esc(s.genre)+'</span></li></ul>'+
+      (tags.length?'<div class="tagrow"><span class="small muted">Mots-clés</span>'+shown.map(x=>'<button class="tag" data-a="tag" data-t="'+esc(x)+'">'+esc(x)+'</button>').join('')+(tags.length>4&&!UI.tagsAll?'<button class="link tagmore" data-a="tags-more">Plus</button>':'')+'</div>':'')+
+      '<p class="synopsis'+(long?' clamp':'')+'">'+esc(fr(s.resume))+'</p>'+(long?'<button class="link" data-a="syn-more">Lire la suite</button>':'')+'</section>'+
+      (()=>{const t0=tags[0];if(!t0)return '';const peers=allStories().filter(x=>(x.tags||[]).includes(t0)).sort((a,b)=>byPop(b)-byPop(a)),r=peers.findIndex(x=>x.id===s.id)+1;
+        return r?'<section class="pad"><button class="rankrow" data-a="tag" data-t="'+esc(t0)+'" aria-label="Classement '+r+' dans le mot-clé '+esc(t0)+'"><b>#'+r+'</b><span class="tag">'+esc(t0)+'</span>'+chev+'</button></section>':'';})()+
+      (sim.length?'<section class="pad railwrap"><h2 class="h2">Tu pourrais aimer</h2><div class="hscroll rail" role="list" aria-label="Histoires proches">'+sim.map(railCard).join('')+'</div></section>':'');
+  }
+  const cta=pos?'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="'+pos.ch+'" data-f="'+(pos.f||0)+'">Continuer · chapitre '+(pos.ch+1)+'</button>':'<button class="btn" data-a="read" data-id="'+s.id+'" data-ch="0">Commencer la lecture</button>';
+  const plus='<button class="roundbtn'+(lst||inList?' on':'')+'" data-a="lib-sheet" data-id="'+s.id+'" aria-label="Ajouter à ma bibliothèque ou à une liste de lecture">'+(lst||inList?IX.check:IX.plus)+'</button>';
+  return topBack('','<span class="topacts">'+star+menu+'</span>')+hero+tabBar+body+'<div class="sbar">'+cta+plus+'</div>';
 }
 
 const rbtn=(k,on,action,n)=>'<button class="rbtn'+(on?' on':'')+'" data-a="'+action+'" data-r="'+k+'" aria-pressed="'+on+'"><span class="re" aria-hidden="true">'+REACTS[k].e+'</span><span class="rl2">'+esc(REACTS[k].l)+'</span>'+(n?'<b class="rn">'+fmt(n)+'</b>':'')+'</button>';
@@ -1293,12 +1318,21 @@ const SHEETS={
   '<div class="sprint-opts">'+[5,10,15,25].map(m=>'<button class="card sp-opt" data-a="sprint-start" data-m="'+m+'"><b>'+m+' min</b><span class="small muted">+'+(m*3)+' XP</span></button>').join('')+'</div>';
  },
  bio:()=>'<div class="sheet-head"><h2 class="h2">Ta présentation</h2>'+closeBtn+'</div><p class="muted">Une ou deux phrases qui disent quelle autrice ou quel auteur tu es.</p><textarea id="bio-in" class="ta" maxlength="160" placeholder="J’écris des histoires où…" aria-label="Ta présentation">'+esc(S.bio||'')+'</textarea><div class="btns"><button class="btn block" data-a="bio-save">Enregistrer</button></div>',
+ smenu:p=>{
+  const s=findStory(p.id);if(!s)return '<p>Histoire introuvable.</p>';
+  const au=authorsAll().find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),own=s.authorUid&&!s.mine;
+  return '<div class="sheet-head"><h2 class="h2">Plus d’options</h2>'+closeBtn+'</div><div class="reasons"><button class="reason" data-a="share" data-id="'+s.id+'">Partager cette histoire</button>'+(au?'<button class="reason" data-a="follow" data-id="'+au.id+'">'+(foll?'Ne plus suivre ':'Suivre ')+esc(authorName(s.auteurId))+'</button>':'')+(own?'<button class="reason" data-a="report-open" data-type="story" data-id="'+s.id+'" data-uid="'+s.authorUid+'" data-name="'+esc(authorName(s.auteurId))+'">Signaler ou bloquer</button>':'')+'</div>';
+ },
+ listren:p=>{
+  const l=S.lib.lists.find(x=>x.id===p.l);if(!l)return '<p>Liste introuvable.</p>';
+  return '<div class="sheet-head"><h2 class="h2">Renommer la liste</h2>'+closeBtn+'</div><div class="cm-row"><input class="cm-in" id="list-ren-in" maxlength="40" value="'+esc(l.nom)+'" aria-label="Nouveau nom de la liste" data-enter="list-ren-go" data-l="'+l.id+'"><button class="btn sm" data-a="list-ren-go" data-l="'+l.id+'">Enregistrer</button></div>';
+ },
  libadd:p=>{
   const s=findStory(p.id),st=libStatus(p.id);if(!s)return '<p>Histoire introuvable.</p>';
   return '<div class="sheet-head"><h2 class="h2">Ma bibliothèque</h2>'+closeBtn+'</div><p class="small muted">'+esc(s.titre)+'</p>'+
    '<div class="reasons" role="radiogroup" aria-label="Statut de lecture">'+['toread','reading','done'].map(k=>'<button class="reason'+(st===k?' on':'')+'" role="radio" aria-checked="'+(st===k)+'" data-a="lib-set" data-id="'+s.id+'" data-st="'+k+'">'+LIBLABEL[k]+'</button>').join('')+(st?'<button class="reason" data-a="lib-set" data-id="'+s.id+'" data-st="">Retirer de ma bibliothèque</button>':'')+'</div>'+
-   '<h3 class="h3">Mes dossiers</h3><div class="reasons">'+S.lib.lists.map(l=>{const on=l.ids.includes(s.id);return '<button class="reason'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-a="list-toggle" data-l="'+l.id+'" data-id="'+s.id+'">'+esc(l.nom)+' <span class="small muted">('+l.ids.length+')</span></button>';}).join('')+'</div>'+
-   '<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouveau dossier" aria-label="Nom du nouveau dossier" data-enter="list-new" data-id="'+s.id+'"><button class="btn sm" data-a="list-new" data-id="'+s.id+'">Créer</button></div>';
+   '<h3 class="h3">Mes listes de lecture</h3><div class="reasons">'+S.lib.lists.map(l=>{const on=l.ids.includes(s.id);return '<button class="reason'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-a="list-toggle" data-l="'+l.id+'" data-id="'+s.id+'">'+esc(l.nom)+' <span class="small muted">('+l.ids.length+')</span></button>';}).join('')+'</div>'+
+   '<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouvelle liste de lecture" aria-label="Nom de la nouvelle liste" data-enter="list-new" data-id="'+s.id+'"><button class="btn sm" data-a="list-new" data-id="'+s.id+'">Créer</button></div>';
  },
  report:p=>{
   const sel=p.reason;
@@ -1309,7 +1343,7 @@ const SHEETS={
  },
  delete:()=>'<div class="sheet-head"><h2 class="h2">Supprimer mon compte</h2>'+closeBtn+'</div><p>Cette action est <b>définitive</b>. Elle efface ton compte, tes histoires publiées, tes commentaires, tes favoris et toute ta progression, sur tous tes appareils.</p><label class="field"><span>Pour confirmer, écris SUPPRIMER</span><input id="del-confirm" data-in="del-confirm" autocomplete="off" autocapitalize="characters"></label><div class="btns"><button class="btn danger" id="del-yes" data-a="delete-yes" disabled>Supprimer définitivement</button><button class="btn sec" data-a="sheet-close">Annuler</button></div>',
  confirm:p=>{
-  const T=p.kind==='dellist'?['Supprimer ce dossier ?','Le dossier « '+p.nom+' » sera supprimé. Les histoires restent dans ta bibliothèque.','Supprimer']:p.kind==='logout'
+  const T=p.kind==='dellist'?['Supprimer cette liste ?','La liste « '+p.nom+' » sera supprimée. Les histoires restent dans ta bibliothèque.','Supprimer']:p.kind==='logout'
    ?['Se déconnecter ?','Tes manuscrits et ta progression sont sauvegardés sur ton compte. Tu les retrouveras en te reconnectant.','Se déconnecter']
    :['Réinitialiser la démo ?','Tes manuscrits, ta progression et tes réglages locaux reviennent aux données de démonstration.','Réinitialiser'];
   return '<h2 class="h2">'+T[0]+'</h2><p>'+T[1]+'</p><div class="btns"><button class="btn danger" data-a="confirm-yes" data-k="'+p.kind+'"'+(p.l?' data-l="'+esc(p.l)+'"':'')+'>'+T[2]+'</button><button class="btn sec" data-a="sheet-close">Annuler</button></div>';
@@ -1366,7 +1400,8 @@ function renderSheet(){
 /* ===== rendu principal ===== */
 
 const TABS=[['decouvrir','Découvrir',IX.home],['catalogue','Catalogue',IX.search],['biblio','Ma biblio',IX.lib],['ecrire','Écrire',IX.feather],['exercer','S’exercer',IX.cap],['profil','Profil',IX.user]];
-const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,settings:vSettings,transf:vTransf,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
+
+const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,notifs:vNotifs,settings:vSettings,transf:vTransf,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
 let lastKey='';
 function autosize(el){
   if(!el)return;
@@ -1411,12 +1446,78 @@ function applyTheme(){const r=document.documentElement;if(S.theme==='light'||S.t
 
 /* ===== actions ===== */
 const A={};
+// ===== notifications =====
+let NOTIFS=[],ANN=[],notifTimer=null;
+const NKIND={follow:'nFollow',comment:'nComment',chapter:'nChapter',story:'nChapter'};
+const notifOn=n=>{const k=NKIND[n.kind];return !k||S.prefs[k]!==false;};
+const notifUnread=()=>NOTIFS.filter(n=>!n.read&&notifOn(n)).length+ANN.filter(a=>a.id>(S.annSeen||0)).length;
+function bellBtn(){
+  if(!SESSION)return '';const n=notifUnread();
+  return '<button class="iconbtn bellbtn" data-a="notifs-open" aria-label="Notifications'+(n?' ('+n+' non lue'+(n>1?'s':'')+')':'')+'">'+IX.bell+(n?'<i class="nbadge">'+(n>9?'9+':n)+'</i>':'')+'</button>';
+}
+function updateBadge(){const el=document.querySelector('.bellbtn');if(el)el.outerHTML=bellBtn();}
+const topName=()=>UI.stack.length?UI.stack[UI.stack.length-1].name:'tab:'+UI.tab;
+async function refreshNotifs(){
+  if(!SESSION||SYNC_OFF)return;
+  try{const r=await B.loadNotifications();NOTIFS=r.notifs;ANN=r.announcements;}catch(e){return;}
+  if(topName()==='notifs'&&!UI.sheet)render();else updateBadge();
+}
+function startNotifPoll(){stopNotifPoll();refreshNotifs();notifTimer=setInterval(()=>{if(document.visibilityState==='visible')refreshNotifs();},60000);}
+function stopNotifPoll(){clearInterval(notifTimer);notifTimer=null;NOTIFS=[];ANN=[];}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshNotifs();});
+function ago(ts){
+  const d=(Date.now()-new Date(ts).getTime())/1000;
+  if(d<60)return 'à l’instant';if(d<3600)return 'il y a '+Math.floor(d/60)+' min';if(d<86400)return 'il y a '+Math.floor(d/3600)+' h';
+  if(d<172800)return 'hier';if(d<604800)return 'il y a '+Math.floor(d/86400)+' j';return dateFr(new Date(ts).getTime());
+}
+function nText(n){
+  const a=esc(n.actor_name||'Quelqu’un'),t='« '+esc(n.story_title||'ton histoire')+' »';
+  if(n.kind==='follow')return '<b>'+a+'</b> te suit désormais.';
+  if(n.kind==='comment')return '<b>'+a+'</b> a commenté '+t+(n.body?' : « '+esc(n.body)+' »':'.');
+  if(n.kind==='chapter')return 'Nouveau chapitre de '+t+(n.body?' ('+esc(String(n.body).toLowerCase())+')':'')+', par <b>'+a+'</b>.';
+  if(n.kind==='story')return '<b>'+a+'</b> a publié '+t+'.';
+  if(n.kind==='moderation')return 'Ton histoire '+t+' a été masquée après plusieurs signalements. Elle est en cours de vérification.';
+  if(n.kind==='restored')return 'Ton histoire '+t+' est de nouveau visible.';
+  return '';
+}
+const NICON={follow:'users',comment:'pen',chapter:'sparkles',story:'sparkles',moderation:'flag',restored:'check'};
+function vNotifs(){
+  if(!SESSION)return topBack('Notifications')+'<section class="pad"><p class="empty">Connecte-toi pour suivre tes abonnés, tes commentaires et les nouveaux chapitres.</p><button class="btn block" data-a="login-go">Se connecter</button></section>';
+  const items=NOTIFS.filter(notifOn).map(n=>({t:new Date(n.visible_at).getTime(),n:n})).concat(ANN.map(a=>({t:new Date(a.created_at).getTime(),a:a}))).sort((x,y)=>y.t-x.t);
+  const rows=items.map(it=>it.n
+    ?'<button class="card nitem'+(it.n.read?'':' unread')+'" data-a="notif-go" data-id="'+it.n.id+'">'+tile(NICON[it.n.kind]||'sparkles',null,'lil')+'<span class="ltxt"><span>'+nText(it.n)+'</span><span class="small muted">'+ago(it.n.visible_at)+'</span></span>'+(it.n.read?'':'<i class="udot" aria-label="Non lue"></i>')+'</button>'
+    :'<div class="card nitem'+(it.a.id>(S.annSeen||0)?' unread':'')+'">'+tile('sparkles',null,'amber')+'<span class="ltxt"><b>'+esc(it.a.title)+'</b>'+(it.a.body?'<span>'+esc(it.a.body)+'</span>':'')+'<span class="small muted">Annonce de l’équipe Plume · '+ago(it.a.created_at)+'</span></span></div>').join('');
+  const sw=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+(S.prefs[k]!==false)+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
+  return topBack('Notifications','<button class="link" data-a="notifs-readall" aria-label="Tout marquer comme lu">Tout lire</button>')+'<section class="pad">'+(rows||'<p class="empty">Rien de neuf pour l’instant. Les nouveaux abonnés, commentaires et chapitres apparaîtront ici.</p>')+
+    '<h2 class="h2">Ce que je veux recevoir</h2><div class="card rows">'+sw('nFollow','Nouveaux abonnés','Quand quelqu’un te suit')+sw('nComment','Commentaires','Sur tes histoires')+sw('nChapter','Nouveaux chapitres','Des histoires que tu aimes et des auteurs que tu suis')+'</div></section>';
+}
+A['notifs-open']=()=>{go('notifs');refreshNotifs();if(ANN.length){S.annSeen=Math.max.apply(null,ANN.map(a=>a.id));}};
+A['notifs-readall']=async()=>{const ids=NOTIFS.filter(n=>!n.read).map(n=>n.id);NOTIFS.forEach(n=>{n.read=true;});if(ANN.length)S.annSeen=Math.max.apply(null,ANN.map(a=>a.id));save();render();try{await B.markNotifsRead(ids);}catch(e){console.error(e);}};
+A['notif-go']=d=>{
+  const n=NOTIFS.find(x=>String(x.id)===String(d.id));if(!n)return;
+  if(!n.read){n.read=true;B.markNotifsRead([n.id]);}
+  if(n.kind==='follow'){render();return go('talents');}
+  if(n.kind==='moderation'||n.kind==='restored'){const m=S.manuscripts.find(x=>SESSION&&B.remoteId(x.id,SESSION.user.id)===n.story_id);if(m)return go('publish',{id:m.id});}
+  const st=findStory(n.story_id);if(st)return go('story',{id:st.id,tab:'chapitres'});
+  render();toast('Cette histoire n’est plus disponible.');
+};
+
 A.tab=d=>setTab(d.t);
 A.back=()=>{const t=UI.stack[UI.stack.length-1];if(t&&t.name==='genres'){S.genresAsked=true;UI.gsel=null;save();}UI.stack.pop();UI.reader={sel:null};render();};
 A.genre=d=>{UI.cgenre=d.g;setTab('catalogue');};
 A.cgenre=d=>{UI.cgenre=d.g;render();};
 A.csort=d=>{UI.csort=d.v;render();};
 A.story=d=>{go('story',{id:d.id});refreshCounts();};
+A.stab=d=>{const t=UI.stack[UI.stack.length-1];if(t&&t.name==='story'){t.p.tab=d.t;render();}};
+A.tag=d=>{UI.cq=d.t;UI.cgenre='Tout';setTab('catalogue');};
+A['tags-more']=()=>{UI.tagsAll=true;render();};
+A['syn-more']=()=>{UI.synAll=true;render();};
+A['smenu-open']=d=>openSheet('smenu',{id:d.id});
+A.share=async d=>{
+  const st=findStory(d.id);if(!st)return;const url=location.origin+'/?s='+encodeURIComponent(st.id);
+  try{if(navigator.share){await navigator.share({title:st.titre,text:'« '+st.titre+' » sur Plume',url:url});closeSheet();return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  try{await navigator.clipboard.writeText(url);closeSheet();toast('Lien copié.');}catch(e){closeSheet();toast(url);}
+};
 A.follow=d=>{
   if(!SESSION)return needLogin('Connecte-toi pour suivre un auteur.');
   const i=S.following.indexOf(d.id),on=i<0;
@@ -1514,12 +1615,14 @@ function coverBlob(file){
   });
 }
 A['ms-addch']=()=>{const m=curMs();m.chapitres.push({id:'c'+Date.now(),titre:'Chapitre '+(m.chapitres.length+1),texte:''});m.active=m.chapitres.length-1;save();render();};
+const parseTags=v=>Array.from(new Set(String(v).split(/[,;\n]+/).map(x=>x.trim().toLowerCase().slice(0,24)).filter(x=>x.length>=2))).slice(0,8);
+A['ms-fini']=d=>{const m=getMs(curP().id);if(!m)return;m.fini=d.v==='1';save();render();};
 A['ms-publish']=d=>{
   const m=getMs(d.id);
   if(!m.published){
     if(S.plan==='free'&&S.manuscripts.filter(x=>x.published).length>=1)return openSheet('paywall',{why:'publish'});
     if(wc(m.chapitres.map(c=>c.texte).join(' '))<10)return toast('Écris quelques lignes avant de publier.');
-    m.published=true;let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();toast('Histoire publiée. Elle apparaît dans Découvrir.'+bonus);
+    m.published=true;m.pubAt=Date.now();let bonus='';if(!S.pubXP[m.id]){S.pubXP[m.id]=1;S.xp=(S.xp||0)+100;bonus=' +100 XP';}activity();toast('Histoire publiée. Elle apparaît dans Découvrir.'+bonus);
   }else{m.published=false;toast('Histoire retirée de Découvrir.');}
   save();render();
 };
@@ -1624,7 +1727,7 @@ A['delete-yes']=async()=>{
   const b=$('#del-yes');if(b){b.disabled=true;b.textContent='Suppression…';}
   const th=S.theme;
   try{await B.deleteAccount(SESSION.user.id);}catch(e){if(b){b.disabled=false;b.textContent='Supprimer définitivement';}return toast(e.message);}
-  SESSION=null;BLOCKED=new Map();HIDDEN_MINE=new Set();S=seed();S.theme=th;applyTheme();save();
+  SESSION=null;stopNotifPoll();BLOCKED=new Map();HIDDEN_MINE=new Set();S=seed();S.theme=th;applyTheme();save();
   UI.sheet=null;UI.coach=null;renderSheet();UI.stack=[];UI.tab='decouvrir';render();toast('Ton compte a été supprimé.');
 };
 A['lib-open']=d=>{UI.libTab=d.t||'reading';setTab('biblio');};
@@ -1632,11 +1735,18 @@ A['lib-tab']=d=>{UI.libTab=d.t;render();};
 A['lib-sheet']=d=>openSheet('libadd',{id:d.id});
 A['lib-set']=d=>{if(d.st)S.lib.status[d.id]=d.st;else delete S.lib.status[d.id];save();renderSheet();render();toast(d.st?'Ajoutée à « '+LIBLABEL[d.st]+' ».':'Retirée de ta bibliothèque.');};
 A['list-new']=d=>{
-  const inp=$('#list-name'),nom=inp?inp.value.trim():'';if(!nom)return toast('Donne un nom à ton dossier.');
-  if(S.lib.lists.some(l=>l.nom.toLowerCase()===nom.toLowerCase()))return toast('Tu as déjà un dossier de ce nom.');
-  S.lib.lists.push({id:'l'+Date.now().toString(36),nom:nom,ids:d.id?[d.id]:[]});save();if(UI.sheet)renderSheet();render();toast('Dossier « '+nom+' » créé.');
+  const inp=$('#list-name'),nom=inp?inp.value.trim():'';if(!nom)return toast('Donne un nom à ta liste.');
+  if(S.lib.lists.some(l=>l.nom.toLowerCase()===nom.toLowerCase()))return toast('Tu as déjà une liste de ce nom.');
+  S.lib.lists.push({id:'l'+Date.now().toString(36),nom:nom,ids:d.id?[d.id]:[]});save();if(UI.sheet)renderSheet();render();toast('Liste « '+nom+' » créée.');
 };
 A['list-toggle']=d=>{const l=S.lib.lists.find(x=>x.id===d.l);if(!l)return;const i=l.ids.indexOf(d.id);if(i>=0)l.ids.splice(i,1);else l.ids.push(d.id);save();if(UI.sheet)renderSheet();render();};
+A['list-ren']=d=>{const l=S.lib.lists.find(x=>x.id===d.l);if(l)openSheet('listren',{l:l.id});};
+A['list-ren-go']=d=>{
+  const l=S.lib.lists.find(x=>x.id===d.l),nom=(($('#list-ren-in')||{value:''}).value||'').trim();if(!l)return;
+  if(!nom)return toast('Donne un nom à ta liste.');
+  if(S.lib.lists.some(x=>x.id!==l.id&&x.nom.toLowerCase()===nom.toLowerCase()))return toast('Tu as déjà une liste de ce nom.');
+  l.nom=nom.slice(0,40);save();closeSheet();render();toast('Liste renommée.');
+};
 A['list-del']=d=>{const l=S.lib.lists.find(x=>x.id===d.l);if(l)openSheet('confirm',{kind:'dellist',l:l.id,nom:l.nom});};
 A['stats-open']=d=>{go('stats',{id:d.id});loadAuthorStats(d.id);};
 async function loadAuthorStats(msId){
@@ -1652,10 +1762,10 @@ A['go-account']=()=>go('account');
 A.logout=()=>openSheet('confirm',{kind:'logout'});
 A.reset=()=>openSheet('confirm',{kind:'reset'});
 A['confirm-yes']=d=>{
-  if(d.k==='dellist'){S.lib.lists=S.lib.lists.filter(l=>l.id!==d.l);save();closeSheet();render();toast('Dossier supprimé.');return;}
+  if(d.k==='dellist'){S.lib.lists=S.lib.lists.filter(l=>l.id!==d.l);save();closeSheet();render();toast('Liste supprimée.');return;}
   const th=S.theme;
   if(d.k==='logout'){
-    B.flush().finally(()=>B.signOut());SESSION=null;BLOCKED=new Map();HIDDEN_MINE=new Set();STATS={};
+    B.flush().finally(()=>B.signOut());SESSION=null;stopNotifPoll();BLOCKED=new Map();HIDDEN_MINE=new Set();STATS={};
     S=seed();S.theme=th;
     toast('Tu es déconnecté.');
   }else{S=seed();S.theme=th;if(SESSION){S=freshAccount();S.theme=th;S.user=userObj(SESSION);}toast('Compte remis à zéro.');}
@@ -1668,6 +1778,7 @@ const IN={
  'ms-title':el=>{curMs().titre=el.value;save();},
  'ch-title':el=>{curCh().titre=el.value;save();},
  'ms-genre':el=>{curMs().genre=el.value;save();},
+ 'ms-tags':el=>{curMs().tags=parseTags(el.value);save();},
  'ms-text':el=>{const c=curCh(),b=wc(c.texte);c.texte=el.value;const a=wc(el.value);if(a>b)addWords(Math.min(40,a-b));curMs().upd=Date.now();autosize(el);updateWc();save();},
  'ch-intent':el=>{curCh().intention=el.value.replace(/\n/g,' ');autosize(el);save();},
  'ms-resume':el=>{curMs().resume=el.value;save();},
@@ -1690,7 +1801,10 @@ document.addEventListener('click',e=>{
   const el=t.closest?t.closest('[data-a]'):null;if(!el)return;
   const fn=A[el.dataset.a];if(fn)fn(el.dataset,el,e);
 });
-const onIn=e=>{const k=e.target.dataset&&e.target.dataset.in;if(k&&IN[k])IN[k](e.target);};
+// Un champ de texte a déjà été traité à chaque frappe (événement « input »). On ignore donc « change », qui part à la perte du focus :
+// sinon, en appuyant sur un résultat pendant que le clavier est ouvert, la liste se réaffichait entre l'appui et le relâchement et le tout premier appui était perdu.
+const isTextual=el=>el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&/^(text|search|email|password|tel|url|number|)$/i.test(el.type||''));
+const onIn=e=>{const el=e.target,k=el.dataset&&el.dataset.in;if(!k||!IN[k])return;if(e.type==='change'&&isTextual(el))return;IN[k](el);};
 document.addEventListener('input',onIn);
 document.addEventListener('change',onIn);
 document.addEventListener('keydown',e=>{
@@ -1798,17 +1912,18 @@ async function attach(se){
   HIDDEN_MINE=new Set(REMOTE_STORIES.filter(r=>r.hidden&&r.authorUid===se.user.id).map(r=>r.id));
   applyTheme();rollover();
   if(SYNC_OFF)toast('Ton compte n’a pas pu être chargé. Vérifie ta connexion puis recharge la page.');
-  else{save();if(S.saved.length)B.syncFavorites(se.user.id,S.saved);NOTICE=cleaned?'Ton profil d’écriture a été remis à zéro : il contenait des scores d’exemple.':'';}
+  else{save();if(S.saved.length)B.syncFavorites(se.user.id,S.saved);NOTICE=cleaned?'Ton profil d’écriture a été remis à zéro : il contenait des scores d’exemple.':'';startNotifPoll();}
 }
 let BOOTED=false;
 B.onRecovery(()=>{if(BOOTED)openRecovery();});
 async function boot(){
   const [pub,cms,cnt]=await Promise.all([B.loadPublished(),B.loadComments(),B.loadCounts()]);
   READS=cnt.reads;FOLL=cnt.follows;SLIKES=cnt.likes;FAVS=cnt.favs;lastRC=Date.now();
-  REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,hidden:!!r.hidden,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
+  REMOTE_STORIES=pub.map(r=>{const st=Object.assign({},recolor(r.story),{id:r.id,auteurId:'ext:'+r.author_id,authorUid:r.author_id,hidden:!!r.hidden,maj:r.updated_at||null,mine:false,lectures:0});EXT_AUTHORS[st.auteurId]=r.author_name||'Auteur Plume';return st;});
   cms.forEach(c=>{if(c.hidden)return;(SHARED_CM[c.key]=SHARED_CM[c.key]||[]).push({n:c.author_name||'Lecteur',t:c.body,id:c.id,uid:c.author_id});});
   try{const se=await B.getSession();if(se)await attach(se);}catch(e){console.error(e);}
   render();if(NOTICE&&!SYNC_OFF)toast(NOTICE);
   BOOTED=true;if(B.isRecovering())openRecovery();else maybeAskGenres();
+  try{const sp=new URLSearchParams(location.search).get('s');if(sp){history.replaceState(null,'',location.pathname);const st=findStory(sp);if(st)go('story',{id:st.id});}}catch(e){}
 }
 

@@ -78,7 +78,7 @@ export async function loadPublished() {
   fetchFailed = false;
   if (!sb) return [];
   try {
-    const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story,hidden').order('updated_at', { ascending: false });
+    const { data, error } = await sb.from('plume_published').select('id,author_id,author_name,story,hidden,updated_at').order('updated_at', { ascending: false });
     if (error) { console.error('plume_published', error); fetchFailed = true; return []; }
     return data || [];
   } catch (e) { fetchFailed = true; return []; }

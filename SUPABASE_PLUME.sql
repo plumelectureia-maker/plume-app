@@ -349,10 +349,17 @@ begin
   else
     select count(*) into n_old from jsonb_array_elements(coalesce(old.story->'chapitres', '[]'::jsonb)) c where length((c->'texte')::text) >= 300;
     if n_new > n_old then
-      for f in select follower from public.plume_follows where followee = 'ext:' || new.author_id::text loop
-        delete from public.plume_notifications where user_id = f.follower and kind = 'chapter' and story_id = new.id and not read;
+      -- sont prévenus : les abonnés de l'auteur, ceux qui ont mis l'histoire en favori, l'ont aimée ou ont commencé à la lire
+      for f in
+        select follower as uid from public.plume_follows where followee = 'ext:' || new.author_id::text
+        union select user_id from public.plume_favorites where story_id = new.id
+        union select user_id from public.plume_likes where split_part(key, ':', 1) = new.id
+        union select user_id from public.plume_reads where story_id = new.id
+      loop
+        continue when f.uid = new.author_id;
+        delete from public.plume_notifications where user_id = f.uid and kind = 'chapter' and story_id = new.id and not read;
         insert into public.plume_notifications(user_id, kind, actor_id, actor_name, story_id, story_title, body, visible_at)
-          values (f.follower, 'chapter', new.author_id, new.author_name, new.id, new.story->>'titre', 'Chapitre ' || n_new, vis);
+          values (f.uid, 'chapter', new.author_id, new.author_name, new.id, new.story->>'titre', 'Chapitre ' || n_new, vis);
       end loop;
     end if;
   end if;

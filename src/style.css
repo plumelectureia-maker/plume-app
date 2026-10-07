@@ -755,3 +755,40 @@ header.top+section.pad,header.top+.pad{padding-top:18px}
 .tsum .ltxt{flex:1;min-width:0}
 .spark{flex:none;display:flex;align-items:flex-end;gap:3px;width:44px;height:34px}
 .spark i{flex:1;border-radius:3px 3px 1px 1px;opacity:.9}
+
+/* notifications */
+.bellbtn{position:relative}
+.nbadge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--rouge);color:#fff;font:800 11px/18px 'Inter','Roboto',sans-serif;text-align:center;font-style:normal;box-sizing:border-box}
+.nitem{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;margin-bottom:10px}
+.nitem .ltxt{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.nitem.unread{border-color:var(--bleu);background:var(--bleu-doux)}
+.udot{width:10px;height:10px;border-radius:50%;background:var(--bleu);flex:none;margin-top:7px}
+/* fiche histoire */
+.shero{display:flex;gap:16px;align-items:flex-start;padding-top:6px}
+.shc{flex:0 0 34%;max-width:150px}.shc .cover{width:100%}
+.shi{flex:1;min-width:0;align-self:stretch;display:flex;flex-direction:column;gap:10px}
+.stl{font:800 clamp(22px,6.4vw,28px)/1.15 'Inter','Roboto',sans-serif;color:var(--encre);letter-spacing:-.01em;overflow-wrap:anywhere}
+.sau{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.san{font:600 15px 'Inter','Roboto',sans-serif;color:var(--texte)}
+.chip.sm{min-height:30px;padding:0 12px;font-size:13px}
+.sst{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:auto;color:var(--texte-2)}
+.sst .sline{margin:0}.schap{display:inline-flex;align-items:center;gap:4px;font-size:12.5px}.schap .ic{width:15px;height:15px}.schap b{font:600 13px 'Inter','Roboto',sans-serif;color:var(--texte)}
+.stabs{display:flex;border-bottom:1px solid var(--trait);margin:10px 0 4px;position:sticky;top:58px;z-index:4;background:var(--papier)}
+.stab{flex:1;min-height:48px;font:700 15px 'Inter','Roboto',sans-serif;color:var(--texte-2);border-bottom:3px solid transparent}
+.stab.on{color:var(--encre);border-bottom-color:var(--bleu)}
+.sinfo-l{list-style:none;margin:6px 0 14px;padding:0;display:flex;flex-direction:column;gap:12px}
+.sinfo-l li{display:flex;align-items:center;gap:12px;font:500 15.5px 'Inter','Roboto',sans-serif}.sinfo-l .ic{width:22px;height:22px;color:var(--encre);flex:none}
+.tagrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px}
+.tag{padding:7px 14px;border-radius:999px;background:var(--bleu-doux);color:var(--encre);font:600 13.5px 'Inter','Roboto',sans-serif}
+.synopsis.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.sbar{position:fixed;left:50%;transform:translateX(-50%);bottom:var(--tabh,0px);width:100%;max-width:var(--col);z-index:15;display:flex;gap:12px;align-items:center;padding:12px 16px;background:var(--papier);border-top:1px solid var(--trait)}
+.sbar .btn{flex:1;min-height:52px;border-radius:999px;font-size:16.5px}
+.roundbtn{flex:none;width:52px;height:52px;border-radius:50%;border:2px solid var(--bleu);display:grid;place-items:center;color:var(--bleu);background:transparent}
+.roundbtn .ic{width:24px;height:24px}.roundbtn.on{background:var(--bleu);color:var(--sur-bleu)}
+#view[data-screen="story"]{padding-bottom:150px}
+
+/* classement dans un mot-clé, comme sur Wattpad */
+.rankrow{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;border-top:1px solid var(--trait);border-bottom:1px solid var(--trait);text-align:left}
+.rankrow b{font:800 21px/1 'Inter','Roboto',sans-serif;color:var(--encre)}
+.rankrow .ic:last-child{margin-left:auto;color:var(--texte-2)}
+
+.stab{display:flex;align-items:center;justify-content:center;text-align:center}
