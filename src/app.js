@@ -399,6 +399,7 @@ const bump=(o,k,d)=>{o[k]=Math.max(0,(o[k]||0)+d);};
 IX.more=I('<circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/><circle cx="5" cy="12" r="1.3"/>');
 IX.lib=I('<path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2z"/><path d="M8 3v18"/>');
 IX.flag=I('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>');
+IX.gear=I('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>');
 IX.ban=I('<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>');
 const SI={
   eye:I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
@@ -833,7 +834,7 @@ function vBiblio(){
     body='<div class="cm-row"><input class="cm-in" id="list-name" maxlength="40" placeholder="Nouveau dossier (ex. À lire cet été)" aria-label="Nom du nouveau dossier" data-enter="list-new"><button class="btn sm" data-a="list-new">Créer</button></div>'+
       (S.lib.lists.length?S.lib.lists.map(l=>{const ss=l.ids.map(findStory).filter(Boolean);return '<section class="lst"><div class="row-between"><h3 class="h3">'+esc(l.nom)+' <span class="small muted">('+ss.length+')</span></h3><button class="iconbtn sm" data-a="list-del" data-l="'+l.id+'" aria-label="Supprimer le dossier '+esc(l.nom)+'">'+IX.trash+'</button></div>'+(ss.length?ss.map(x=>libRow(x,l.id)).join(''):'<p class="small muted">Dossier vide. Ajoute des histoires depuis leur fiche.</p>')+'</section>';}).join(''):'<p class="empty">Crée un dossier pour ranger tes histoires comme tu veux : par envie, par thème, par saison.</p>');
   }else body=data[tab].length?data[tab].map(x=>libRow(x)).join(''):'<p class="empty">'+EMPTY[tab]+'</p>';
-  return '<section class="pad dhead"><p class="eyebrow">MA BIBLIOTHÈQUE</p><h1 class="hh">Tes lectures, rangées comme tu veux.</h1><div class="chips" role="tablist" aria-label="Sections de la bibliothèque">'+tabs.map(t=>'<button class="chip'+(tab===t[0]?' on':'')+'" role="tab" aria-selected="'+(tab===t[0])+'" data-a="lib-tab" data-t="'+t[0]+'">'+t[1]+(t[0]==='lists'?(S.lib.lists.length?' '+S.lib.lists.length:''):(data[t[0]].length?' '+data[t[0]].length:''))+'</button>').join('')+'</div><div class="libbody">'+body+'</div></section>';
+  return '<section class="pad dhead"><p class="eyebrow">MA BIBLIOTHÈQUE</p><h1 class="hh">Tes lectures, rangées comme tu veux.</h1><h2 class="h2">Mon espace lecteur</h2><div class="rtiles"><button class="rtile" data-a="following-open">'+IX.users+'<b>'+S.following.length+'</b><span>Auteurs suivis</span></button><button class="rtile" data-a="genres-open">'+IX.compass+'<b>'+(S.genres||[]).length+'</b><span>Genres préférés</span></button>'+(SESSION?'<button class="rtile" data-a="blocked-open">'+IX.ban+'<b>'+BLOCKED.size+'</b><span>Bloqués</span></button>':'')+'</div><div class="chips" role="tablist" aria-label="Sections de la bibliothèque">'+tabs.map(t=>'<button class="chip'+(tab===t[0]?' on':'')+'" role="tab" aria-selected="'+(tab===t[0])+'" data-a="lib-tab" data-t="'+t[0]+'">'+t[1]+(t[0]==='lists'?(S.lib.lists.length?' '+S.lib.lists.length:''):(data[t[0]].length?' '+data[t[0]].length:''))+'</button>').join('')+'</div><div class="libbody">'+body+'</div></section>';
 }
 function homeCont(){
   const reading=libByStatus('reading').filter(x=>libPos(x.id)).sort((a,b)=>libPos(b.id).t-libPos(a.id).t),c=reading[0];if(!c)return '';
@@ -909,7 +910,7 @@ function vEcrire(){
     const w=x.chapitres.reduce((a,c)=>a+wc(c.texte),0);
     return '<button class="ms" data-a="ms-open" data-id="'+x.id+'"><span class="mi"><b>'+esc(x.titre||'Sans titre')+'</b><span class="small muted">'+pl(w,'mot')+', '+pl(x.chapitres.length,'chapitre')+'</span></span><span class="pill'+(x.published?' pub':'')+'">'+(x.published?'Publié':'Brouillon')+'</span></button>';
   }).join('');
-  return '<section class="pad"><div class="row-between top-hero"><div><p class="eyebrow">TON ATELIER</p><h1 class="hh">Écris. Apprends. Recommence.</h1></div><button class="sprintbtn" data-a="sprint-open" aria-label="Sprint d’écriture chronométré">'+IX.hourglass+'</button></div>'+main+offer+
+  return '<section class="pad"><div class="row-between top-hero"><div><p class="eyebrow">TON ATELIER</p><h1 class="hh">Écris. Apprends. Recommence.</h1></div><button class="sprintbtn" data-a="sprint-open" aria-label="Sprint d’écriture chronométré">'+IX.hourglass+'</button></div>'+main+transfSummary()+offer+
   '<h2 class="h2">La boussole de ton histoire</h2><div class="compass">'+bs.map(b=>'<button class="cpi" data-a="boussole-open" data-t="'+b[0]+'"><span class="cpi-i">'+IX[b[1]]+'</span><b>'+b[2]+'</b><span class="small muted">'+b[3]+'</span></button>').join('')+'</div>'+
   homeStats()+'<h2 class="h2">Mes manuscrits</h2><div>'+rows+'</div><div class="btns"><button class="btn block" data-a="ms-new">'+IC.plus+'Nouveau manuscrit</button></div>'+
 '</section>';
@@ -1045,22 +1046,37 @@ function vProfil(){
     const w=m.chapitres.reduce((a,c)=>a+wc(c.texte),0),pct=Math.min(100,Math.round(w/(goal*m.chapitres.length)*100)),r=READS[SESSION?B.remoteId(m.id,SESSION.user.id):m.id]||0;
     return '<button class="card work" data-a="ms-open" data-id="'+m.id+'">'+tile(m.published?'globe':'book',null,m.published?'sage':'lil')+'<span class="ltxt"><b>'+esc(m.titre||'Sans titre')+'</b><span class="small muted">'+pl(m.chapitres.length,'chapitre')+' · '+(m.published?'Publiée':'Brouillon privé')+'</span></span><span class="gchip '+(m.published?'sagec':'')+'">'+(m.published?pl(r,'lecture'):pct+' %')+'</span></button>'+(m.published&&SESSION?'<button class="link wstats" data-a="stats-open" data-id="'+m.id+'">'+IX.users+'Statistiques</button>':'');}).join('');
   const sw=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+!!S.prefs[k]+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
-  return '<header class="phead pad">'+avatar(name,72)+'<div class="pn"><h1 class="hh">'+esc(name)+'</h1><p class="small muted">'+esc(handle)+(u?'':' · Mode découverte')+'</p><span class="gchip amberc lvlp">'+IX.feather+'Niveau '+x.n+' · '+esc(x.nom)+'</span></div>'+(u?'':'<button class="link" data-a="login-go">Se connecter</button>')+'</header>'+
+  return '<header class="phead pad">'+avatar(name,72)+'<div class="pn"><h1 class="hh">'+esc(name)+'</h1><p class="small muted">'+esc(handle)+(u?'':' · Mode découverte')+'</p><span class="gchip amberc lvlp">'+IX.feather+'Niveau '+x.n+' · '+esc(x.nom)+'</span></div><div class="pact"><button class="iconbtn gear" data-a="settings-open" aria-label="Réglages">'+IX.gear+'</button>'+(u?'':'<button class="link" data-a="login-go">Se connecter</button>')+'</div></header>'+
   '<section class="pad">'+(S.bio?'<p class="bio">'+esc(S.bio)+' <button class="link small" data-a="bio-open">Modifier</button></p>':'<button class="bio add" data-a="bio-open">Ajoute une phrase qui te présente.</button>')+
   (u?'<button class="card cta" data-a="go-account">'+tile('user',null,'white')+'<span class="ltxt"><b>Mon espace client</b><span class="small muted">'+esc(u.email)+'</span></span>'+chev+'</button>'
     :'<button class="card cta" data-a="login-go">'+tile('user',null,'white')+'<span class="ltxt"><b>Crée ton espace client</b><span class="small muted">Connecte-toi pour synchroniser ton profil, tes manuscrits et tes abonnements.</span></span>'+chev+'</button>')+
   '<div class="card planc">'+tile('feather',null,'white')+'<span class="ltxt"><b>'+(S.plan==='free'?'Offre gratuite':esc(pl_.nom))+'</b><span class="small muted">'+(S.plan==='free'?pubs.length+'/1 publication · '+S.reads.ids.length+'/3 chapitres cette semaine · '+cr(budgetLeft())+' de coach':cr(budgetLeft())+' de coach ce mois-ci')+'</span></span><button class="link" data-a="plans-open">'+(S.plan==='free'?'Passer à Plume +':'Voir les forfaits')+'</button></div>'+
   '<div class="statsp"><div><b>'+S.manuscripts.length+'</b><span>Histoires</span></div><div><b>'+kfmt(reads)+'</b><span>Lecteurs</span></div><div><b>'+fmt(x.xp)+'</b><span>XP</span></div></div>'+
-  '<h2 class="h2 row-between">Ma transformation <button class="link" data-a="tab" data-t="exercer">Voir les ateliers</button></h2>'+
-  '<div class="card transf"><div class="row-between"><div><span class="eyebrow">DEPUIS 3 MOIS</span><h3 class="th">'+(diag?'Tu n’écris plus comme avant.':'Ta transformation commence ici.')+'</h3></div><span class="gchip sagec">'+pl(diag,'diagnostic')+'</span></div>'+bars+'</div>'+
-  '<div class="card memc">'+IX.brain+'<span class="ltxt"><span class="eyebrow amberE">CE QUE TON COACH A APPRIS</span><b>'+esc(fr(memo?memo.note:'Le coach notera tes habitudes d’écriture après ton premier diagnostic.'))+'</b>'+(diag?'<span class="small muted">Point fort : '+esc(ord[0].nom)+' · Priorité : '+esc(ord[ord.length-1].nom)+'</span>':'')+'</span></div>'+
   '<h2 class="h2 row-between">Mes œuvres '+(S.manuscripts.length?'<button class="link" data-a="publish-last">'+IX.globe+'Publier une histoire</button>':'')+'</h2>'+(works||'<p class="empty">Tes histoires apparaîtront ici dès ton premier manuscrit.</p>')+
-  '<h2 class="h2">Mon espace lecteur</h2><div class="card rows"><button class="rowitem" data-a="lib-open" data-t="reading">'+IX.lib+'<b>Ma bibliothèque</b><span class="cnt">'+(libByStatus('reading').length+libByStatus('toread').length+libByStatus('done').length)+'</span></button><button class="rowitem" data-a="saved-open">'+IC.mark+'<b>Histoires sauvegardées</b><span class="cnt">'+S.saved.length+'</span></button><button class="rowitem" data-a="following-open">'+IX.users+'<b>Auteurs suivis</b><span class="cnt">'+S.following.length+'</span></button><button class="rowitem" data-a="genres-open">'+IX.compass+'<b>Genres préférés</b><span class="cnt gl">'+((S.genres||[]).length?esc(S.genres.join(', ')):'À choisir')+'</span></button>'+(SESSION?'<button class="rowitem" data-a="blocked-open">'+IX.ban+'<b>Utilisateurs bloqués</b><span class="cnt">'+BLOCKED.size+'</span></button>':'')+'</div>'+
-  '<h2 class="h2">Préférences</h2><div class="card rows">'+sw('coach','Conseils du coach','Recevoir des questions pendant l’écriture')+sw('signals','Signaux de lecture','Voir où les lecteurs réagissent ou décrochent')+
+  '</section>';
+}
+
+const swRow=(k,t,d)=>'<div class="rowitem pref"><span class="ltxt"><b>'+t+'</b><span class="small muted">'+d+'</span></span><button class="switch" role="switch" aria-checked="'+!!S.prefs[k]+'" aria-label="'+t+'" data-a="pref" data-k="'+k+'"></button></div>';
+function vSettings(){
+  return topBack('Réglages')+'<section class="pad"><h2 class="h2">Préférences</h2><div class="card rows">'+swRow('coach','Conseils du coach','Recevoir des questions pendant l’écriture')+swRow('signals','Signaux de lecture','Voir où les lecteurs réagissent ou décrochent')+
   '<div class="rowitem col"><b>Objectif de mots par jour</b><div class="seg" role="group" aria-label="Objectif de mots">'+[250,500,750,1000].map(g=>'<button data-a="goal" data-v="'+g+'" aria-pressed="'+(S.prefs.goal===g)+'">'+g+'</button>').join('')+'</div></div>'+
   '<div class="rowitem col"><b>Apparence</b><div class="seg" role="group" aria-label="Thème">'+[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(t=>'<button data-a="theme" data-v="'+t[0]+'" aria-pressed="'+(S.theme===t[0])+'">'+t[1]+'</button>').join('')+'</div></div></div></section>';
 }
-
+function transfHtml(){
+  const diag=S.profile.history.length,memo=S.profile.memory[0],ord=COMPS.slice().sort((a,b)=>S.profile.scores[b.id]-S.profile.scores[a.id]);
+  const bars=COMPS.map(c=>{const sc=S.profile.scores[c.id],dv=sc-S.profile.prev[c.id];
+    return '<button class="trow" data-a="atelier" data-id="'+c.id+'" style="--cx:'+c.c+'">'+tile(c.ic,c.c)+'<span class="tr"><span class="row-between"><b>'+esc(c.nom)+'</b><span class="ascore">'+deltaChip(dv)+(sc?sc:'–')+'</span></span><span class="bar cx" aria-hidden="true"><i style="width:'+sc+'%"></i></span></span></button>';}).join('');
+  return '<div class="card transf"><div class="row-between"><div><span class="eyebrow">DEPUIS 3 MOIS</span><h3 class="th">'+(diag?'Tu n’écris plus comme avant.':'Ta transformation commence ici.')+'</h3></div><span class="gchip sagec">'+pl(diag,'diagnostic')+'</span></div>'+bars+'</div>'+
+  '<div class="card memc">'+IX.brain+'<span class="ltxt"><span class="eyebrow amberE">CE QUE TON COACH A APPRIS</span><b>'+esc(fr(memo?memo.note:'Le coach notera tes habitudes d’écriture après ton premier diagnostic.'))+'</b>'+(diag?'<span class="small muted">Point fort : '+esc(ord[0].nom)+' · Priorité : '+esc(ord[ord.length-1].nom)+'</span>':'')+'</span></div>';
+}
+function vTransf(){
+  return topBack('Ma transformation')+'<section class="pad"><h2 class="h2 row-between">Ma transformation <button class="link" data-a="tab" data-t="exercer">Voir les ateliers</button></h2>'+transfHtml()+'</section>';
+}
+function transfSummary(){
+  const diag=S.profile.history.length,ord=COMPS.slice().sort((a,b)=>S.profile.scores[b.id]-S.profile.scores[a.id]);
+  const spark=COMPS.map(c=>'<i style="height:'+Math.max(14,S.profile.scores[c.id])+'%;background:'+c.c+'"></i>').join('');
+  return '<button class="card tsum" data-a="transf-open"><span class="spark" aria-hidden="true">'+spark+'</span><span class="ltxt"><b>Ma transformation</b><span class="small muted">'+(diag?pl(diag,'diagnostic')+' · Point fort : '+esc(ord[0].nom)+' · Priorité : '+esc(ord[ord.length-1].nom):'Ta transformation commence ici : lance ton premier diagnostic.')+'</span></span>'+chev+'</button>';
+}
 function vStory(p){
   const s=findStory(p.id);if(!s)return topBack('Histoire')+'<p class="empty">Cette histoire n’est plus disponible.</p>';
   const saved=S.saved.includes(s.id),au=authorsAll().find(a=>a.id===s.auteurId),foll=au&&S.following.includes(au.id),cms=cmFor(s.id),pos=libPos(s.id),lst=libStatus(s.id);
@@ -1350,7 +1366,7 @@ function renderSheet(){
 /* ===== rendu principal ===== */
 
 const TABS=[['decouvrir','Découvrir',IX.home],['catalogue','Catalogue',IX.search],['biblio','Ma biblio',IX.lib],['ecrire','Écrire',IX.feather],['exercer','S’exercer',IX.cap],['profil','Profil',IX.user]];
-const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
+const SCREENS={'tab:catalogue':vCatalogue,'tab:biblio':vBiblio,talents:vTalents,settings:vSettings,transf:vTransf,genres:vGenres,stats:vStats,blocked:vBlocked,newpass:vNewPass,saved:vSaved,following:vFollowing,exlib:vExLib,boussole:vBoussole,lesson:vLesson,publish:vPublish,'tab:decouvrir':vDecouvrir,'tab:ecrire':vEcrire,'tab:exercer':vProgression,'tab:profil':vProfil,story:vStory,reader:vReader,editor:vEditor,atelier:vAtelier,exercice:vExercice,account:vAccount,plans:vPlans,login:vLogin};
 let lastKey='';
 function autosize(el){
   if(!el)return;
@@ -1371,8 +1387,12 @@ function render(){
   let html;
   try{html=SCREENS[c.name](c.p);}catch(e){console.error(e);html='<p class="empty">Cet écran n’a pas pu s’afficher.</p>';}
   v.innerHTML=html;v.scrollTop=st;lastKey=key;
-  $('#tabs').hidden=UI.stack.length>0;
-  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',(!UI.stack.length&&b.dataset.t===UI.tab)?'page':'false'));
+  const topName=UI.stack.length?c.name:'';
+  const hideTabs=topName==='reader'||(topName==='editor'&&!!UI.focus);
+  $('#tabs').hidden=hideTabs;
+  document.documentElement.style.setProperty('--tabh',hideTabs?'0px':(($('#tabs').offsetHeight)||58)+'px');
+  v.dataset.screen=topName||('tab:'+UI.tab);
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-current',b.dataset.t===UI.tab?'page':'false'));
   document.querySelectorAll('.ta,.autog').forEach(autosize);
 }
 function go(name,p){UI.stack.push({name:name,p:p||{}});render();}
@@ -1626,6 +1646,8 @@ async function loadAuthorStats(msId){
   STATS[msId]=r;const top=UI.stack[UI.stack.length-1];if(top&&top.name==='stats'&&top.p.id===msId)render();
 }
 A['stats-analyse']=d=>{const m=getMs(d.id),c=m&&m.chapitres[+d.ch];if(!c)return;openCoach({text:c.texte,title:(m.titre||'Sans titre')+', '+c.titre});};
+A['settings-open']=()=>go('settings');
+A['transf-open']=()=>go('transf');
 A['go-account']=()=>go('account');
 A.logout=()=>openSheet('confirm',{kind:'logout'});
 A.reset=()=>openSheet('confirm',{kind:'reset'});

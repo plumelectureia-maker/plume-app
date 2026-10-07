@@ -732,3 +732,26 @@ header.top+section.pad,header.top+.pad{padding-top:18px}
 .ccount{margin:6px 0 10px}
 .cseg{margin:6px 0 14px}
 .quota{margin:2px 2px 0}.quota .link{display:inline;padding:0;font:inherit;font-weight:700}
+
+/* barre d'onglets toujours présente : les barres fixes du bas se posent au-dessus */
+.edbar{bottom:var(--tabh,0px)}
+.atabs{bottom:var(--tabh,0px)}
+.gbar{bottom:var(--tabh,0px)}
+#view[data-screen="editor"]{padding-bottom:170px}
+#view[data-screen="atelier"]{padding-bottom:150px}
+#view[data-screen="genres"]{padding-bottom:12px}
+/* profil : icône Réglages en haut à droite */
+.pact{display:flex;flex-direction:column;align-items:flex-end;gap:6px;align-self:flex-start}
+.gear{width:44px;height:44px;border-radius:14px;background:var(--bleu-doux);color:var(--bleu)}
+.gear .ic{width:22px;height:22px}
+/* Ma biblio : espace lecteur compact */
+.rtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:8px 0 18px}
+.rtile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:16px;background:var(--carte);border:1px solid var(--trait);text-align:left}
+.rtile .ic{width:20px;height:20px;color:var(--bleu);margin-bottom:4px}
+.rtile b{font:800 20px/1 'Inter','Roboto',sans-serif;color:var(--encre)}
+.rtile span{font:600 12px/1.2 'Inter','Roboto',sans-serif;color:var(--texte-2)}
+/* Écrire : résumé cliquable de la transformation */
+.tsum{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;margin:12px 0;text-align:left}
+.tsum .ltxt{flex:1;min-width:0}
+.spark{flex:none;display:flex;align-items:flex-end;gap:3px;width:44px;height:34px}
+.spark i{flex:1;border-radius:3px 3px 1px 1px;opacity:.9}
